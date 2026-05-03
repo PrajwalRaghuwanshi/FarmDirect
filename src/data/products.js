@@ -442,32 +442,7 @@ export const products = [
     ],
     image: '/images/jute_fiber.png',
   },
-  {
-    id: 17,
-    name: 'Fresh Milk',
-    category: 'Dairy',
-    season: 'All-Season',
-    farm_name: 'Amul Cooperative Farms',
-    price: 55,
-    unit: 'litre',
-    stock_level: 100,
-    rating: 4.8,
-    description:
-      'Pure and fresh cow milk collected daily from cooperative dairy farms.',
-    highlights: ['High calcium', 'Fresh daily supply', 'No preservatives'],
-    origin: 'Anand, Gujarat',
-    sellers: [
-      {
-        id: 'seller-amul',
-        name: 'Amul Cooperative Farms',
-        price: 55,
-        stock_level: 100,
-        delivery: 'Morning delivery',
-      },
-    ],
-    image:
-      'https://images.unsplash.com/photo-1585238342024-78d387f4a707?auto=format&fit=crop&w=900&q=80',
-  },
+
   {
     id: 18,
     name: 'Green Peas',

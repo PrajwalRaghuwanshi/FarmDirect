@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package } from 'lucide-react'
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -122,7 +122,7 @@ export default function Header() {
 
                 {/* Mega Menu Dropdown */}
                 {shopMenuOpen && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-[700px] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-[760px] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
                     {/* Arrow */}
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
 
@@ -146,7 +146,7 @@ export default function Header() {
                               className="flex items-center gap-2 mb-3 group/cat"
                             >
                               <Icon size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
-                              <span className="text-sm font-bold text-slate-900 dark:text-white group-hover/cat:text-emerald-600 dark:group-hover/cat:text-emerald-400 transition">
+                              <span className="whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white group-hover/cat:text-emerald-600 dark:group-hover/cat:text-emerald-400 transition">
                                 {cat.heading}
                               </span>
                             </button>
@@ -223,6 +223,17 @@ export default function Header() {
             <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
               {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
             </button>
+            <NavLink 
+              to="/orders" 
+              className={`relative transition flex items-center ${
+                location.pathname === '/orders'
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+              }`}
+              title="Order History"
+            >
+              <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+            </NavLink>
             <NavLink 
               to="/cart" 
               className={`relative transition flex items-center ${

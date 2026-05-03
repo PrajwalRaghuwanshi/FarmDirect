@@ -31,16 +31,7 @@ const farmers = [
     badge: 'Veteran Farmer',
     bio: 'Expert in sugarcane cultivation and produces artisanal organic jaggery sold across the state.',
   },
-  {
-    name: 'Meena Sharma',
-    location: 'Kolhapur, Maharashtra',
-    distance: '8.1 km',
-    specialization: ['Dairy', 'A2 Milk', 'Paneer'],
-    experience: '15 years',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face',
-    badge: 'Premium Quality',
-    bio: 'Runs a small dairy farm with indigenous Gir cows, delivering fresh A2 milk every morning.',
-  },
+
   {
     name: 'Vikram Singh',
     location: 'Ahmednagar, Maharashtra',

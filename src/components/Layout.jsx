@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom'
+import { useCart } from '../context/cart-context'
+import { CheckCircle2 } from 'lucide-react'
 import Footer from './Footer'
 import Header from './Header'
 
 export default function Layout() {
+  const { toast } = useCart()
   return (
     <div className="flex min-h-screen flex-col bg-[#fafafa] text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 relative">
       {/* Global Background Image */}
@@ -28,6 +31,14 @@ export default function Layout() {
         </main>
         <Footer />
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-slate-900/20 animate-in slide-in-from-bottom-5 fade-in dark:bg-emerald-900 dark:text-emerald-50 dark:shadow-emerald-900/20">
+          <CheckCircle2 size={18} className="text-emerald-400" />
+          {toast.message}
+        </div>
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useState,
 } from 'react'
 import { CartContext } from './cart-context'
 
@@ -111,6 +112,7 @@ const initialState = {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState)
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     const storedCart = window.localStorage.getItem(STORAGE_KEY)
@@ -158,8 +160,14 @@ export function CartProvider({ children }) {
       subtotal,
       deliveryFee,
       total,
+      toast,
       addItem(product, quantity = 1) {
         dispatch({ type: 'ADD_ITEM', payload: { product, quantity } })
+        const id = Date.now()
+        setToast({ message: `${product.name} (${quantity}) was added to cart`, id })
+        setTimeout(() => {
+          setToast(current => current?.id === id ? null : current)
+        }, 3000)
       },
       updateQuantity(cartKey, quantity) {
         dispatch({ type: 'UPDATE_QUANTITY', payload: { cartKey, quantity } })
@@ -177,7 +185,7 @@ export function CartProvider({ children }) {
         })
       },
     }
-  }, [state])
+  }, [state, toast])
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }

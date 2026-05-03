@@ -207,10 +207,10 @@ export default function HomePage() {
               >
                 Shop Now
               </Link>
-              <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-bold text-slate-700 backdrop-blur-sm transition hover:bg-white hover:border-slate-300">
+              <Link to="/how-it-works" className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-bold text-slate-700 backdrop-blur-sm transition hover:bg-white hover:border-slate-300">
                 <Play size={16} className="text-emerald-600 fill-emerald-600" />
                 How It Works
-              </button>
+              </Link>
             </div>
           </div>
 

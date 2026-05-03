@@ -4,10 +4,10 @@ export const orders = [
     placedOn: '28 Apr 2026',
     status: 'Out for Delivery',
     eta: 'Today, 6:30 PM',
-    items: ['Fresh Tomatoes', 'Farm Eggs', 'Organic Carrots'],
+    items: ['Fresh Tomatoes', 'Baby Potatoes', 'Organic Carrots'],
     receiptItems: [
       { name: 'Fresh Tomatoes', quantity: 2, price: 48, lineTotal: 96 },
-      { name: 'Farm Eggs', quantity: 1, price: 96, lineTotal: 96 },
+      { name: 'Baby Potatoes', quantity: 1, price: 44, lineTotal: 44 },
       { name: 'Organic Carrots', quantity: 2, price: 54, lineTotal: 108 },
     ],
     customerDetails: {
@@ -18,19 +18,19 @@ export const orders = [
       streetAddress: '17 River View Road',
       postalCode: '411014',
     },
-    subtotal: 252,
+    subtotal: 248,
     deliveryFee: 49,
-    total: 301,
+    total: 297,
   },
   {
     id: 'FM-20312',
     placedOn: '24 Apr 2026',
     status: 'Delivered',
     eta: 'Delivered on 25 Apr 2026',
-    items: ['Alphonso Mangoes', 'Raw Cow Milk'],
+    items: ['Alphonso Mangoes', 'Sweet Watermelon'],
     receiptItems: [
       { name: 'Alphonso Mangoes', quantity: 1, price: 140, lineTotal: 140 },
-      { name: 'Raw Cow Milk', quantity: 1, price: 62, lineTotal: 62 },
+      { name: 'Sweet Watermelon', quantity: 1, price: 25, lineTotal: 25 },
     ],
     customerDetails: {
       fullName: 'Aarav Nair',
@@ -40,9 +40,9 @@ export const orders = [
       streetAddress: '2 Lakefront Avenue',
       postalCode: '560037',
     },
-    subtotal: 202,
+    subtotal: 165,
     deliveryFee: 49,
-    total: 251,
+    total: 214,
   },
   {
     id: 'FM-20188',

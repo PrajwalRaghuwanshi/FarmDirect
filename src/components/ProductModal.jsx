@@ -23,8 +23,9 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
   const selectedSeller =
     product.sellers?.find((seller) => seller.id === selectedSellerId) ?? defaultSeller
-  const liveTotal = (selectedSeller?.price ?? product.price) * quantity
   const maxQuantity = selectedSeller?.stock_level ?? product.stock_level
+  const parsedQuantity = Number(quantity) || 0
+  const liveTotal = (selectedSeller?.price ?? product.price) * parsedQuantity
 
   return (
     <div
@@ -145,19 +146,19 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 Quantity
                 <input
                   type="number"
-                  min="1"
+                  min="0"
+                  max={maxQuantity}
                   value={quantity}
-                  onChange={(event) =>
-                    setQuantity(
-                      Math.max(
-                        1,
-                        Math.min(
-                          Number(event.target.value) || 1,
-                          maxQuantity,
-                        ),
-                      ),
-                    )
-                  }
+                  onChange={(event) => {
+                    const val = event.target.value;
+                    if (val === '') {
+                      setQuantity('');
+                      return;
+                    }
+                    const num = parseInt(val, 10);
+                    if (isNaN(num)) return;
+                    setQuantity(Math.min(num, maxQuantity));
+                  }}
                   className="w-24 rounded-full border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
                 />
               </label>
@@ -168,6 +169,9 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 type="button"
                 onClick={() => {
                   if (!selectedSeller) {
+                    return
+                  }
+                  if (parsedQuantity <= 0) {
                     return
                   }
 
@@ -181,14 +185,14 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                       price: selectedSeller.price,
                       stock_level: selectedSeller.stock_level,
                     },
-                    quantity,
+                    parsedQuantity,
                   )
                   onClose()
                 }}
                 className="rounded-full bg-slate-900 dark:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600"
                 disabled={!selectedSeller}
               >
-                Add {quantity} to Cart
+                Add {parsedQuantity} to Cart
               </button>
             </div>
           </div>
