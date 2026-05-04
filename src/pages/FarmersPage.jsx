@@ -1,4 +1,5 @@
-import { MapPin, Phone, Sprout, Tractor, Award, Leaf } from 'lucide-react'
+import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const farmers = [
   {
@@ -156,15 +157,24 @@ export default function FarmersPage() {
               </div>
 
               {/* Action buttons */}
-              <div className="mt-5 flex gap-2">
-                <button className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]">
+              <div className="mt-5 space-y-2">
+                <button className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]">
                   <Leaf size={14} />
                   View Products
                 </button>
-                <button className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                  <Phone size={14} />
-                  Contact
-                </button>
+                <div className="flex gap-2">
+                  <Link 
+                    to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
+                  >
+                    <Home size={14} />
+                    Farm Profile
+                  </Link>
+                  <button className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    <Phone size={14} />
+                    Contact
+                  </button>
+                </div>
               </div>
             </div>
           </div>

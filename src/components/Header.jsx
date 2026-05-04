@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, MessageCircle, Menu, X } from 'lucide-react'
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -38,6 +38,12 @@ const shopCategories = [
   },
 ]
 
+const mockMessages = [
+  { id: 1, name: 'Farmer Ramesh', message: 'Your order of Alphonso Mangoes is ready!', time: '2m ago', unread: true, avatar: 'https://i.pravatar.cc/100?img=12' },
+  { id: 2, name: 'Green Valley Farm', message: 'We have fresh tomatoes today.', time: '1h ago', unread: false, avatar: 'https://i.pravatar.cc/100?img=15' },
+  { id: 3, name: 'Support', message: 'How can we help you today?', time: '3h ago', unread: false, avatar: 'https://i.pravatar.cc/100?img=3' },
+]
+
 export default function Header() {
   const { itemCount } = useCart()
   const navigate = useNavigate()
@@ -57,7 +63,10 @@ export default function Header() {
     return storedTheme === 'dark' || (!storedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
   })
   const [shopMenuOpen, setShopMenuOpen] = useState(false)
+  const [messagesOpen, setMessagesOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const shopMenuRef = useRef(null)
+  const messagesRef = useRef(null)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -67,6 +76,9 @@ export default function Header() {
     function handleClickOutside(e) {
       if (shopMenuRef.current && !shopMenuRef.current.contains(e.target)) {
         setShopMenuOpen(false)
+      }
+      if (messagesRef.current && !messagesRef.current.contains(e.target)) {
+        setMessagesOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -103,6 +115,14 @@ export default function Header() {
             </p>
           </div>
         </NavLink>
+
+        {/* Mobile Menu Button */}
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+        >
+          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
@@ -232,6 +252,62 @@ export default function Header() {
             >
               <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
             </NavLink>
+            
+            <div className="relative" ref={messagesRef}>
+              <button 
+                onClick={() => setMessagesOpen(!messagesOpen)}
+                className={`relative transition flex items-center ${
+                  messagesOpen
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+                }`}
+                title="Messages"
+              >
+                <MessageCircle size={24} strokeWidth={2} className={messagesOpen ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+                <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                  1
+                </span>
+              </button>
+
+              {messagesOpen && (
+                <div className="absolute right-0 top-full mt-4 w-80 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="bg-emerald-600 p-4 text-white">
+                    <h3 className="font-bold text-base">Messages</h3>
+                    <p className="text-xs text-emerald-100">You have 1 unread message</p>
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto">
+                    {mockMessages.map((msg) => (
+                      <button 
+                        key={msg.id}
+                        className="w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700 last:border-0"
+                      >
+                        <div className="relative flex-shrink-0">
+                          <img src={msg.avatar} alt={msg.name} className="w-10 h-10 rounded-full object-cover" />
+                          {msg.unread && (
+                            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
+                          )}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-bold text-slate-900 dark:text-white">{msg.name}</span>
+                            <span className="text-[10px] text-slate-400">{msg.time}</span>
+                          </div>
+                          <p className={`text-xs line-clamp-2 ${msg.unread ? 'text-slate-900 dark:text-slate-200 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {msg.message}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700">
+                    <button className="w-full py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition">
+                      View All in WhatsApp
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <NavLink 
               to="/cart" 
               className={`relative transition flex items-center ${
@@ -268,6 +344,68 @@ export default function Header() {
         </div>
 
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-[72px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5">
+          <nav className="flex flex-col p-6 gap-4">
+            {navItems.map((item) => (
+              <div key={item.to} className="flex flex-col">
+                <NavLink
+                  to={item.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `text-lg font-bold py-2 transition ${
+                      isActive 
+                        ? 'text-emerald-600 dark:text-emerald-400' 
+                        : 'text-slate-700 dark:text-slate-300'
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+                {item.hasDropdown && (
+                  <div className="pl-4 mt-2 grid grid-cols-2 gap-4">
+                    {shopCategories.map((cat) => (
+                      <button
+                        key={cat.heading}
+                        onClick={() => {
+                          setMobileMenuOpen(false)
+                          goToCategory(cat.category)
+                        }}
+                        className="text-left py-1 text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600"
+                      >
+                        {cat.heading}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-slate-500">Appearance</span>
+                <button onClick={toggleTheme} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                  {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                  <span className="text-sm font-medium">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                </button>
+              </div>
+              
+              {!user && (
+                <NavLink 
+                  to="/signin" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-4 text-white font-bold"
+                >
+                  <User size={20} />
+                  Sign In
+                </NavLink>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

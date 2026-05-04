@@ -3,6 +3,7 @@ import { useCart } from '../context/cart-context'
 import { CheckCircle2 } from 'lucide-react'
 import Footer from './Footer'
 import Header from './Header'
+import WelcomeModal from './WelcomeModal'
 
 export default function Layout() {
   const { toast } = useCart()
@@ -30,6 +31,7 @@ export default function Layout() {
           <Outlet />
         </main>
         <Footer />
+        <WelcomeModal />
       </div>
 
       {/* Toast Notification */}

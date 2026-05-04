@@ -15,6 +15,12 @@ import AccountPage from './pages/AccountPage'
 import HowItWorksPage from './pages/HowItWorks'
 import SeasonsPage from './pages/SeasonsPage'
 import SeasonDetailsPage from './pages/SeasonDetailsPage'
+import FarmProfilePage from './pages/FarmProfilePage'
+import SettingsPage from './pages/SettingsPage'
+import AddressPage from './pages/AddressPage'
+import IDProofPage from './pages/IDProofPage'
+import RecentlyViewedPage from './pages/RecentlyViewedPage'
+import AddAddressPage from './pages/AddAddressPage'
 
 export default function App() {
   return (
@@ -35,6 +41,12 @@ export default function App() {
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/seasons" element={<SeasonsPage />} />
         <Route path="/seasons/:seasonId" element={<SeasonDetailsPage />} />
+        <Route path="/farm-profile/:farmerName" element={<FarmProfilePage />} />
+        <Route path="/profile/settings" element={<SettingsPage />} />
+        <Route path="/profile/address" element={<AddressPage />} />
+        <Route path="/profile/id-proof" element={<IDProofPage />} />
+        <Route path="/profile/recently-viewed" element={<RecentlyViewedPage />} />
+        <Route path="/profile/address/add" element={<AddAddressPage />} />
       </Route>
     </Routes>
   )
