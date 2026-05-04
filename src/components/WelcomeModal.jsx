@@ -48,12 +48,37 @@ export default function WelcomeModal() {
     }, 1500)
   }
 
+  const handleOtpPaste = (e) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    if (pasted) {
+      const nextOtp = [...otp]
+      pasted.split('').forEach((char, i) => {
+        if (i < 6) nextOtp[i] = char
+      })
+      setOtp(nextOtp)
+    }
+  }
+
+  const handleOtpChange = (i, val) => {
+    if (!/^\d*$/.test(val)) return
+    const nextOtp = [...otp]
+    nextOtp[i] = val.slice(-1)
+    setOtp(nextOtp)
+    
+    // Auto-focus next input
+    if (val && i < 5) {
+      const nextInput = document.getElementById(`otp-${i + 1}`)
+      nextInput?.focus()
+    }
+  }
+
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-500" onClick={handleClose} />
+      {/* Backdrop - Click to close disabled */}
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-500" />
       
       {/* Modal Content */}
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
@@ -136,12 +161,15 @@ export default function WelcomeModal() {
             </form>
           ) : (
             <form onSubmit={handleVerify} className="space-y-8">
-              <div className="flex justify-between gap-2">
-                {otp.map((_, i) => (
+              <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                {otp.map((digit, i) => (
                   <input 
                     key={i}
+                    id={`otp-${i}`}
                     type="text"
                     maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(i, e.target.value)}
                     className="w-12 h-14 text-center text-xl font-bold rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all"
                   />
                 ))}
