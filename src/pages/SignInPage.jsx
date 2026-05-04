@@ -33,10 +33,15 @@ export default function SignInPage() {
   /* ───── validation ───── */
   function validate() {
     const e = {}
-    if (!name.trim()) e.name = 'Name is required'
+    if (!name.trim()) {
+      e.name = 'Name is required'
+    } else if (!/^[a-zA-Z]/.test(name.trim())) {
+      e.name = 'Name must start with a character'
+    }
+    
     if (!mobile.trim()) {
       e.mobile = 'Mobile number is required'
-    } else if (!/^[6-9]\d{9}$/.test(mobile.trim())) {
+    } else if (!/^\d{10}$/.test(mobile.trim())) {
       e.mobile = 'Enter a valid 10-digit mobile number'
     }
     setErrors(e)
@@ -193,8 +198,8 @@ export default function SignInPage() {
                     }}
                     placeholder="Enter your full name"
                     className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.name
-                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
-                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
+                      ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
+                      : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
                       }`}
                   />
                 </div>
@@ -232,8 +237,8 @@ export default function SignInPage() {
                     }}
                     placeholder="98765 43210"
                     className={`w-full rounded-2xl border bg-white py-3.5 pl-[5.5rem] pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.mobile
-                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
-                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
+                      ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
+                      : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
                       }`}
                   />
                 </div>
@@ -294,8 +299,8 @@ export default function SignInPage() {
                     onChange={(e) => handleOtpChange(i, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
                     className={`h-14 w-12 rounded-xl border-2 bg-white text-center text-xl font-bold text-slate-900 outline-none transition-all dark:bg-slate-700/60 dark:text-white ${digit
-                        ? 'border-emerald-500 shadow-sm shadow-emerald-500/15 dark:border-emerald-500'
-                        : 'border-slate-200 dark:border-slate-600'
+                      ? 'border-emerald-500 shadow-sm shadow-emerald-500/15 dark:border-emerald-500'
+                      : 'border-slate-200 dark:border-slate-600'
                       } focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20`}
                     autoFocus={i === 0}
                   />

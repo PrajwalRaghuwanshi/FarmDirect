@@ -4,28 +4,116 @@ import { MapPin, Calendar, Sprout, Droplets, Sun, Wind, ChevronLeft, ArrowRight,
 export default function FarmProfilePage() {
   const { farmerName } = useParams()
   
-  // Dummy data for the farm
-  const farmData = {
-    name: `${farmerName || 'Green'} Valley Farm`,
-    owner: farmerName || 'Rajesh Kumar',
-    location: 'Nashik, Maharashtra',
-    founded: '1985',
-    area: '15 Acres',
-    yield: '450 Tons/Year',
-    soil: 'Rich Black Regur Soil',
-    waterSource: 'Borewell & Rainwater Harvesting',
-    techniques: ['Drip Irrigation', 'Organic Mulching', 'Natural Pest Control'],
-    starProducts: [
-      { name: 'Alphonso Mangoes', season: 'Summer', rating: 4.9, image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80' },
-      { name: 'Organic Tomatoes', season: 'Winter', rating: 4.8, image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=80' },
-      { name: 'Fresh Spinach', season: 'Monsoon', rating: 4.7, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80' }
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80'
-    ]
+  // Data map for specific farmers
+  const farmersData = {
+    'Rajesh Kumar': {
+      name: 'Rajesh\'s Green Valley',
+      owner: 'Rajesh Kumar',
+      location: 'Nashik, Maharashtra',
+      founded: '1985',
+      area: '15 Acres',
+      yield: '450 Tons/Year',
+      soil: 'Rich Black Regur Soil',
+      waterSource: 'Borewell & Rainwater Harvesting',
+      techniques: ['Drip Irrigation', 'Organic Mulching', 'Natural Pest Control'],
+      starProducts: [
+        { name: 'Organic Tomatoes', season: 'Winter', rating: 4.9, image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Fresh Spinach', season: 'Monsoon', rating: 4.8, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Baby Potatoes', season: 'Winter', rating: 4.7, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80' }
+      ],
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80'
+      ]
+    },
+    'Anita Devi': {
+      name: 'Anita\'s Orchard',
+      owner: 'Anita Devi',
+      location: 'Pune, Maharashtra',
+      founded: '1998',
+      area: '12 Acres',
+      yield: '320 Tons/Year',
+      soil: 'Laterite Soil',
+      waterSource: 'Natural Springs',
+      techniques: ['Hand Picking', 'Solar Drying', 'Bio-Composting'],
+      starProducts: [
+        { name: 'Alphonso Mangoes', season: 'Summer', rating: 4.9, image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Fresh Guava', season: 'Winter', rating: 4.8, image: 'https://images.unsplash.com/photo-1536592248574-d4f136195744?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Organic Pomegranates', season: 'Monsoon', rating: 4.7, image: 'https://images.unsplash.com/photo-1615485247780-3d7f00366601?auto=format&fit=crop&w=300&q=80' }
+      ],
+      images: [
+        'https://images.unsplash.com/photo-1444858291040-58f756a3bbb6?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1592398433282-3e284090b84c?auto=format&fit=crop&w=800&q=80'
+      ]
+    },
+    'Suresh Patil': {
+      name: 'Patil Jaggery Works',
+      owner: 'Suresh Patil',
+      location: 'Sangli, Maharashtra',
+      founded: '1975',
+      area: '25 Acres',
+      yield: '800 Tons/Year',
+      soil: 'Loamy Alluvial Soil',
+      waterSource: 'River Lift Irrigation',
+      techniques: ['Steam Boiling', 'Traditional Sugarcane Crushing', 'Chemical-Free Clarification'],
+      starProducts: [
+        { name: 'Organic Jaggery', season: 'Winter', rating: 4.9, image: 'https://images.unsplash.com/photo-1620313010536-1e663a826477?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Sugarcane Juice', season: 'Summer', rating: 4.8, image: 'https://images.unsplash.com/photo-1594911775720-6d4b97f093a2?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Commercial Sugarcane', season: 'All-Year', rating: 4.7, image: 'https://images.unsplash.com/photo-1543320485-d0d5a49c2b2e?auto=format&fit=crop&w=300&q=80' }
+      ],
+      images: [
+        'https://images.unsplash.com/photo-1543320485-d0d5a49c2b2e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1563514223384-26618456201e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1563514223348-26618456201e?auto=format&fit=crop&w=800&q=80'
+      ]
+    },
+    'Vikram Singh': {
+      name: 'Singh Millet Farms',
+      owner: 'Vikram Singh',
+      location: 'Ahmednagar, Maharashtra',
+      founded: '1992',
+      area: '30 Acres',
+      yield: '600 Tons/Year',
+      soil: 'Sandy Clay Loam',
+      waterSource: 'Dryland Farming & Canals',
+      techniques: ['Crop Rotation', 'Zero Budget Natural Farming', 'Seed Saving'],
+      starProducts: [
+        { name: 'Basmati Rice', season: 'Monsoon', rating: 5.0, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Pearl Millet (Bajra)', season: 'Summer', rating: 4.8, image: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Finger Millet (Ragi)', season: 'Winter', rating: 4.9, image: 'https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?auto=format&fit=crop&w=300&q=80' }
+      ],
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?auto=format&fit=crop&w=800&q=80'
+      ]
+    },
+    'Lakshmi Bai': {
+      name: 'Bai Fiber Estates',
+      owner: 'Lakshmi Bai',
+      location: 'Satara, Maharashtra',
+      founded: '2005',
+      area: '20 Acres',
+      yield: '200 Tons/Year',
+      soil: 'Red Lateritic Soil',
+      waterSource: 'Drip Irrigation',
+      techniques: ['Precision Farming', 'Natural Pest Control', 'Sustainable Harvesting'],
+      starProducts: [
+        { name: 'Organic Cotton', season: 'Winter', rating: 4.9, image: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Natural Jute', season: 'Monsoon', rating: 4.8, image: 'https://images.unsplash.com/photo-1544473486-06834927230b?auto=format&fit=crop&w=300&q=80' },
+        { name: 'Hemp Fiber', season: 'Summer', rating: 4.7, image: 'https://images.unsplash.com/photo-1534067783941-51c9c23eccfd?auto=format&fit=crop&w=300&q=80' }
+      ],
+      images: [
+        'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1544473486-06834927230b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1563514223348-26618456201e?auto=format&fit=crop&w=800&q=80'
+      ]
+    }
   }
+
+  const farmData = farmersData[decodeURIComponent(farmerName)] || farmersData['Rajesh Kumar']
 
   return (
     <div className="bg-[#fafafa] dark:bg-slate-950 min-h-screen transition-colors">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { UserRound, Phone, Mail, Package, Settings, MapPin, FileText, History, LogOut, ChevronRight, Edit2 } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 const heroImages = [
   { src: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=1200&q=80', position: 'object-right-top' },
@@ -12,7 +13,7 @@ const heroImages = [
 export default function AccountPage() {
   const navigate = useNavigate()
   const { username } = useParams()
-  const [user, setUser] = useState(null)
+  const { user, logout } = useUser()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
@@ -23,25 +24,21 @@ export default function AccountPage() {
   }, [])
 
   useEffect(() => {
-    const stored = window.localStorage.getItem('farmdirect-user')
-    if (stored) {
-      setUser(JSON.parse(stored))
-    } else {
+    if (!user) {
       navigate('/signin')
     }
-  }, [navigate])
+  }, [user, navigate])
 
   if (!user) return null
 
   function handleLogout() {
-    window.localStorage.removeItem('farmdirect-user')
+    logout()
     navigate('/')
   }
 
   const menuItems = [
     { icon: Package, title: 'Your Orders', desc: 'Track, return, or buy things again', path: '/orders' },
     { icon: Settings, title: 'Account Settings', desc: 'Edit password, email, and preferences', path: '/profile/settings' },
-    { icon: MapPin, title: 'Your Address', desc: 'Edit addresses for orders and gifts', path: '/profile/address' },
     { icon: FileText, title: 'Photo ID Proof', desc: 'Manage your verified documents', path: '/profile/id-proof' },
     { icon: History, title: 'Recently Viewed', desc: 'Check what you were looking at', path: '/profile/recently-viewed' },
   ]
@@ -55,9 +52,8 @@ export default function AccountPage() {
             key={image.src}
             src={image.src}
             alt={`Farm landscape ${index + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover ${image.position} transition-opacity duration-1000 ease-in-out ${
-              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 w-full h-full object-cover ${image.position} transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
           />
         ))}
         {/* Overlay to make text readable */}
@@ -98,24 +94,62 @@ export default function AccountPage() {
               </div>
 
               <div className="pt-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
-                    <Phone size={16} />
+                <div className="flex items-center justify-between group/row">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
+                      <Phone size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mobile Number</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">+91 {user.mobile}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mobile Number</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">+91 {user.mobile}</p>
-                  </div>
+                  <button className="p-1.5 rounded-md text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all opacity-0 group-hover/row:opacity-100">
+                    <Edit2 size={12} />
+                  </button>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
-                    <Mail size={16} />
+                <div className="flex items-center justify-between group/row">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
+                      <Mail size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Address</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || 'Not added yet'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Address</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || 'Not added yet'}</p>
+                  <button className="p-1.5 rounded-md text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all opacity-0 group-hover/row:opacity-100">
+                    <Edit2 size={12} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between group/row">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
+                      <MapPin size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Address</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">
+                        {(() => {
+                          const saved = localStorage.getItem('farmdirect-addresses')
+                          if (saved) {
+                            const addresses = JSON.parse(saved)
+                            const def = addresses.find(a => a.isDefault) || addresses[0]
+                            return def ? `${def.address}, ${def.city}` : 'No address added'
+                          }
+                          return 'No address added'
+                        })()}
+                      </p>
+                    </div>
                   </div>
+                  <button 
+                    onClick={() => navigate('/profile/address')}
+                    className="p-1.5 rounded-md text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all opacity-0 group-hover/row:opacity-100"
+                  >
+                    <Edit2 size={12} />
+                  </button>
                 </div>
               </div>
             </div>

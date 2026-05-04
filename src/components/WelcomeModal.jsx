@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 export default function WelcomeModal() {
   const navigate = useNavigate()
+  const { user: globalUser, login } = useUser()
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP
   const [name, setName] = useState('')
   const [mobile, setMobile] = useState('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
 
   useEffect(() => {
-    const isSigned = localStorage.getItem('farmdirect-user')
     const hasSeenWelcome = sessionStorage.getItem('farmdirect-seen-welcome')
     
-    if (!isSigned && !hasSeenWelcome) {
+    if (!globalUser && !hasSeenWelcome) {
       // Show modal after a short delay
       const timer = setTimeout(() => setIsOpen(true), 1500)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [globalUser])
 
   const handleClose = () => {
     setIsOpen(false)
@@ -29,6 +31,20 @@ export default function WelcomeModal() {
 
   const handleSignIn = (e) => {
     e.preventDefault()
+    setError('')
+    
+    // Validation: Name must start with a character
+    if (!/^[a-zA-Z]/.test(name)) {
+      setError('Name must start with a character')
+      return
+    }
+
+    // Validation: Mobile must be 10 digits
+    if (!/^\d{10}$/.test(mobile)) {
+      setError('Mobile number must be exactly 10 digits')
+      return
+    }
+
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
@@ -38,10 +54,18 @@ export default function WelcomeModal() {
 
   const handleVerify = (e) => {
     e.preventDefault()
+    setError('')
+
+    // Validation: OTP must be 6 digits
+    if (otp.some(digit => digit === '')) {
+      setError('Please enter all 6 digits of the OTP')
+      return
+    }
+
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
-      localStorage.setItem('farmdirect-user', JSON.stringify({ name, mobile }))
+      login({ name, mobile })
       sessionStorage.setItem('farmdirect-seen-welcome', 'true')
       setIsOpen(false)
       navigate('/')
@@ -65,7 +89,7 @@ export default function WelcomeModal() {
     const nextOtp = [...otp]
     nextOtp[i] = val.slice(-1)
     setOtp(nextOtp)
-    
+
     // Auto-focus next input
     if (val && i < 5) {
       const nextInput = document.getElementById(`otp-${i + 1}`)
@@ -79,10 +103,10 @@ export default function WelcomeModal() {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop - Click to close disabled */}
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-500" />
-      
+
       {/* Modal Content */}
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
-        <button 
+        <button
           onClick={handleClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-400"
         >
@@ -98,8 +122,8 @@ export default function WelcomeModal() {
               {step === 1 ? 'Welcome to FarmDirect' : 'Verify Identity'}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {step === 1 
-                ? 'Join our community for fresh harvests.' 
+              {step === 1
+                ? 'Join our community for fresh harvests.'
                 : 'Enter the 6-digit code sent to your mobile.'}
             </p>
           </div>
@@ -110,35 +134,37 @@ export default function WelcomeModal() {
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Full Name</label>
                 <div className="relative">
                   <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                   />
                 </div>
+                {error && error.includes('Name') && <p className="text-xs text-rose-500 mt-1 pl-1 font-medium">{error}</p>}
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input 
+                  <input
                     required
-                    type="tel" 
+                    type="tel"
                     maxLength={10}
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     placeholder="98765 43210"
-                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                   />
                 </div>
+                {error && error.includes('Mobile') && <p className="text-xs text-rose-500 mt-1 pl-1 font-medium">{error}</p>}
               </div>
 
               <div className="flex flex-col gap-3 pt-2">
-                <button 
+                <button
                   disabled={loading}
                   type="submit"
                   className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm"
@@ -150,7 +176,7 @@ export default function WelcomeModal() {
                     </>
                   )}
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={handleClose}
                   className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
@@ -163,7 +189,7 @@ export default function WelcomeModal() {
             <form onSubmit={handleVerify} className="space-y-8">
               <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
                 {otp.map((digit, i) => (
-                  <input 
+                  <input
                     key={i}
                     id={`otp-${i}`}
                     type="text"
@@ -174,9 +200,10 @@ export default function WelcomeModal() {
                   />
                 ))}
               </div>
+              {error && <p className="text-center text-xs font-medium text-rose-500 mt-2">{error}</p>}
 
               <div className="flex flex-col gap-4">
-                <button 
+                <button
                   disabled={loading}
                   type="submit"
                   className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2"

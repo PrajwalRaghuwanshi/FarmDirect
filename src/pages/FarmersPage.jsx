@@ -1,5 +1,7 @@
-import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home } from 'lucide-react'
+import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home, Bell } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useCart } from '../context/cart-context'
 
 const farmers = [
   {
@@ -65,6 +67,23 @@ const badgeColors = {
 }
 
 export default function FarmersPage() {
+  const { showToast } = useCart()
+  const [followedFarmers, setFollowedFarmers] = useState(new Set())
+
+  const toggleFollow = (farmerName) => {
+    setFollowedFarmers((prev) => {
+      const next = new Set(prev)
+      if (next.has(farmerName)) {
+        next.delete(farmerName)
+        showToast(`You unfollowed ${farmerName}`)
+      } else {
+        next.add(farmerName)
+        showToast(`You are now following ${farmerName}. You'll receive updates from their farm!`)
+      }
+      return next
+    })
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Page Header */}
@@ -110,9 +129,26 @@ export default function FarmersPage() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    {farmer.name}
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      {farmer.name}
+                    </h3>
+                    <button
+                      onClick={() => toggleFollow(farmer.name)}
+                      className={`p-1.5 rounded-full transition-all duration-300 ${
+                        followedFarmers.has(farmer.name)
+                          ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400 ring-2 ring-emerald-500/20'
+                          : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300'
+                      }`}
+                      title={followedFarmers.has(farmer.name) ? 'Unfollow' : 'Follow'}
+                    >
+                      <Bell 
+                        size={16} 
+                        className={followedFarmers.has(farmer.name) ? 'fill-current' : ''} 
+                        strokeWidth={2.5}
+                      />
+                    </button>
+                  </div>
                   <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                     <MapPin size={12} />
                     {farmer.location}

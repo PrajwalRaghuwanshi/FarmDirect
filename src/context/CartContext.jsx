@@ -161,6 +161,13 @@ export function CartProvider({ children }) {
       deliveryFee,
       total,
       toast,
+      showToast(message) {
+        const id = Date.now()
+        setToast({ message, id })
+        setTimeout(() => {
+          setToast(current => current?.id === id ? null : current)
+        }, 3000)
+      },
       addItem(product, quantity = 1) {
         dispatch({ type: 'ADD_ITEM', payload: { product, quantity } })
         const id = Date.now()

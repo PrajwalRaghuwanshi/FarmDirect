@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, MessageCircle, Menu, X } from 'lucide-react'
+import { useUser } from '../context/UserContext'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X } from 'lucide-react'
 
 const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Store', to: '/products', hasDropdown: true },
+  { label: "Season's Best", to: '/seasons' },
   { label: 'Farmers', to: '/farmers' },
   { label: 'How It Works', to: '/how-it-works' },
-  { label: "Season's Best", to: '/seasons' },
 ]
 
 const shopCategories = [
@@ -38,7 +39,7 @@ const shopCategories = [
   },
 ]
 
-const mockMessages = [
+const INITIAL_NOTIFICATIONS = [
   { id: 1, name: 'Farmer Ramesh', message: 'Your order of Alphonso Mangoes is ready!', time: '2m ago', unread: true, avatar: 'https://i.pravatar.cc/100?img=12' },
   { id: 2, name: 'Green Valley Farm', message: 'We have fresh tomatoes today.', time: '1h ago', unread: false, avatar: 'https://i.pravatar.cc/100?img=15' },
   { id: 3, name: 'Support', message: 'How can we help you today?', time: '3h ago', unread: false, avatar: 'https://i.pravatar.cc/100?img=3' },
@@ -46,16 +47,9 @@ const mockMessages = [
 
 export default function Header() {
   const { itemCount } = useCart()
+  const { user, logout } = useUser()
   const navigate = useNavigate()
   const location = useLocation()
-  const [user, setUser] = useState(null)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('farmdirect-user')
-      setUser(stored ? JSON.parse(stored) : null)
-    }
-  }, [location.pathname])
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -65,8 +59,15 @@ export default function Header() {
   const [shopMenuOpen, setShopMenuOpen] = useState(false)
   const [messagesOpen, setMessagesOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS)
   const shopMenuRef = useRef(null)
   const messagesRef = useRef(null)
+
+  const unreadCount = notifications.filter(n => n.unread).length
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -117,7 +118,7 @@ export default function Header() {
         </NavLink>
 
         {/* Mobile Menu Button */}
-        <button 
+        <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
         >
@@ -133,8 +134,8 @@ export default function Header() {
                   type="button"
                   onClick={() => setShopMenuOpen((prev) => !prev)}
                   className={`flex items-center gap-1 pb-1 transition border-b-2 ${shopMenuOpen
-                      ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                      : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
+                    ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                    : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
                     }`}
                 >
                   {item.label}
@@ -197,12 +198,9 @@ export default function Header() {
                     </div>
 
                     {/* Bottom bar */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
                       <button onClick={() => { setShopMenuOpen(false); navigate('/products'); }} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
                         🛒 All Items
-                      </button>
-                      <button onClick={() => goToCategory('Commercial Crops')} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                        🏭 Commercial Crops
                       </button>
                     </div>
                   </div>
@@ -241,63 +239,83 @@ export default function Header() {
             <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
               {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
             </button>
-            <NavLink 
-              to="/orders" 
-              className={`relative transition flex items-center ${
-                location.pathname === '/orders'
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
-              }`}
+            <NavLink
+              to="/orders"
+              className={`relative transition flex items-center ${location.pathname === '/orders'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+                }`}
               title="Order History"
             >
               <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
             </NavLink>
-            
+
             <div className="relative" ref={messagesRef}>
-              <button 
+              <button
                 onClick={() => setMessagesOpen(!messagesOpen)}
-                className={`relative transition flex items-center ${
-                  messagesOpen
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
-                }`}
-                title="Messages"
+                className={`relative transition flex items-center ${messagesOpen
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+                  }`}
+                title="Notifications"
               >
-                <MessageCircle size={24} strokeWidth={2} className={messagesOpen ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
-                <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                  1
-                </span>
+                <Bell size={24} strokeWidth={2} className={messagesOpen ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
 
               {messagesOpen && (
                 <div className="absolute right-0 top-full mt-4 w-80 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="bg-emerald-600 p-4 text-white">
-                    <h3 className="font-bold text-base">Messages</h3>
-                    <p className="text-xs text-emerald-100">You have 1 unread message</p>
+                    <h3 className="font-bold text-base">Notifications</h3>
+                    <p className="text-xs text-emerald-100">You have {unreadCount} new {unreadCount === 1 ? 'notification' : 'notifications'}</p>
                   </div>
                   <div className="max-h-[350px] overflow-y-auto">
-                    {mockMessages.map((msg) => (
-                      <button 
-                        key={msg.id}
-                        className="w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700 last:border-0"
-                      >
-                        <div className="relative flex-shrink-0">
-                          <img src={msg.avatar} alt={msg.name} className="w-10 h-10 rounded-full object-cover" />
-                          {msg.unread && (
-                            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
-                          )}
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-bold text-slate-900 dark:text-white">{msg.name}</span>
-                            <span className="text-[10px] text-slate-400">{msg.time}</span>
+                    {notifications.length > 0 ? (
+                      notifications.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className="group/msg relative w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700 last:border-0"
+                        >
+                          <div className="relative flex-shrink-0">
+                            <img src={msg.avatar} alt={msg.name} className="w-10 h-10 rounded-full object-cover" />
+                            {msg.unread && (
+                              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
+                            )}
                           </div>
-                          <p className={`text-xs line-clamp-2 ${msg.unread ? 'text-slate-900 dark:text-slate-200 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {msg.message}
-                          </p>
+                          <div className="flex-1 text-left min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-bold text-slate-900 dark:text-white truncate pr-4">{msg.name}</span>
+                              <span className="text-[10px] text-slate-400 whitespace-nowrap">{msg.time}</span>
+                            </div>
+                            <p className={`text-xs line-clamp-2 ${msg.unread ? 'text-slate-900 dark:text-slate-200 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                              {msg.message}
+                            </p>
+                          </div>
+
+                          {/* Remove button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeNotification(msg.id);
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 opacity-0 group-hover/msg:opacity-100 transition-all duration-200"
+                            title="Remove notification"
+                          >
+                            <X size={12} strokeWidth={2.5} />
+                          </button>
                         </div>
-                      </button>
-                    ))}
+                      ))
+                    ) : (
+                      <div className="p-8 text-center">
+                        <Bell className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3 opacity-20" />
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">All caught up!</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">No new notifications at the moment.</p>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700">
                     <button className="w-full py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition">
@@ -308,13 +326,12 @@ export default function Header() {
               )}
             </div>
 
-            <NavLink 
-              to="/cart" 
-              className={`relative transition flex items-center ${
-                location.pathname === '/cart'
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
-              }`}
+            <NavLink
+              to="/cart"
+              className={`relative transition flex items-center ${location.pathname === '/cart'
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+                }`}
             >
               <ShoppingCart size={24} strokeWidth={2} className={location.pathname === '/cart' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
               {itemCount > 0 && (
@@ -325,8 +342,8 @@ export default function Header() {
             </NavLink>
 
             {user ? (
-              <button 
-                onClick={() => navigate(`/Account/${user?.name?.replace(/\\s+/g, '') || 'User'}`)}
+              <button
+                onClick={() => navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'User'}`)}
                 className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
@@ -355,10 +372,9 @@ export default function Header() {
                   to={item.to}
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `text-lg font-bold py-2 transition ${
-                      isActive 
-                        ? 'text-emerald-600 dark:text-emerald-400' 
-                        : 'text-slate-700 dark:text-slate-300'
+                    `text-lg font-bold py-2 transition ${isActive
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-slate-700 dark:text-slate-300'
                     }`
                   }
                 >
@@ -382,7 +398,7 @@ export default function Header() {
                 )}
               </div>
             ))}
-            
+
             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-slate-500">Appearance</span>
@@ -391,10 +407,10 @@ export default function Header() {
                   <span className="text-sm font-medium">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
               </div>
-              
+
               {!user && (
-                <NavLink 
-                  to="/signin" 
+                <NavLink
+                  to="/signin"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-4 text-white font-bold"
                 >
