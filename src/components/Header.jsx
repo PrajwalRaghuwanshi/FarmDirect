@@ -5,9 +5,10 @@ import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot
 
 const navItems = [
   { label: 'Home', to: '/' },
-  { label: 'Shop', to: '/products', hasDropdown: true },
+  { label: 'Store', to: '/products', hasDropdown: true },
   { label: 'Farmers', to: '/farmers' },
   { label: 'How It Works', to: '/how-it-works' },
+  { label: "Season's Best", to: '/seasons' },
 ]
 
 const shopCategories = [
@@ -127,7 +128,7 @@ export default function Header() {
                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
 
                     <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white">Shop by Category</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white">Store by Category</h3>
                       <button
                         onClick={() => { setShopMenuOpen(false); navigate('/products'); }}
                         className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
@@ -182,9 +183,6 @@ export default function Header() {
                       </button>
                       <button onClick={() => goToCategory('Commercial Crops')} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
                         🏭 Commercial Crops
-                      </button>
-                      <button onClick={() => { setShopMenuOpen(false); navigate('/seasons'); }} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                        ⭐ Season's Best
                       </button>
                     </div>
                   </div>
