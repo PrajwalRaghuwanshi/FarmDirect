@@ -13,7 +13,6 @@ export default function AddressPage() {
   })
 
   useEffect(() => {
-    window.scrollTo(0, 0)
     localStorage.setItem('farmdirect-addresses', JSON.stringify(addresses))
   }, [addresses])
 

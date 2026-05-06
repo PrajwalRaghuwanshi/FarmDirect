@@ -100,7 +100,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 shadow-sm transition-colors">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
 
         {/* Logo Area */}
         <NavLink to="/" className="flex items-center gap-2 group">
@@ -144,9 +144,9 @@ export default function Header() {
 
                 {/* Mega Menu Dropdown */}
                 {shopMenuOpen && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-[760px] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
+                  <div className="absolute left-[-250px] top-full mt-4 w-[760px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
                     {/* Arrow */}
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
+                    <div className="absolute -top-2 left-[265px] w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
 
                     <div className="flex items-center justify-between mb-5">
                       <h3 className="text-base font-bold text-slate-900 dark:text-white">Store by Category</h3>
