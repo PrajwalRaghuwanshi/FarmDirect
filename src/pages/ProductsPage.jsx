@@ -5,12 +5,14 @@ import ProductCard from '../components/ProductCard'
 import ProductModal from '../components/ProductModal'
 import SearchBar from '../components/SearchBar'
 import { useCart } from '../context/cart-context'
+import { useUser } from '../context/UserContext'
 import { products } from '../data/products'
 
 const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic']
 
 export default function ProductsPage() {
   const { addItem } = useCart()
+  const { addToRecentlyViewed } = useUser()
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [activeProduct, setActiveProduct] = useState(null)
@@ -97,7 +99,10 @@ export default function ProductsPage() {
             key={product.id}
             product={product}
             onAddToCart={addItem}
-            onViewDetails={setActiveProduct}
+            onViewDetails={(p) => {
+              setActiveProduct(p)
+              addToRecentlyViewed(p)
+            }}
           />
         ))}
       </div>

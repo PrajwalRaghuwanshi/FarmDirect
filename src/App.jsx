@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import AboutPage from './pages/AboutPage'
 import CartPage from './pages/CartPage'
@@ -21,6 +21,8 @@ import AddressPage from './pages/AddressPage'
 import IDProofPage from './pages/IDProofPage'
 import RecentlyViewedPage from './pages/RecentlyViewedPage'
 import AddAddressPage from './pages/AddAddressPage'
+import MyActivityPage from './pages/MyActivityPage'
+import WishlistPage from './pages/WishlistPage'
 
 export default function App() {
   return (
@@ -47,6 +49,9 @@ export default function App() {
         <Route path="/profile/id-proof" element={<IDProofPage />} />
         <Route path="/profile/recently-viewed" element={<RecentlyViewedPage />} />
         <Route path="/profile/address/add" element={<AddAddressPage />} />
+        <Route path="/profile/activity" element={<MyActivityPage />} />
+        <Route path="/profile/wishlist" element={<WishlistPage />} />
+        <Route path="/profile" element={<Navigate to="/profile/activity" replace />} />
       </Route>
     </Routes>
   )

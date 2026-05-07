@@ -1,6 +1,6 @@
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, ShoppingCart } from 'lucide-react'
 import Footer from './Footer'
 import Header from './Header'
 import WelcomeModal from './WelcomeModal'
@@ -36,9 +36,18 @@ export default function Layout() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-slate-900/20 animate-in slide-in-from-bottom-5 fade-in dark:bg-emerald-900 dark:text-emerald-50 dark:shadow-emerald-900/20">
-          <CheckCircle2 size={18} className="text-emerald-400" />
-          {toast.message}
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-4 rounded-2xl bg-slate-900/95 backdrop-blur-md p-1.5 pl-4 text-sm font-medium text-white shadow-2xl shadow-black/20 animate-in slide-in-from-bottom-5 fade-in dark:bg-emerald-900/95 dark:text-emerald-50 border border-white/10">
+          <div className="flex items-center gap-3 py-2">
+            <CheckCircle2 size={18} className="text-emerald-400" />
+            {toast.message}
+          </div>
+          <Link 
+            to="/cart"
+            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20"
+          >
+            <ShoppingCart size={14} />
+            View Cart
+          </Link>
         </div>
       )}
     </div>

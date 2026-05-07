@@ -226,7 +226,7 @@ export default function Header() {
 
         {/* Right Section: Search, Cart, User */}
         <div className="flex items-center gap-6">
-          <div className="hidden md:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400">
+          <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400">
             <input
               type="text"
               placeholder="Search for products, farmers..."
@@ -236,21 +236,25 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-5">
-            <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+            <button onClick={toggleTheme} className="hidden lg:flex text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
               {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
             </button>
             <NavLink
-              to="/orders"
-              className={`relative transition flex items-center ${location.pathname === '/orders'
+              to="/cart"
+              className={`relative transition flex items-center ${location.pathname === '/cart'
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
                 }`}
-              title="Order History"
             >
-              <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+              <ShoppingCart size={24} strokeWidth={2} className={location.pathname === '/cart' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                  {itemCount}
+                </span>
+              )}
             </NavLink>
 
-            <div className="relative" ref={messagesRef}>
+            <div className="hidden lg:block relative" ref={messagesRef}>
               <button
                 onClick={() => setMessagesOpen(!messagesOpen)}
                 className={`relative transition flex items-center ${messagesOpen
@@ -327,33 +331,29 @@ export default function Header() {
             </div>
 
             <NavLink
-              to="/cart"
-              className={`relative transition flex items-center ${location.pathname === '/cart'
+              to="/orders"
+              className={`hidden lg:flex relative transition items-center ${location.pathname === '/orders'
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
                 }`}
+              title="Order History"
             >
-              <ShoppingCart size={24} strokeWidth={2} className={location.pathname === '/cart' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                  {itemCount}
-                </span>
-              )}
+              <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
             </NavLink>
 
             {user ? (
               <button
                 onClick={() => navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'User'}`)}
-                className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
+                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
-                  <UserRound size={18} strokeWidth={2} />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
+                  <UserRound size={16} strokeWidth={2.5} />
                 </div>
                 <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'User'}</span>
               </button>
             ) : (
-              <NavLink to="/signin" className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                <User size={20} strokeWidth={2} />
+              <NavLink to="/signin" className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                <User size={18} strokeWidth={2.5} />
                 <span className="hidden sm:inline">Sign In</span>
               </NavLink>
             )}
@@ -400,12 +400,36 @@ export default function Header() {
             ))}
 
             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-500">Appearance</span>
-                <button onClick={toggleTheme} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div className="grid grid-cols-2 gap-4">
+                <button onClick={toggleTheme} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                   {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                  <span className="text-sm font-medium">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                  <span className="text-xs font-bold">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
+                <NavLink
+                  to="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                >
+                  <Package size={20} />
+                  <span className="text-xs font-bold">Orders</span>
+                </NavLink>
+                <button className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative">
+                  <Bell size={20} />
+                  <span className="text-xs font-bold">Alerts</span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-3 right-8 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NavLink
+                  to="/profile/activity"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                >
+                  <Heart size={20} />
+                  <span className="text-xs font-bold">Activity</span>
+                </NavLink>
               </div>
 
               {!user && (

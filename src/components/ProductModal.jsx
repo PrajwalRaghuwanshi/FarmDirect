@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
+import { Heart, X } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 export default function ProductModal({ product, onClose, onAddToCart }) {
+  const { wishlist, toggleWishlist } = useUser()
+  const isWishlisted = product ? wishlist.some(item => item.id === product.id) : false
   const defaultSeller = product?.sellers?.[0] ?? null
   const [quantity, setQuantity] = useState(1)
   const [selectedSellerId, setSelectedSellerId] = useState(defaultSeller?.id ?? '')
@@ -29,41 +33,57 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-8"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-8 backdrop-blur-sm"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="max-h-full w-full max-w-4xl overflow-y-auto rounded-[2rem] bg-white dark:bg-slate-900 shadow-2xl"
+        className="max-h-full w-full max-w-4xl overflow-y-auto rounded-[2.5rem] bg-white dark:bg-slate-900 shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-modal-title"
       >
-        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-72 w-full rounded-[1.5rem] object-cover lg:h-full"
-          />
+        <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="relative group">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="h-72 w-full rounded-[2rem] object-cover lg:h-full shadow-lg transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-6">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">
+              <div className="min-w-0">
+                <p className="text-sm font-bold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">
                   {product.category}
                 </p>
-                <h2 id="product-modal-title" className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+                <h2 id="product-modal-title" className="mt-2 text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
                   {product.name}
                 </h2>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full border border-slate-200 dark:border-slate-600 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-              >
-                Close
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition-all active:scale-95 ${isWishlisted
+                      ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-rose-300 hover:text-rose-500'
+                    }`}
+                  title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                  title="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <p className="text-base leading-7 text-slate-600 dark:text-slate-400">{product.description}</p>
@@ -102,11 +122,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                       key={seller.id}
                       type="button"
                       onClick={() => setSelectedSellerId(seller.id)}
-                      className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                        isSelected
+                      className={`w-full rounded-2xl border px-4 py-4 text-left transition ${isSelected
                           ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
                           : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -142,7 +161,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             </div>
 
             <div className="mt-auto flex flex-col gap-4 sm:flex-row sm:items-center">
-              <label className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">
                 Quantity
                 <input
                   type="number"
@@ -159,11 +178,12 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     if (isNaN(num)) return;
                     setQuantity(Math.min(num, maxQuantity));
                   }}
-                  className="w-24 rounded-full border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
+                  className="w-16 rounded-xl border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-2 text-center text-slate-900 dark:text-white outline-none focus:border-emerald-500"
                 />
               </label>
-              <div className="rounded-full bg-emerald-50 dark:bg-slate-800 px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white">
-                Total: Rs. {liveTotal}
+              <div className="rounded-2xl bg-emerald-50 dark:bg-slate-800 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight flex-shrink-0">
+                Total<br />
+                <span className="text-sm text-slate-900 dark:text-white normal-case tracking-normal">Rs. {liveTotal}</span>
               </div>
               <button
                 type="button"
@@ -189,10 +209,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                   )
                   onClose()
                 }}
-                className="rounded-full bg-slate-900 dark:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600"
+                className="rounded-full bg-slate-900 dark:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 whitespace-nowrap sm:ml-auto flex-shrink-0"
                 disabled={!selectedSeller}
               >
-                Add {parsedQuantity} to Cart
+                Add to cart
               </button>
             </div>
           </div>

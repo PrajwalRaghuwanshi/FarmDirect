@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
+import { useUser } from '../context/UserContext'
 import ProductModal from '../components/ProductModal'
 import ProductCard from '../components/ProductCard'
-import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf } from 'lucide-react'
+import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf, History } from 'lucide-react'
 
 const features = [
   { icon: Users, title: 'Direct from Farmers', desc: 'No middlemen' },
@@ -154,6 +155,7 @@ const sampleProducts = [
 
 export default function HomePage() {
   const { addItem } = useCart()
+  const { addToRecentlyViewed } = useUser()
   const [activeProduct, setActiveProduct] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -181,17 +183,17 @@ export default function HomePage() {
               />
             ))}
             {/* Gradient overlay to make text readable */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent w-2/3 z-0"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent w-full md:w-2/3 z-0"></div>
           </div>
 
           {/* Content */}
-          <div className="relative z-10 w-full md:w-1/2 p-10 lg:p-16 lg:pb-24">
+          <div className="relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center md:items-start md:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-2 text-sm font-semibold text-emerald-800 backdrop-blur-sm">
               <Leaf size={16} className="text-emerald-600" />
               Fresh. Local. Sustainable.
             </div>
 
-            <h1 className="mt-6 text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl leading-[1.1]">
+            <h1 className="mt-6 text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.2] sm:leading-[1.1]">
               Fresh from farms. <br />
               Right to <span className="text-emerald-600">your home.</span>
             </h1>
@@ -273,7 +275,10 @@ export default function HomePage() {
               key={product.id}
               product={product}
               onAddToCart={addItem}
-              onViewDetails={setActiveProduct}
+              onViewDetails={(p) => {
+                setActiveProduct(p)
+                addToRecentlyViewed(p)
+              }}
             />
           ))}
         </div>

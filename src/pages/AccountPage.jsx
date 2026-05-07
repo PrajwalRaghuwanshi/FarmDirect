@@ -63,10 +63,9 @@ export default function AccountPage() {
 
   const menuItems = [
     { icon: Package, title: 'Your Orders', desc: 'Track, return, or buy things again', path: '/orders' },
-    { icon: Settings, title: 'Account Settings', desc: 'Edit password, email, and preferences', path: '/profile/settings' },
     { icon: FileText, title: 'Photo ID Proof', desc: 'Manage your verified documents', path: '/profile/id-proof' },
     { icon: History, title: 'Recently Viewed', desc: 'Check what you were looking at', path: '/profile/recently-viewed' },
-    { icon: Activity, title: 'My Activity', desc: 'Reviews, Wishlist, and Impact', path: '#activity-section' },
+    { icon: Activity, title: 'My Activity', desc: 'Reviews, Wishlist, and Impact', path: '/profile/activity' },
   ]
 
   return (
@@ -204,47 +203,6 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* My Activity Section */}
-        <div id="activity-section" className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Activity & Impact</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
-              onClick={() => navigate('/profile/reviews')}
-              className="flex flex-col items-center p-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all group"
-            >
-              <div className="h-10 w-10 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Star size={20} fill="currentColor" />
-              </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">Your Review</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/profile/wishlist')}
-              className="flex flex-col items-center p-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all group"
-            >
-              <div className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Heart size={20} fill="currentColor" />
-              </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">My Wishlist</span>
-            </button>
-
-            <div className="flex flex-col items-center p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-900/20 shadow-sm border border-emerald-100 dark:border-emerald-900/50">
-              <div className="h-10 w-10 rounded-full bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
-                <Cloud size={20} />
-              </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">Emission Saved</span>
-              <p className="text-lg font-black text-emerald-600 mt-1">12.5 kg</p>
-            </div>
-
-            <div className="flex flex-col items-center p-6 rounded-3xl bg-blue-50 dark:bg-blue-900/20 shadow-sm border border-blue-100 dark:border-blue-900/50">
-              <div className="h-10 w-10 rounded-full bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-                <HandHeart size={20} />
-              </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">Farmers Helped</span>
-              <p className="text-lg font-black text-blue-600 mt-1">8 Farmers</p>
-            </div>
-          </div>
-        </div>
       </div>
       <ProfileUpdateModal
         isOpen={updateModal.isOpen}
