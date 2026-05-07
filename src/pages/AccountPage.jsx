@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { UserRound, Phone, Mail, Package, Settings, MapPin, FileText, History, LogOut, ChevronRight, Edit2 } from 'lucide-react'
+import { UserRound, Phone, Mail, Package, Settings, MapPin, FileText, History, LogOut, ChevronRight, Edit2, Activity, Star, Heart, Cloud, HandHeart, Check, X as CloseIcon } from 'lucide-react'
+import { useUser } from '../context/UserContext'
+import ProfileUpdateModal from '../components/ProfileUpdateModal'
 
 const heroImages = [
   { src: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=1200&q=80', position: 'object-right-top' },
-  { src: 'https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?auto=format&fit=crop&w=1200&q=80', position: 'object-center' },
+  { src: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1200&q=80', position: 'object-center' },
   { src: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80', position: 'object-center' },
   { src: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80', position: 'object-center' }
 ]
@@ -12,30 +14,51 @@ const heroImages = [
 export default function AccountPage() {
   const navigate = useNavigate()
   const { username } = useParams()
-  const [user, setUser] = useState(null)
+  const { user, login, logout } = useUser()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [updateModal, setUpdateModal] = useState({ isOpen: false, type: 'mobile' })
+  const [defaultAddress, setDefaultAddress] = useState(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
+
+    // Load default address
+    const saved = localStorage.getItem('farmdirect-addresses')
+    if (saved) {
+      try {
+        const addresses = JSON.parse(saved)
+        const def = addresses.find(a => a.isDefault) || addresses[0]
+        if (def) {
+          setDefaultAddress(`${def.address}, ${def.city}`)
+        }
+      } catch (e) {
+        console.error('Failed to parse addresses', e)
+      }
+    }
+
     return () => clearInterval(timer)
   }, [])
 
   useEffect(() => {
-    const stored = window.localStorage.getItem('farmdirect-user')
-    if (stored) {
-      setUser(JSON.parse(stored))
-    } else {
-      navigate('/signin')
+    if (!user) {
+      const stored = window.localStorage.getItem('farmdirect-user')
+      if (!stored) {
+        navigate('/signin')
+      }
     }
-  }, [navigate])
+  }, [user, navigate])
 
   if (!user) return null
 
   function handleLogout() {
-    window.localStorage.removeItem('farmdirect-user')
+    logout()
     navigate('/')
+  }
+
+  const handleProfileUpdate = (newValue) => {
+    login({ ...user, [updateModal.type]: newValue })
   }
 
   const menuItems = [
@@ -43,6 +66,7 @@ export default function AccountPage() {
     { icon: Settings, title: 'Account Settings', desc: 'Edit password, email, and preferences', path: '/profile/settings' },
     { icon: FileText, title: 'Photo ID Proof', desc: 'Manage your verified documents', path: '/profile/id-proof' },
     { icon: History, title: 'Recently Viewed', desc: 'Check what you were looking at', path: '/profile/recently-viewed' },
+    { icon: Activity, title: 'My Activity', desc: 'Reviews, Wishlist, and Impact', path: '#activity-section' },
   ]
 
   return (
@@ -101,9 +125,17 @@ export default function AccountPage() {
                   <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
                     <Phone size={16} />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mobile Number</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">+91 {user.mobile}</p>
+                    <div className="flex items-center justify-between group/mob">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">+91 {user.mobile}</p>
+                      <button 
+                        onClick={() => setUpdateModal({ isOpen: true, type: 'mobile' })}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 opacity-0 group-hover/mob:opacity-100 transition-all"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -111,9 +143,17 @@ export default function AccountPage() {
                   <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
                     <Mail size={16} />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Address</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || 'Not added yet'}</p>
+                    <div className="flex items-center justify-between group/email">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || 'Not added yet'}</p>
+                      <button 
+                        onClick={() => setUpdateModal({ isOpen: true, type: 'email' })}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 opacity-0 group-hover/email:opacity-100 transition-all"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -126,7 +166,7 @@ export default function AccountPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Address</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">{user.address || 'Click to manage addresses'}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">{defaultAddress || 'No address added yet'}</p>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 self-center group-hover/addr:translate-x-1 transition-transform" />
                 </button>
@@ -142,7 +182,14 @@ export default function AccountPage() {
                 return (
                   <button
                     key={idx}
-                    onClick={() => navigate(item.path)}
+                    onClick={() => {
+                      if (item.path.startsWith('#')) {
+                        const el = document.querySelector(item.path)
+                        if (el) el.scrollIntoView({ behavior: 'smooth' })
+                      } else {
+                        navigate(item.path)
+                      }
+                    }}
                     className="flex flex-col items-start p-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all group text-left"
                   >
                     <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-slate-800 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -155,9 +202,57 @@ export default function AccountPage() {
               })}
             </div>
           </div>
+        </div>
 
+        {/* My Activity Section */}
+        <div id="activity-section" className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Activity & Impact</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button
+              onClick={() => navigate('/profile/reviews')}
+              className="flex flex-col items-center p-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all group"
+            >
+              <div className="h-10 w-10 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Star size={20} fill="currentColor" />
+              </div>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">Your Review</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/profile/wishlist')}
+              className="flex flex-col items-center p-6 rounded-3xl bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all group"
+            >
+              <div className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Heart size={20} fill="currentColor" />
+              </div>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">My Wishlist</span>
+            </button>
+
+            <div className="flex flex-col items-center p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-900/20 shadow-sm border border-emerald-100 dark:border-emerald-900/50">
+              <div className="h-10 w-10 rounded-full bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+                <Cloud size={20} />
+              </div>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">Emission Saved</span>
+              <p className="text-lg font-black text-emerald-600 mt-1">12.5 kg</p>
+            </div>
+
+            <div className="flex flex-col items-center p-6 rounded-3xl bg-blue-50 dark:bg-blue-900/20 shadow-sm border border-blue-100 dark:border-blue-900/50">
+              <div className="h-10 w-10 rounded-full bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                <HandHeart size={20} />
+              </div>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">Farmers Helped</span>
+              <p className="text-lg font-black text-blue-600 mt-1">8 Farmers</p>
+            </div>
+          </div>
         </div>
       </div>
+      <ProfileUpdateModal
+        isOpen={updateModal.isOpen}
+        onClose={() => setUpdateModal({ ...updateModal, isOpen: false })}
+        type={updateModal.type}
+        currentValue={user[updateModal.type]}
+        onUpdate={handleProfileUpdate}
+      />
     </div>
   )
 }

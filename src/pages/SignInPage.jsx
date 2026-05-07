@@ -2,12 +2,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 const OTP_LENGTH = 6
 const RESEND_COOLDOWN = 30
 
 export default function SignInPage() {
   const navigate = useNavigate()
+  const { login } = useUser()
 
   /* ───── state ───── */
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP
@@ -109,8 +111,8 @@ export default function SignInPage() {
     setTimeout(() => {
       setVerifying(false)
       // success — save user and navigate home
-      localStorage.setItem('farmdirect-user', JSON.stringify({ name, mobile }))
-      navigate('/')
+      login({ name, mobile })
+      window.location.href = '/'
     }, 1500)
   }
 
@@ -309,8 +311,8 @@ export default function SignInPage() {
               {/* Verify Button */}
               <button
                 type="submit"
-                disabled={verifying}
-                className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={verifying || otp.some(digit => !digit)}
+                className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {verifying ? (
                   <>

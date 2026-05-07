@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck, Mail } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 export default function WelcomeModal() {
   const navigate = useNavigate()
+  const { login } = useUser()
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [mobile, setMobile] = useState('')
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -41,10 +44,11 @@ export default function WelcomeModal() {
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
-      localStorage.setItem('farmdirect-user', JSON.stringify({ name, mobile }))
+      const userData = { name, email, mobile }
+      login(userData)
       sessionStorage.setItem('farmdirect-seen-welcome', 'true')
       setIsOpen(false)
-      navigate('/')
+      window.location.reload()
     }, 1500)
   }
 
@@ -122,6 +126,21 @@ export default function WelcomeModal() {
               </div>
 
               <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                    placeholder="Enter your email"
+                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -130,7 +149,7 @@ export default function WelcomeModal() {
                     type="tel" 
                     maxLength={10}
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
                     placeholder="98765 43210"
                     className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
                   />
@@ -177,9 +196,9 @@ export default function WelcomeModal() {
 
               <div className="flex flex-col gap-4">
                 <button 
-                  disabled={loading}
+                  disabled={loading || otp.some(digit => !digit)}
                   type="submit"
-                  className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-2xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? <Loader2 className="animate-spin" size={20} /> : (
                     <>
@@ -187,6 +206,13 @@ export default function WelcomeModal() {
                       Verify & Access
                     </>
                   )}
+                </button>
+                <button 
+                  type="button"
+                  onClick={handleClose}
+                  className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
+                >
+                  Skip for Now
                 </button>
               </div>
             </form>
