@@ -9,8 +9,8 @@ export default function AddressPage() {
   const [addresses, setAddresses] = useState(() => {
     const saved = localStorage.getItem('farmdirect-addresses')
     return saved ? JSON.parse(saved) : [
-      { id: 1, type: 'Home', name: 'Prajwal Raghuwanshi', address: '123 Green Valley, Nashik Road', city: 'Nashik', state: 'Maharashtra', pincode: '422001', isDefault: true },
-      { id: 2, type: 'Work', name: 'Prajwal Raghuwanshi', address: 'Office 404, Tech Park, Shivajinagar', city: 'Pune', state: 'Maharashtra', pincode: '411005', isDefault: false },
+      { id: 1, type: 'Home', name: 'Your Name', address: '123 Green Valley, Nashik Road', city: 'Nashik', state: 'Maharashtra', pincode: '422001', isDefault: true },
+      { id: 2, type: 'Work', name: 'Your Name', address: 'Office 404, Tech Park, Shivajinagar', city: 'Pune', state: 'Maharashtra', pincode: '411005', isDefault: false },
     ]
   })
 

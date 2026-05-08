@@ -11,7 +11,7 @@ export default function AddAddressPage() {
   
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: 'Prajwal Raghuwanshi', // Default name for simplicity
+    name: '', // Empty by default
     type: 'Home',
     line1: '', 
     line2: '', 
