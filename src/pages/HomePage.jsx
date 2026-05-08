@@ -4,7 +4,7 @@ import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
 import ProductModal from '../components/ProductModal'
 import ProductCard from '../components/ProductCard'
-import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf, History } from 'lucide-react'
+import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf, History, Loader2 } from 'lucide-react'
 
 const features = [
   { icon: Users, title: 'Direct from Farmers', desc: 'No middlemen' },
@@ -155,7 +155,7 @@ const sampleProducts = [
 
 export default function HomePage() {
   const { addItem } = useCart()
-  const { addToRecentlyViewed } = useUser()
+  const { addToRecentlyViewed, nearbyProducts, locationInfo, loadingLocal } = useUser()
   const [activeProduct, setActiveProduct] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -259,6 +259,42 @@ export default function HomePage() {
         </div>
       </section>
 
+
+      {/* Local Discovery Section */}
+      {(nearbyProducts.length > 0 || loadingLocal) && (
+        <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Nearby Local Farmers</h2>
+              {locationInfo && (
+                <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mt-1">
+                  Fresh from {locationInfo.district}, {locationInfo.state}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {loadingLocal ? (
+            <div className="mt-8 flex justify-center py-12">
+              <Loader2 className="animate-spin text-emerald-600" size={40} />
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {nearbyProducts.map((product) => (
+                <ProductCard
+                  key={product._id || product.id}
+                  product={product}
+                  onAddToCart={addItem}
+                  onViewDetails={(p) => {
+                    setActiveProduct(p)
+                    addToRecentlyViewed(p)
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Fresh Picks */}
       <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">

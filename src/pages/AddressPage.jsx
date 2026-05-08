@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus, MapPin, Edit2, Trash2 } from 'lucide-react'
+import { useUser } from '../context/UserContext'
+import { ChevronLeft, Plus, MapPin, Edit2, Trash2, CheckCircle2 } from 'lucide-react'
 
 export default function AddressPage() {
   const navigate = useNavigate()
+  const { updatePincode } = useUser()
   const [addresses, setAddresses] = useState(() => {
     const saved = localStorage.getItem('farmdirect-addresses')
     return saved ? JSON.parse(saved) : [
@@ -20,6 +22,20 @@ export default function AddressPage() {
     if (confirm('Are you sure you want to remove this address?')) {
       setAddresses(prev => prev.filter(addr => addr.id !== id))
     }
+  }
+
+  const handleSetDefault = (id) => {
+    setAddresses(prev => {
+      const updated = prev.map(addr => ({
+        ...addr,
+        isDefault: addr.id === id
+      }))
+      const selected = updated.find(a => a.id === id)
+      if (selected) {
+        updatePincode(selected.pincode)
+      }
+      return updated
+    })
   }
 
   return (
@@ -56,8 +72,18 @@ export default function AddressPage() {
                 }`}>
                   {addr.type}
                 </span>
-                {addr.isDefault && (
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Default</span>
+                {addr.isDefault ? (
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                    <CheckCircle2 size={12} />
+                    Default
+                  </span>
+                ) : (
+                  <button 
+                    onClick={() => handleSetDefault(addr.id)}
+                    className="text-[10px] font-bold text-slate-400 hover:text-emerald-600 uppercase tracking-wider transition-colors"
+                  >
+                    Set as Default
+                  </button>
                 )}
               </div>
               

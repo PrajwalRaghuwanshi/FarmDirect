@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useUser } from '../context/UserContext'
 import { ChevronLeft, MapPin, CheckCircle2, Loader2 } from 'lucide-react'
 
 export default function AddAddressPage() {
   const navigate = useNavigate()
+  const { updatePincode } = useUser()
   const [searchParams] = useSearchParams()
   const editId = searchParams.get('edit')
   
@@ -40,21 +42,32 @@ export default function AddAddressPage() {
     }
   }, [editId])
 
-  // Mock autofill logic
+  const [autofilling, setAutofilling] = useState(false)
+
+  // Real autofill logic using India Post API Directly
   useEffect(() => {
     if (formData.pincode.length === 6) {
-      const cityMap = {
-        '422001': { city: 'Nashik', state: 'Maharashtra' },
-        '411001': { city: 'Pune', state: 'Maharashtra' },
-        '400001': { city: 'Mumbai', state: 'Maharashtra' },
-        '110001': { city: 'New Delhi', state: 'Delhi' },
-        '560001': { city: 'Bangalore', state: 'Karnataka' },
+      const fetchLocation = async () => {
+        setAutofilling(true)
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${formData.pincode}`)
+          const data = await res.json()
+          
+          if (data && data[0].Status === "Success") {
+            const postOffice = data[0].PostOffice[0]
+            setFormData(prev => ({ 
+              ...prev, 
+              city: postOffice.District, 
+              state: postOffice.State 
+            }))
+          }
+        } catch (err) {
+          console.error("Failed to fetch location:", err)
+        } finally {
+          setAutofilling(false)
+        }
       }
-      
-      const found = cityMap[formData.pincode]
-      if (found) {
-        setFormData(prev => ({ ...prev, city: found.city, state: found.state }))
-      }
+      fetchLocation()
     }
   }, [formData.pincode])
 
@@ -77,6 +90,7 @@ export default function AddAddressPage() {
 
       if (formData.isDefault) {
         addresses = addresses.map(a => ({ ...a, isDefault: false }))
+        updatePincode(formData.pincode)
       }
 
       if (editId) {
@@ -189,7 +203,8 @@ export default function AddAddressPage() {
                     placeholder="Enter pincode first"
                     className="w-full px-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-sm text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed" 
                   />
-                  {formData.city && <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500" size={18} />}
+                  {autofilling && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-600 animate-spin" size={18} />}
+                  {!autofilling && formData.city && <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500" size={18} />}
                 </div>
               </div>
             </div>

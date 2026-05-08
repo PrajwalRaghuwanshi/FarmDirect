@@ -1,5 +1,6 @@
 import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useUser } from '../context/UserContext'
 
 const farmers = [
   {
@@ -65,6 +66,8 @@ const badgeColors = {
 }
 
 export default function FarmersPage() {
+  const { locationInfo } = useUser()
+  const displayLocation = locationInfo ? `${locationInfo.district}, ${locationInfo.state}` : 'Pune, Maharashtra'
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Page Header */}
@@ -82,7 +85,7 @@ export default function FarmersPage() {
         {/* Location indicator */}
         <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
           <MapPin size={13} />
-          Showing farmers near Pune, Maharashtra
+          Showing farmers near {displayLocation}
         </div>
       </div>
 

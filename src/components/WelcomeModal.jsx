@@ -49,15 +49,13 @@ export default function WelcomeModal() {
     }, 1200)
   }
 
-  const handlePincodeSubmit = (e) => {
+  const handlePincodeSubmit = async (e) => {
     e.preventDefault()
     if (tempPincode.length !== 6) return
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      updatePincode(tempPincode)
-      finishAuth()
-    }, 1000)
+    await updatePincode(tempPincode)
+    setLoading(false)
+    finishAuth()
   }
 
   const finishAuth = () => {

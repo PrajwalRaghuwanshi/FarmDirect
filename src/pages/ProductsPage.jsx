@@ -13,7 +13,7 @@ const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic']
 
 export default function ProductsPage() {
   const { addItem } = useCart()
-  const { addToRecentlyViewed, pincode } = useUser()
+  const { addToRecentlyViewed, pincode, locationInfo } = useUser()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [activeProduct, setActiveProduct] = useState(null)
@@ -65,7 +65,14 @@ export default function ProductsPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Delivering to</p>
-                <p className="text-lg font-bold text-slate-900 dark:text-white leading-none mt-0.5">{pincode}</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-lg font-bold text-slate-900 dark:text-white leading-none mt-0.5">{pincode}</p>
+                  {locationInfo && (
+                    <p className="text-xs font-medium text-slate-400 truncate max-w-[120px]">
+                      ({locationInfo.district}, {locationInfo.state})
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )}
