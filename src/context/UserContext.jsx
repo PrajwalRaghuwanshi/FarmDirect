@@ -14,6 +14,10 @@ export function UserProvider({ children }) {
     return saved ? JSON.parse(saved) : []
   })
 
+  const [pincode, setPincode] = useState(() => {
+    return localStorage.getItem('farmdirect-pincode') || ''
+  })
+
   useEffect(() => {
     localStorage.setItem('farmdirect-wishlist', JSON.stringify(wishlist))
   }, [wishlist])
@@ -21,6 +25,14 @@ export function UserProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('farmdirect-recent', JSON.stringify(recentlyViewed))
   }, [recentlyViewed])
+
+  useEffect(() => {
+    if (pincode) {
+      localStorage.setItem('farmdirect-pincode', pincode)
+    } else {
+      localStorage.removeItem('farmdirect-pincode')
+    }
+  }, [pincode])
 
   useEffect(() => {
     const stored = localStorage.getItem('farmdirect-user')
@@ -60,11 +72,16 @@ export function UserProvider({ children }) {
     setRecentlyViewed([])
   }
 
+  const updatePincode = (code) => {
+    setPincode(code)
+  }
+
   return (
     <UserContext.Provider value={{ 
       user, login, logout, 
       wishlist, toggleWishlist, 
-      recentlyViewed, addToRecentlyViewed, clearRecentlyViewed 
+      recentlyViewed, addToRecentlyViewed, clearRecentlyViewed,
+      pincode, updatePincode
     }}>
       {children}
     </UserContext.Provider>

@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck, Mail } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck, Mail, MapPin } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 
 export default function WelcomeModal() {
   const navigate = useNavigate()
-  const { login } = useUser()
+  const { login, updatePincode, pincode: storedPincode } = useUser()
   const [isOpen, setIsOpen] = useState(false)
-  const [step, setStep] = useState(1) // 1 = form, 2 = OTP
+  const [step, setStep] = useState(1) // 1 = form, 2 = OTP, 3 = Pincode
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [mobile, setMobile] = useState('')
+  const [tempPincode, setTempPincode] = useState(storedPincode || '')
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
 
@@ -44,12 +45,27 @@ export default function WelcomeModal() {
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
-      const userData = { name, email, mobile }
-      login(userData)
-      sessionStorage.setItem('farmdirect-seen-welcome', 'true')
-      setIsOpen(false)
-      window.location.reload()
-    }, 1500)
+      setStep(3)
+    }, 1200)
+  }
+
+  const handlePincodeSubmit = (e) => {
+    e.preventDefault()
+    if (tempPincode.length !== 6) return
+    setLoading(true)
+    setTimeout(() => {
+      setLoading(false)
+      updatePincode(tempPincode)
+      finishAuth()
+    }, 1000)
+  }
+
+  const finishAuth = () => {
+    const userData = { name, email, mobile }
+    login(userData)
+    sessionStorage.setItem('farmdirect-seen-welcome', 'true')
+    setIsOpen(false)
+    window.location.reload()
   }
 
   const handleOtpPaste = (e) => {
@@ -99,12 +115,14 @@ export default function WelcomeModal() {
               <Leaf size={28} />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              {step === 1 ? 'Welcome to FarmDirect' : 'Verify Identity'}
+              {step === 1 ? 'Welcome to FarmDirect' : step === 2 ? 'Verify Identity' : 'Set Delivery Location'}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {step === 1 
                 ? 'Join our community for fresh harvests.' 
-                : 'Enter the 6-digit code sent to your mobile.'}
+                : step === 2 
+                  ? 'Enter the 6-digit code sent to your mobile.' 
+                  : 'Enter your pincode to check availability.'}
             </p>
           </div>
 
@@ -178,7 +196,7 @@ export default function WelcomeModal() {
                 </button>
               </div>
             </form>
-          ) : (
+          ) : step === 2 ? (
             <form onSubmit={handleVerify} className="space-y-8">
               <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
                 {otp.map((digit, i) => (
@@ -213,6 +231,46 @@ export default function WelcomeModal() {
                   className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   Skip for Now
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handlePincodeSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">Pincode</label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type="tel" 
+                    maxLength={6}
+                    value={tempPincode}
+                    onChange={(e) => setTempPincode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Enter 6-digit pincode"
+                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 pt-2">
+                <button 
+                  disabled={loading || tempPincode.length !== 6}
+                  type="submit"
+                  className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : (
+                    <>
+                      Complete Setup
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </button>
+                <button 
+                  type="button"
+                  onClick={finishAuth}
+                  className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
+                >
+                  Skip Location
                 </button>
               </div>
             </form>

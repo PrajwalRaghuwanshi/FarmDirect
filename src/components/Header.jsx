@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart } from 'lucide-react'
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -234,6 +234,7 @@ export default function Header() {
             />
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400" />
           </div>
+
 
           <div className="flex items-center gap-5">
             <button onClick={toggleTheme} className="hidden lg:flex text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">

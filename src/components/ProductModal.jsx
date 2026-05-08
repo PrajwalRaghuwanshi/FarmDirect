@@ -68,8 +68,8 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                   type="button"
                   onClick={() => toggleWishlist(product)}
                   className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition-all active:scale-95 ${isWishlisted
-                      ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-rose-300 hover:text-rose-500'
+                    ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-rose-300 hover:text-rose-500'
                     }`}
                   title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
@@ -123,8 +123,8 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                       type="button"
                       onClick={() => setSelectedSellerId(seller.id)}
                       className={`w-full rounded-2xl border px-4 py-4 text-left transition ${isSelected
-                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                          : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600'
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-600'
                         }`}
                     >
                       <div className="flex items-start justify-between gap-4">
