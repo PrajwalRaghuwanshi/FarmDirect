@@ -63,13 +63,11 @@
   "completeSetup": "Complete Setup",
   "skipLocation": "Skip Location",
   "termsAndPrivacy": "By continuing, you agree to our Terms of Service and Privacy Policy. Your data is protected by farm-grade security.",
-
   "orderSummary": "Order Summary",
   "items": "Items",
   "subtotal": "Subtotal",
   "deliveryFee": "Delivery fee",
   "total": "Total",
-
   "farm": "Farm",
   "stockLevel": "Stock level",
   "rating": "Rating",
@@ -80,7 +78,6 @@
   "close": "Close",
   "removeFromWishlist": "Remove from wishlist",
   "addToWishlist": "Add to wishlist",
-
   "digitalReceipt": "Digital Receipt",
   "order": "Order",
   "placedOn": "Placed on",
@@ -96,7 +93,6 @@
   "unitPrice": "Unit Price",
   "lineTotal": "Line Total",
   "totalPaid": "Total paid",
-
   "confirmOld": "Confirm Old",
   "enterCurrent": "Enter current",
   "next": "Next",
@@ -111,7 +107,6 @@
   "secureStep": "Secure Step",
   "of": "of",
   "complete": "Complete",
-
   "freshLocalSustainable": "Fresh. Local. Sustainable.",
   "heroTitle1": "Fresh from farms.",
   "heroTitle2": "Right to",
@@ -141,7 +136,6 @@
   "betterForYouAndFarmers": "Better for you and farmers",
   "hundredSatisfaction": "100% Satisfaction",
   "qualityGuaranteed": "Quality guaranteed",
-
   "yourCart": "Your Cart",
   "reviewYourBasket": "Review your basket",
   "yourCartIsEmpty": "Your cart is empty",
@@ -150,7 +144,6 @@
   "seller": "Seller",
   "remove": "Remove",
   "proceedToCheckout": "Proceed to Checkout",
-
   "checkout": "Checkout",
   "completeYourDelivery": "Complete your delivery",
   "fullNameLabel": "Full name",
@@ -172,7 +165,6 @@
   "phoneDigitsAlert": "Phone number must be exactly 10 digits",
   "enterFullName": "Enter your full name",
   "tenDigitNumber": "10-digit number",
-
   "productGallery": "Product Gallery",
   "harvest": "Harvest",
   "shopByFreshness": "Shop by freshness, category, and origin",
@@ -186,7 +178,6 @@
   "tryDifferentSearch": "Try a different search term or switch to another category.",
   "all": "All",
   "organic": "Organic",
-
   "hello": "Hello",
   "manageProfile": "Manage your profile, orders, and settings",
   "signOut": "Sign Out",
@@ -206,5 +197,13 @@
   "talkToAdminDesc": "Direct support for your account and orders",
   "reportFarmer": "Report a Farmer",
   "reportFarmerDesc": "Flag issues with products or services",
-  "howCanWeHelp": "How can we help you?"
+  "howCanWeHelp": "How can we help you?",
+  "howItWorksTitleNew": "🌱 How FarmDirect Works",
+  "howItWorksIntro": "At FarmDirect, we believe food should travel with transparency, freshness, and purpose. Our platform creates a direct bridge between farmers and consumers, removing unnecessary middlemen and building a smarter, more sustainable food ecosystem.",
+  "howItWorksBody1": "Farmers list their freshly harvested products directly on the platform, set fair prices, and showcase their farm stories, farming methods, and certifications. Consumers can explore verified farms, discover seasonal produce, and order directly from the source with complete trust and transparency.",
+  "howItWorksBody2": "Once an order is placed, farmers prepare and dispatch fresh produce directly to customers, reducing storage time, preserving quality, and minimizing food waste. This direct supply chain helps farmers earn better profits while consumers receive fresher products at fair market prices.",
+  "howItWorksMoreThanMarketplace": "But FarmDirect is more than just a marketplace.",
+  "howItWorksBody3": "Every purchase supports local agriculture, encourages sustainable farming practices, reduces unnecessary transportation emissions, and strengthens the connection between people and nature. By shortening the supply chain, we help lower carbon footprints and promote a healthier ecosystem for future generations.",
+  "howItWorksBody4": "Our platform combines premium user experience with meaningful impact — featuring smart product filters, verified farmer profiles, sustainability indicators, transparent pricing, and a clean modern interface designed for trust and simplicity.",
+  "howItWorksFooter": "Because when farmers grow fairly, consumers live healthier, and nature thrives — everyone benefits."
 }

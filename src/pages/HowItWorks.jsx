@@ -1,135 +1,175 @@
-import { ShoppingBasket, Tractor, Truck, Heart, Sprout, ShieldCheck, Sun } from 'lucide-react';
+import { Sun, ShieldCheck, Truck, Sprout, Globe, Heart, Target, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export default function HowItWorksPage() {
-    const steps = [
-        {
-            id: 1,
-            title: 'You Browse & Order',
-            description: 'Explore a wide variety of fresh, seasonal produce listed directly by local farmers.',
-            icon: ShoppingBasket,
-            color: 'text-blue-500',
-            bg: 'bg-blue-100 dark:bg-blue-900/30'
-        },
-        {
-            id: 2,
-            title: 'Farmers Harvest',
-            description: 'Once you place an order, farmers get to work, picking the freshest items right from the soil.',
-            icon: Tractor,
-            color: 'text-amber-500',
-            bg: 'bg-amber-100 dark:bg-amber-900/30'
-        },
-        {
-            id: 3,
-            title: 'Direct Delivery',
-            description: 'Your order is transported quickly from the farm to your doorstep, minimizing transit time.',
-            icon: Truck,
-            color: 'text-green-500',
-            bg: 'bg-green-100 dark:bg-green-900/30'
-        }
-    ];
-
-    const benefits = [
-        { title: 'Fair Compensation', description: 'Farmers keep a significantly larger share of the profits compared to traditional supermarkets.', icon: Heart },
-        { title: 'Sustainable Practices', description: 'By supporting local farms, you encourage sustainable agriculture and lower carbon footprints.', icon: Sprout },
-        { title: 'Guaranteed Freshness', description: 'Produce is harvested to order, meaning it spends less time on shelves and more time staying fresh.', icon: ShieldCheck },
-    ];
+    const { t } = useTranslation();
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
+        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20 selection:bg-green-100 selection:text-green-900">
             {/* Hero Section */}
-            <div className="relative overflow-hidden bg-white dark:bg-slate-900 pt-16 pb-24 border-b border-slate-200 dark:border-slate-800">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-amber-50 dark:from-green-900/10 dark:to-amber-900/10" />
-                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400 mb-6">
-                        <Sun className="h-4 w-4" /> Farm to Table Simplified
+            <div className="relative overflow-hidden pt-24 pb-32 border-b border-slate-100 dark:border-slate-900">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.08),transparent_50%),radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.05),transparent_50%)]" />
+                
+                <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 text-center">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-1.5 text-sm font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400 mb-8 border border-green-100 dark:border-green-800/50">
+                        <Sun className="h-4 w-4 animate-pulse" /> {t('freshLocalSustainable')}
                     </span>
-                    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl md:text-6xl">
-                        How <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400">FarmDirect</span> Works
+                    
+                    <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-6xl lg:text-7xl mb-8 leading-tight">
+                        {t('howItWorksTitleNew')}
                     </h1>
-                    <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                        We're revolutionizing the way you buy food by completely cutting out the middlemen. Experience true freshness, fair prices, and total transparency.
+                    
+                    <p className="mx-auto max-w-3xl text-xl md:text-2xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                        {t('howItWorksIntro')}
                     </p>
                 </div>
             </div>
 
-            {/* Steps Section */}
-            <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-                <div className="grid gap-12 lg:grid-cols-3">
-                    {steps.map((step, index) => (
-                        <div key={step.id} className="relative group">
-                            {/* Connector Line (hidden on small screens) */}
-                            {index !== steps.length - 1 && (
-                                <div className="hidden lg:block absolute top-12 left-[60%] w-full h-[2px] bg-slate-200 dark:bg-slate-800" />
-                            )}
-                            
-                            <div className="relative z-10 flex flex-col items-center text-center">
-                                <div className={`flex h-24 w-24 items-center justify-center rounded-3xl ${step.bg} mb-6 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                                    <step.icon className={`h-12 w-12 ${step.color}`} strokeWidth={1.5} />
+            {/* Narrative Content */}
+            <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
+                <div className="grid gap-24 lg:gap-32">
+                    
+                    {/* Block 1: The Process */}
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="order-2 md:order-1">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-900/30 text-green-600 mb-8">
+                                <Sprout className="h-8 w-8" />
+                            </div>
+                            <p className="text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {t('howItWorksBody1')}
+                            </p>
+                        </div>
+                        <div className="order-1 md:order-2 relative">
+                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2">
+                                <img 
+                                    src="/images/farm_harvest.png" 
+                                    alt="Farming" 
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 max-w-[240px]">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="h-2 w-2 rounded-full bg-green-500 animate-ping" />
+                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{t('qualityGuaranteed')}</span>
                                 </div>
-                                <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white font-bold text-sm mb-4 dark:bg-white dark:text-slate-900">
-                                    {step.id}
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                                    {step.title}
-                                </h3>
-                                <p className="text-slate-600 dark:text-slate-400">
-                                    {step.description}
-                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('qualityYouCanTrust')}</p>
                             </div>
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Block 2: The Delivery */}
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="relative">
+                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl -rotate-2">
+                                <img 
+                                    src="/images/direct_delivery.png" 
+                                    alt="Delivery" 
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="absolute -top-6 -right-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 max-w-[240px]">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="h-2 w-2 rounded-full bg-amber-500" />
+                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{t('fastDelivery')}</span>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('toYourDoorstep')}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 mb-8">
+                                <Truck className="h-8 w-8" />
+                            </div>
+                            <p className="text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {t('howItWorksBody2')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Impact Transition */}
+                    <div className="py-16 text-center border-y border-slate-100 dark:border-slate-900">
+                        <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">
+                            {t('howItWorksMoreThanMarketplace')}
+                        </h2>
+                    </div>
+
+                    {/* Block 3: Sustainability */}
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 mb-8">
+                                <Globe className="h-8 w-8" />
+                            </div>
+                            <p className="text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {t('howItWorksBody3')}
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4">
+                                <div className="aspect-[4/5] rounded-2xl bg-green-50 dark:bg-green-900/20 flex flex-col items-center justify-center p-6 text-center border border-green-100 dark:border-green-800/30">
+                                    <Heart className="h-10 w-10 text-green-600 mb-4" />
+                                    <h4 className="font-bold text-slate-900 dark:text-white">{t('supportLocalFarmers')}</h4>
+                                </div>
+                                <div className="aspect-square rounded-2xl overflow-hidden grayscale">
+                                    <img src="/images/sustainable_landscape.png" alt="Nature" className="w-full h-full object-cover" />
+                                </div>
+                            </div>
+                            <div className="space-y-4 pt-12">
+                                <div className="aspect-square rounded-2xl overflow-hidden">
+                                    <img src="/images/eco_sprout.png" alt="Eco" className="w-full h-full object-cover" />
+                                </div>
+                                <div className="aspect-[4/5] rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex flex-col items-center justify-center p-6 text-center border border-amber-100 dark:border-amber-800/30">
+                                    <ShieldCheck className="h-10 w-10 text-amber-600 mb-4" />
+                                    <h4 className="font-bold text-slate-900 dark:text-white">{t('safeAndTrusted')}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Block 4: UX & Interface */}
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="order-2 md:order-1 flex justify-center">
+                            <div className="relative w-full max-w-sm">
+                                <div className="absolute inset-0 bg-green-200 dark:bg-green-800 blur-3xl opacity-20" />
+                                <div className="relative rounded-3xl bg-slate-900 p-4 shadow-2xl border border-slate-800">
+                                    <div className="aspect-[9/16] rounded-2xl bg-white dark:bg-slate-950 overflow-hidden flex flex-col items-center justify-center p-8 text-center">
+                                        <div className="h-12 w-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-6">
+                                            <Target className="h-6 w-6" />
+                                        </div>
+                                        <div className="h-2 w-3/4 bg-slate-100 dark:bg-slate-800 rounded-full mb-3" />
+                                        <div className="h-2 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-full mb-8" />
+                                        <div className="w-full space-y-3">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="h-12 w-full rounded-xl border border-slate-100 dark:border-slate-800" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="order-1 md:order-2">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 mb-8">
+                                <Target className="h-8 w-8" />
+                            </div>
+                            <p className="text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {t('howItWorksBody4')}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Farmers Feature Section */}
-            <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                <div className="overflow-hidden rounded-3xl bg-emerald-900 dark:bg-slate-900 border border-emerald-800 dark:border-slate-800 shadow-2xl relative">
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595841696650-6f02279b94ce?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-900/80 to-transparent dark:from-slate-950 dark:via-slate-900/80"></div>
-                    
-                    <div className="relative px-6 py-16 sm:px-12 sm:py-24 lg:flex lg:items-center lg:justify-between lg:px-20">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                                Empowering Our Farmers
-                            </h2>
-                            <p className="mt-4 text-lg text-emerald-100 dark:text-slate-300 leading-relaxed max-w-2xl">
-                                At the heart of our platform are the hard-working farmers who dedicate their lives to cultivating the land. 
-                                By removing supermarkets and wholesale distributors from the equation, we ensure that the people who grow our food are the ones who benefit the most.
-                            </p>
-                            
-                            <div className="mt-8 space-y-6">
-                                {benefits.map((benefit, i) => (
-                                    <div key={i} className="flex gap-4">
-                                        <div className="flex-shrink-0 mt-1">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-800/50 backdrop-blur-sm border border-emerald-700/50">
-                                                <benefit.icon className="h-5 w-5 text-emerald-300" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-lg font-semibold text-white">{benefit.title}</h4>
-                                            <p className="mt-1 text-emerald-100/80 dark:text-slate-400 text-sm">{benefit.description}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        <div className="mt-12 lg:mt-0 lg:w-5/12">
-                            <div className="rounded-2xl bg-white/10 backdrop-blur-md p-8 border border-white/20 shadow-xl relative z-10">
-                                <h3 className="text-2xl font-bold text-white mb-4">Did You Know?</h3>
-                                <p className="text-emerald-50 dark:text-slate-200 text-lg italic">
-                                    "On average, traditional supply chains return less than 15 cents of every dollar back to the farmer. Through FarmDirect, our farmers keep over 85% of every transaction."
-                                </p>
-                                <div className="mt-6 flex items-center gap-4">
-                                    <div className="h-12 w-12 rounded-full bg-emerald-700 overflow-hidden border-2 border-emerald-400">
-                                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100" alt="Farmer Avatar" className="h-full w-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <div className="text-white font-semibold">David R.</div>
-                                        <div className="text-emerald-300 text-sm">Orchard Farmer</div>
-                                    </div>
-                                </div>
-                            </div>
+            {/* Final Call to Action / Footer */}
+            <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 lg:px-8">
+                <div className="rounded-[3rem] bg-emerald-900 dark:bg-slate-900 p-12 md:p-20 text-center relative overflow-hidden shadow-2xl border border-emerald-800 dark:border-slate-800">
+                    <div className="absolute inset-0 bg-[url('/images/sustainable_landscape.png')] bg-cover bg-center opacity-10" />
+                    <div className="relative z-10">
+                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-12 max-w-3xl mx-auto leading-tight italic">
+                            "{t('howItWorksFooter')}"
+                        </h2>
+                        <div className="flex flex-wrap justify-center gap-6">
+                            <Link to="/products" className="px-10 py-5 bg-white text-emerald-900 font-black rounded-2xl hover:scale-105 transition-transform flex items-center gap-3 shadow-xl shadow-black/20">
+                                {t('shopNow')} <ChevronRight className="h-5 w-5" />
+                            </Link>
                         </div>
                     </div>
                 </div>

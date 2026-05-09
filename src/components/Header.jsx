@@ -46,6 +46,32 @@ const INITIAL_NOTIFICATIONS = [
   { id: 3, name: 'Support', message: 'How can we help you today?', time: '3h ago', unread: false, avatar: 'https://i.pravatar.cc/100?img=3' },
 ]
 
+const languages = [
+  { code: 'en', label: 'English', short: 'EN' },
+  { code: 'hi', label: 'हिन्दी', short: 'हि' },
+  { code: 'bn', label: 'বাংলা', short: 'বা' },
+  { code: 'ta', label: 'தமிழ்', short: 'த' },
+  { code: 'te', label: 'తెలుగు', short: 'తె' },
+  { code: 'kn', label: 'ಕನ್ನಡ', short: 'ಕ' },
+  { code: 'ml', label: 'മലയാളം', short: 'മ' },
+  { code: 'mr', label: 'मराठी', short: 'म' },
+  { code: 'gu', label: 'ગુજરાતી', short: 'ગુ' },
+  { code: 'pa', label: 'ਪੰਜਾਬੀ', short: 'ਪੰ' },
+  { code: 'or', label: 'ଓଡ଼ିଆ', short: 'ଓ' },
+  { code: 'as', label: 'অসমীয়া', short: 'অ' },
+  { code: 'ur', label: 'اردو', short: 'ار' },
+  { code: 'sa', label: 'संस्कृतम्', short: 'सं' },
+  { code: 'ne', label: 'नेपाली', short: 'ने' },
+  { code: 'ks', label: 'کٲشُر', short: 'ک' },
+  { code: 'kok', label: 'कोंकणी', short: 'को' },
+  { code: 'mai', label: 'मैथिली', short: 'मै' },
+  { code: 'mni', label: 'ꯃꯩꯇꯩꯂꯣꯟ', short: 'ꯃ' },
+  { code: 'doi', label: 'डोगरी', short: 'डो' },
+  { code: 'brx', label: 'बड़ो', short: 'ब' },
+  { code: 'sat', label: 'संताली', short: 'सं' },
+  { code: 'sd', label: 'सिंधी', short: 'सि' },
+];
+
 export default function Header() {
 
   const { t, i18n } = useTranslation();
@@ -249,32 +275,40 @@ export default function Header() {
             <div className="relative hidden lg:flex ml-4">
               <button
                 onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition min-w-[60px] justify-center"
                 aria-haspopup="true"
                 aria-expanded={languageMenuOpen}
               >
-                {i18n.language === 'en' ? 'EN' : 'हिन्दी'}
-                <ChevronDown className="w-4 h-4" />
+                {languages.find(l => l.code === i18n.language)?.short || 'EN'}
+                <ChevronDown className={`w-4 h-4 transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               {languageMenuOpen && (
-                <ul className="absolute right-0 mt-2 w-28 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
-                  <li>
-                    <button
-                      onClick={() => { i18n.changeLanguage('en'); localStorage.setItem('i18nextLng', 'en'); setLanguageMenuOpen(false); }}
-                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      EN
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => { i18n.changeLanguage('hi'); localStorage.setItem('i18nextLng', 'hi'); setLanguageMenuOpen(false); }}
-                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      हिन्दी
-                    </button>
-                  </li>
-                </ul>
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="p-2 border-b border-slate-100 dark:border-slate-700">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Select Language</p>
+                  </div>
+                  <ul className="max-h-80 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                    {languages.map((lang) => (
+                      <li key={lang.code}>
+                        <button
+                          onClick={() => {
+                            i18n.changeLanguage(lang.code);
+                            localStorage.setItem('i18nextLng', lang.code);
+                            setLanguageMenuOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
+                            i18n.language === lang.code
+                              ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 font-bold'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          <span>{lang.label}</span>
+                          {i18n.language === lang.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
             <NavLink
@@ -435,35 +469,42 @@ export default function Header() {
                   <span className="text-xs font-bold">{isDarkMode ? t("lightMode") : t("darkMode")}</span>
                 </button>
                 {/* Language Selector for Mobile */}
-                <div className="relative mt-2">
+                <div className="col-span-2 relative mt-2">
                   <button
                     onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                    className="flex items-center justify-between w-full px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition"
                     aria-haspopup="true"
                     aria-expanded={languageMenuOpen}
                   >
-                    {i18n.language === 'en' ? 'EN' : 'हिन्दी'}
-                    <ChevronDown className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">Language:</span>
+                      <span>{languages.find(l => l.code === i18n.language)?.label || 'English'}</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {languageMenuOpen && (
-                    <ul className="absolute left-0 mt-2 w-28 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
-                      <li>
-                        <button
-                          onClick={() => { i18n.changeLanguage('en'); localStorage.setItem('i18nextLng', 'en'); setLanguageMenuOpen(false); }}
-                          className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                        >
-                          EN
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => { i18n.changeLanguage('hi'); localStorage.setItem('i18nextLng', 'hi'); setLanguageMenuOpen(false); }}
-                          className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                        >
-                          हिन्दी
-                        </button>
-                      </li>
-                    </ul>
+                    <div className="mt-2 w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl z-10 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                      <ul className="max-h-60 overflow-y-auto py-1">
+                        {languages.map((lang) => (
+                          <li key={lang.code}>
+                            <button
+                              onClick={() => {
+                                i18n.changeLanguage(lang.code);
+                                localStorage.setItem('i18nextLng', lang.code);
+                                setLanguageMenuOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-3 text-sm transition-colors ${
+                                i18n.language === lang.code
+                                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 font-bold'
+                                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                              }`}
+                            >
+                              {lang.label}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
 
