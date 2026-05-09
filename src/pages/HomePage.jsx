@@ -5,13 +5,7 @@ import { useUser } from '../context/UserContext'
 import ProductModal from '../components/ProductModal'
 import ProductCard from '../components/ProductCard'
 import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf, History, Loader2 } from 'lucide-react'
-
-const features = [
-  { icon: Users, title: 'Direct from Farmers', desc: 'No middlemen' },
-  { icon: Leaf, title: 'Fresh & Healthy', desc: 'Naturally grown' },
-  { icon: ShieldCheck, title: 'Safe & Trusted', desc: 'Quality you can trust' },
-  { icon: Truck, title: 'Fast Delivery', desc: 'To your doorstep' },
-]
+import { useTranslation } from 'react-i18next'
 
 const heroImages = [
   { src: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=1200&q=80', position: 'object-right-top' },
@@ -156,6 +150,7 @@ const sampleProducts = [
 export default function HomePage() {
   const { addItem } = useCart()
   const { addToRecentlyViewed, nearbyProducts, locationInfo, loadingLocal } = useUser()
+  const { t } = useTranslation()
   const [activeProduct, setActiveProduct] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -170,7 +165,7 @@ export default function HomePage() {
     <div className="transition-colors">
       {/* Hero Section */}
       <section className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-emerald-50 h-[500px] flex items-center shadow-sm">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-emerald-50 min-h-[500px] py-12 flex items-center shadow-sm">
           {/* Background Image Slideshow */}
           <div className="absolute inset-0 w-full h-full bg-emerald-900">
             {heroImages.map((image, index) => (
@@ -190,16 +185,16 @@ export default function HomePage() {
           <div className="relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center md:items-start md:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-2 text-sm font-semibold text-emerald-800 backdrop-blur-sm">
               <Leaf size={16} className="text-emerald-600" />
-              Fresh. Local. Sustainable.
+              {t('freshLocalSustainable')}
             </div>
 
             <h1 className="mt-6 text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.2] sm:leading-[1.1]">
-              Fresh from farms. <br />
-              Right to <span className="text-emerald-600">your home.</span>
+              {t('heroTitle1')} <br />
+              {t('heroTitle2')} <span className="text-emerald-600">{t('heroTitle3')}</span>
             </h1>
 
             <p className="mt-6 max-w-md text-lg text-slate-600">
-              Support local farmers and enjoy fresh, healthy products delivered directly to you.
+              {t('heroDesc')}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -207,22 +202,22 @@ export default function HomePage() {
                 to="/products"
                 className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 hover:scale-105"
               >
-                Shop Now
+                {t('shopNow')}
               </Link>
               <Link to="/how-it-works" className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-bold text-slate-700 backdrop-blur-sm transition hover:bg-white hover:border-slate-300">
                 <Play size={16} className="text-emerald-600 fill-emerald-600" />
-                How It Works
+                {t('howItWorks')}
               </Link>
             </div>
           </div>
 
           {/* Floating Know Your Farmer Card */}
           <div className="absolute right-8 top-1/4 hidden lg:block rounded-2xl bg-white/95 p-6 shadow-xl backdrop-blur-md w-72">
-            <h3 className="text-lg font-bold text-slate-900">Know Your Farmer</h3>
-            <p className="mt-1 text-sm text-slate-500">See who grows your food.</p>
+            <h3 className="text-lg font-bold text-slate-900">{t('knowYourFarmer')}</h3>
+            <p className="mt-1 text-sm text-slate-500">{t('seeWhoGrows')}</p>
 
             <Link to="/farmers" className="mt-4 flex w-fit items-center text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition">
-              Meet Our Farmers <ChevronRight size={16} className="ml-1" />
+              {t('meetOurFarmers')} <ChevronRight size={16} className="ml-1" />
             </Link>
 
             <div className="mt-4 flex items-center gap-[-8px]">
@@ -240,18 +235,23 @@ export default function HomePage() {
       </section>
 
       {/* Features Bar */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-20">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-20 -mt-8">
         <div className="rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-4 shadow-sm border border-slate-100/50 dark:border-slate-700/50 flex flex-wrap items-center justify-between gap-4 lg:flex-nowrap">
-          {features.map((feature, idx) => {
+          {[
+            { icon: Users, titleKey: 'directFromFarmers', descKey: 'noMiddlemen' },
+            { icon: Leaf, titleKey: 'freshAndHealthy', descKey: 'naturallyGrown' },
+            { icon: ShieldCheck, titleKey: 'safeAndTrusted', descKey: 'qualityYouCanTrust' },
+            { icon: Truck, titleKey: 'fastDelivery', descKey: 'toYourDoorstep' },
+          ].map((feature, idx, arr) => {
             const Icon = feature.icon;
             return (
-              <div key={feature.title} className={`flex flex-1 items-center gap-4 px-4 ${idx !== features.length - 1 ? 'border-r border-slate-100' : ''}`}>
+              <div key={feature.titleKey} className={`flex flex-1 items-center gap-4 px-4 ${idx !== arr.length - 1 ? 'border-r border-slate-100' : ''}`}>
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                   <Icon size={20} strokeWidth={2} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">{feature.title}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{feature.desc}</p>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t(feature.titleKey)}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t(feature.descKey)}</p>
                 </div>
               </div>
             )
@@ -265,10 +265,10 @@ export default function HomePage() {
         <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Nearby Local Farmers</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('nearbyLocalFarmers')}</h2>
               {locationInfo && (
                 <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mt-1">
-                  Fresh from {locationInfo.district}, {locationInfo.state}
+                  {t('freshFrom')} {locationInfo.district}, {locationInfo.state}
                 </p>
               )}
             </div>
@@ -299,9 +299,9 @@ export default function HomePage() {
       {/* Fresh Picks */}
       <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Fresh Picks for You</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('freshPicksForYou')}</h2>
           <Link to="/products" className="flex items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
-            View all products <ChevronRight size={16} className="ml-1" />
+            {t('viewAllProductsLink')} <ChevronRight size={16} className="ml-1" />
           </Link>
         </div>
 
@@ -325,20 +325,20 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-y-8 md:grid-cols-4">
             {[
-              { icon: Users, title: 'Support Local Farmers', desc: 'Empower farming communities' },
-              { icon: Leaf, title: 'Sustainable Living', desc: 'Eco-friendly and ethical' },
-              { icon: ShieldCheck, title: 'Fair Prices', desc: 'Better for you and farmers' },
-              { icon: Check, title: '100% Satisfaction', desc: 'Quality guaranteed' }
+              { icon: Users, titleKey: 'supportLocalFarmers', descKey: 'empowerFarmingCommunities' },
+              { icon: Leaf, titleKey: 'sustainableLiving', descKey: 'ecoFriendlyAndEthical' },
+              { icon: ShieldCheck, titleKey: 'fairPrices', descKey: 'betterForYouAndFarmers' },
+              { icon: Check, titleKey: 'hundredSatisfaction', descKey: 'qualityGuaranteed' }
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.title} className="flex items-start gap-3">
+                <div key={item.titleKey} className="flex items-start gap-3">
                   <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                     <Icon size={20} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">{item.title}</h4>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t(item.titleKey)}</h4>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t(item.descKey)}</p>
                   </div>
                 </div>
               )

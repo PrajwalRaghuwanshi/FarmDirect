@@ -123,7 +123,7 @@ export function UserProvider({ children }) {
           setLocationInfo({ district, state })
 
           // 2. Fetch local products from backend based on the discovered district
-          const res = await fetch(`http://localhost:5000/api/local-discovery/${code}`)
+          const res = await fetch(`http://localhost:5000/api/products/local?district=${encodeURIComponent(district)}`)
           const productData = await res.json()
           if (productData.products) {
             setNearbyProducts(productData.products)

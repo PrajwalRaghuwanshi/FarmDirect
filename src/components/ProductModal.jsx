@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Heart, X } from 'lucide-react'
 import { useUser } from '../context/UserContext'
+import { useTranslation } from 'react-i18next'
 
 export default function ProductModal({ product, onClose, onAddToCart }) {
   const { wishlist, toggleWishlist } = useUser()
+  const { t } = useTranslation()
   const isWishlisted = product ? wishlist.some(item => item.id === product.id) : false
   const defaultSeller = product?.sellers?.[0] ?? null
   const [quantity, setQuantity] = useState(1)
@@ -71,7 +73,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20'
                     : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-rose-300 hover:text-rose-500'
                     }`}
-                  title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                  title={isWishlisted ? t('removeFromWishlist') : t('addToWishlist')}
                 >
                   <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
                 </button>
@@ -79,7 +81,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                   type="button"
                   onClick={onClose}
                   className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
-                  title="Close"
+                  title={t('close')}
                 >
                   <X size={20} />
                 </button>
@@ -90,28 +92,28 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
             <div className="grid gap-3 rounded-3xl bg-emerald-50 dark:bg-slate-800 p-5 text-sm text-slate-700 dark:text-slate-300">
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Farm:</span>{' '}
+                <span className="font-semibold text-slate-900 dark:text-white">{t('farm')}:</span>{' '}
                 {selectedSeller?.name ?? product.farm_name}
               </p>
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Origin:</span> {product.origin}
+                <span className="font-semibold text-slate-900 dark:text-white">{t('origin')}:</span> {product.origin}
               </p>
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Price:</span> Rs.{' '}
+                <span className="font-semibold text-slate-900 dark:text-white">{t('price')}:</span> Rs.{' '}
                 {selectedSeller?.price ?? product.price}/{product.unit}
               </p>
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Stock level:</span>{' '}
+                <span className="font-semibold text-slate-900 dark:text-white">{t('stockLevel')}:</span>{' '}
                 {selectedSeller?.stock_level ?? product.stock_level}
               </p>
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Rating:</span> {product.rating}/5
+                <span className="font-semibold text-slate-900 dark:text-white">{t('rating')}:</span> {product.rating}/5
               </p>
             </div>
 
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                Buy from sellers
+                {t('buyFromSellers')}
               </h3>
               <div className="mt-3 space-y-3">
                 {product.sellers?.map((seller) => {
@@ -137,7 +139,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                             Rs. {seller.price}/{product.unit}
                           </p>
                           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            Stock: {seller.stock_level}
+                            {t('stock')}: {seller.stock_level}
                           </p>
                         </div>
                       </div>
@@ -149,7 +151,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                Highlights
+                {t('highlights')}
               </h3>
               <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
                 {product.highlights.map((highlight) => (
@@ -162,7 +164,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
             <div className="mt-auto flex flex-col gap-4 sm:flex-row sm:items-center">
               <label className="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">
-                Quantity
+                {t('quantity')}
                 <input
                   type="number"
                   min="0"
@@ -182,7 +184,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 />
               </label>
               <div className="rounded-2xl bg-emerald-50 dark:bg-slate-800 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 leading-tight flex-shrink-0">
-                Total<br />
+                {t('total')}<br />
                 <span className="text-sm text-slate-900 dark:text-white normal-case tracking-normal">Rs. {liveTotal}</span>
               </div>
               <button
@@ -212,7 +214,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 className="rounded-full bg-slate-900 dark:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 whitespace-nowrap sm:ml-auto flex-shrink-0"
                 disabled={!selectedSeller}
               >
-                Add to cart
+                {t('addToCart')}
               </button>
             </div>
           </div>

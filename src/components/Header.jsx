@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
@@ -5,34 +6,34 @@ import { useUser } from '../context/UserContext'
 import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart } from 'lucide-react'
 
 const navItems = [
-  { label: 'Home', to: '/' },
-  { label: 'Store', to: '/products', hasDropdown: true },
-  { label: "Season's Best", to: '/seasons' },
-  { label: 'Farmers', to: '/farmers' },
-  { label: 'How It Works', to: '/how-it-works' },
+  { label: 'Home', translationKey: 'home', to: '/' },
+  { label: 'Store', translationKey: 'store', to: '/products', hasDropdown: true },
+  { label: "Season's Best", translationKey: "seasonBest", to: '/seasons' },
+  { label: 'Farmers', translationKey: "farmers", to: '/farmers' },
+  { label: 'How It Works', translationKey: "howItWorks", to: '/how-it-works' },
 ]
 
 const shopCategories = [
   {
-    heading: 'Grains & Pulses',
+    translationKey: 'grainsPulses',
     icon: Wheat,
     items: ['Basmati Rice', 'Toor Dal', 'Moong Dal', 'Organic Millets'],
     category: 'Grains & Pulses',
   },
   {
-    heading: 'Fruits',
+    translationKey: 'fruits',
     icon: Apple,
     items: ['Alphonso Mangoes', 'Red Apples', 'Seasonal Fruits', 'Citrus Fruits'],
     category: 'Fruits',
   },
   {
-    heading: 'Vegetables',
+    translationKey: 'vegetables',
     icon: Carrot,
     items: ['Fresh Tomatoes', 'Baby Potatoes', 'Organic Spinach', 'Organic Carrots'],
     category: 'Vegetables',
   },
   {
-    heading: 'Commercial Crops',
+    translationKey: 'commercialCrops',
     icon: Factory,
     items: ['Jute', 'Cotton', 'Sugarcane', 'Tobacco'],
     category: 'Commercial Crops',
@@ -46,6 +47,8 @@ const INITIAL_NOTIFICATIONS = [
 ]
 
 export default function Header() {
+
+  const { t, i18n } = useTranslation();
   const { itemCount } = useCart()
   const { user, logout } = useUser()
   const navigate = useNavigate()
@@ -59,7 +62,8 @@ export default function Header() {
   const [shopMenuOpen, setShopMenuOpen] = useState(false)
   const [messagesOpen, setMessagesOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS)
+  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const shopMenuRef = useRef(null)
   const messagesRef = useRef(null)
 
@@ -138,7 +142,7 @@ export default function Header() {
                     : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
                     }`}
                 >
-                  {item.label}
+                  {t(item.translationKey)}
                   <ChevronDown size={14} className={`transition-transform ${shopMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -149,12 +153,12 @@ export default function Header() {
                     <div className="absolute -top-2 left-[265px] w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
 
                     <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white">Store by Category</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("storeByCategory")}</h3>
                       <button
                         onClick={() => { setShopMenuOpen(false); navigate('/products'); }}
                         className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
                       >
-                        View All Products →
+                        {t("viewAllProducts")}
                       </button>
                     </div>
 
@@ -162,14 +166,14 @@ export default function Header() {
                       {shopCategories.map((cat) => {
                         const Icon = cat.icon
                         return (
-                          <div key={cat.heading}>
+                          <div key={cat.translationKey}>
                             <button
                               onClick={() => goToCategory(cat.category)}
                               className="flex items-center gap-2 mb-3 group/cat"
                             >
                               <Icon size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
                               <span className="whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white group-hover/cat:text-emerald-600 dark:group-hover/cat:text-emerald-400 transition">
-                                {cat.heading}
+                                {t(cat.translationKey)}
                               </span>
                             </button>
                             <ul className="space-y-2">
@@ -188,7 +192,7 @@ export default function Header() {
                                   onClick={() => goToCategory(cat.category)}
                                   className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
                                 >
-                                  All {cat.heading} →
+                                  {t('all')} {t(cat.translationKey)} →
                                 </button>
                               </li>
                             </ul>
@@ -200,7 +204,7 @@ export default function Header() {
                     {/* Bottom bar */}
                     <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
                       <button onClick={() => { setShopMenuOpen(false); navigate('/products'); }} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                        🛒 All Items
+                        🛒 {t("allItems")}
                       </button>
                     </div>
                   </div>
@@ -218,7 +222,7 @@ export default function Header() {
                   }`
                 }
               >
-                {item.label}
+                {t(item.translationKey)}
               </NavLink>
             )
           ))}
@@ -229,7 +233,7 @@ export default function Header() {
           <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400">
             <input
               type="text"
-              placeholder="Search for products, farmers..."
+              placeholder={t("searchPlaceholder")}
               className="pl-4 pr-10 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
             />
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400" />
@@ -237,9 +241,42 @@ export default function Header() {
 
 
           <div className="flex items-center gap-5">
+            {/* Theme toggle */}
             <button onClick={toggleTheme} className="hidden lg:flex text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-              {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
+                {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
             </button>
+            {/* Desktop Language Selector */}
+            <div className="relative hidden lg:flex ml-4">
+              <button
+                onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                aria-haspopup="true"
+                aria-expanded={languageMenuOpen}
+              >
+                {i18n.language === 'en' ? 'EN' : 'हिन्दी'}
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {languageMenuOpen && (
+                <ul className="absolute right-0 mt-2 w-28 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
+                  <li>
+                    <button
+                      onClick={() => { i18n.changeLanguage('en'); localStorage.setItem('i18nextLng', 'en'); setLanguageMenuOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    >
+                      EN
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => { i18n.changeLanguage('hi'); localStorage.setItem('i18nextLng', 'hi'); setLanguageMenuOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    >
+                      हिन्दी
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </div>
             <NavLink
               to="/cart"
               className={`relative transition flex items-center ${location.pathname === '/cart'
@@ -275,7 +312,7 @@ export default function Header() {
               {messagesOpen && (
                 <div className="absolute right-0 top-full mt-4 w-80 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="bg-emerald-600 p-4 text-white">
-                    <h3 className="font-bold text-base">Notifications</h3>
+                    <h3 className="font-bold text-base">{t("notifications")}</h3>
                     <p className="text-xs text-emerald-100">You have {unreadCount} new {unreadCount === 1 ? 'notification' : 'notifications'}</p>
                   </div>
                   <div className="max-h-[350px] overflow-y-auto">
@@ -317,8 +354,8 @@ export default function Header() {
                     ) : (
                       <div className="p-8 text-center">
                         <Bell className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3 opacity-20" />
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">All caught up!</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">No new notifications at the moment.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t("allCaughtUp")}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t("noNotifications")}</p>
                       </div>
                     )}
                   </div>
@@ -331,16 +368,7 @@ export default function Header() {
               )}
             </div>
 
-            <NavLink
-              to="/orders"
-              className={`hidden lg:flex relative transition items-center ${location.pathname === '/orders'
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
-                }`}
-              title="Order History"
-            >
-              <Package size={24} strokeWidth={2} className={location.pathname === '/orders' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
-            </NavLink>
+
 
             {user ? (
               <button
@@ -355,7 +383,7 @@ export default function Header() {
             ) : (
               <NavLink to="/signin" className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
                 <User size={18} strokeWidth={2.5} />
-                <span className="hidden sm:inline">Sign In</span>
+                <span className="hidden sm:inline">{t("signIn")}</span>
               </NavLink>
             )}
           </div>
@@ -379,7 +407,7 @@ export default function Header() {
                     }`
                   }
                 >
-                  {item.label}
+                  {t(item.translationKey)}
                 </NavLink>
                 {item.hasDropdown && (
                   <div className="pl-4 mt-2 grid grid-cols-2 gap-4">
@@ -404,19 +432,44 @@ export default function Header() {
               <div className="grid grid-cols-2 gap-4">
                 <button onClick={toggleTheme} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                   {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                  <span className="text-xs font-bold">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                  <span className="text-xs font-bold">{isDarkMode ? t("lightMode") : t("darkMode")}</span>
                 </button>
-                <NavLink
-                  to="/orders"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                >
-                  <Package size={20} />
-                  <span className="text-xs font-bold">Orders</span>
-                </NavLink>
+                {/* Language Selector for Mobile */}
+                <div className="relative mt-2">
+                  <button
+                    onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                    aria-haspopup="true"
+                    aria-expanded={languageMenuOpen}
+                  >
+                    {i18n.language === 'en' ? 'EN' : 'हिन्दी'}
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  {languageMenuOpen && (
+                    <ul className="absolute left-0 mt-2 w-28 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10">
+                      <li>
+                        <button
+                          onClick={() => { i18n.changeLanguage('en'); localStorage.setItem('i18nextLng', 'en'); setLanguageMenuOpen(false); }}
+                          className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          EN
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => { i18n.changeLanguage('hi'); localStorage.setItem('i18nextLng', 'hi'); setLanguageMenuOpen(false); }}
+                          className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          हिन्दी
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+
                 <button className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 relative">
                   <Bell size={20} />
-                  <span className="text-xs font-bold">Alerts</span>
+                  <span className="text-xs font-bold">{t("alerts")}</span>
                   {unreadCount > 0 && (
                     <span className="absolute top-3 right-8 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
                       {unreadCount}
@@ -429,7 +482,7 @@ export default function Header() {
                   className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                 >
                   <Heart size={20} />
-                  <span className="text-xs font-bold">Activity</span>
+                  <span className="text-xs font-bold">{t("activity")}</span>
                 </NavLink>
               </div>
 

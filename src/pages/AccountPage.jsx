@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { UserRound, Phone, Mail, Package, Settings, MapPin, FileText, History, LogOut, ChevronRight, Edit2, Activity, Star, Heart, Cloud, HandHeart, Check, X as CloseIcon } from 'lucide-react'
+import { UserRound, Phone, Mail, Package, Settings, MapPin, FileText, History, LogOut, ChevronRight, Edit2, Activity, Star, Heart, Cloud, HandHeart, Check, X as CloseIcon, Headset } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import ProfileUpdateModal from '../components/ProfileUpdateModal'
+import { useTranslation } from 'react-i18next'
 
 const heroImages = [
   { src: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=1200&q=80', position: 'object-right-top' },
@@ -15,6 +16,7 @@ export default function AccountPage() {
   const navigate = useNavigate()
   const { username } = useParams()
   const { user, login, logout } = useUser()
+  const { t } = useTranslation()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [updateModal, setUpdateModal] = useState({ isOpen: false, type: 'mobile' })
   const [defaultAddress, setDefaultAddress] = useState(null)
@@ -62,10 +64,10 @@ export default function AccountPage() {
   }
 
   const menuItems = [
-    { icon: Package, title: 'Your Orders', desc: 'Track, return, or buy things again', path: '/orders' },
-    { icon: FileText, title: 'Photo ID Proof', desc: 'Manage your verified documents', path: '/profile/id-proof' },
-    { icon: History, title: 'Recently Viewed', desc: 'Check what you were looking at', path: '/profile/recently-viewed' },
-    { icon: Activity, title: 'My Activity', desc: 'Reviews, Wishlist, and Impact', path: '/profile/activity' },
+    { icon: Package, titleKey: 'yourOrders', descKey: 'trackReturnBuy', path: '/orders' },
+    { icon: History, titleKey: 'recentlyViewed', descKey: 'checkWhatViewed', path: '/profile/recently-viewed' },
+    { icon: Activity, titleKey: 'myActivity', descKey: 'reviewsWishlistImpact', path: '/profile/activity' },
+    { icon: Headset, titleKey: 'customerService', descKey: 'helpSupportDesc', path: '/support' },
   ]
 
   return (
@@ -91,15 +93,15 @@ export default function AccountPage() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Hello, {user.name}</h1>
-            <p className="mt-1 text-slate-500 dark:text-slate-400">Manage your profile, orders, and settings</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{t('hello')}, {user.name}</h1>
+            <p className="mt-1 text-slate-500 dark:text-slate-400">{t('manageProfile')}</p>
           </div>
           <button
             onClick={handleLogout}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-50 text-rose-600 font-semibold text-sm hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-400 dark:hover:bg-rose-500/30 dark:hover:text-rose-300 transition-colors"
           >
             <LogOut size={16} />
-            Sign Out
+            {t('signOut')}
           </button>
         </div>
 
@@ -116,7 +118,7 @@ export default function AccountPage() {
                   </button>
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user.name}</h2>
-                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">Premium Member</p>
+                <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">{t('premiumMember')}</p>
               </div>
 
               <div className="pt-6 space-y-4">
@@ -125,7 +127,7 @@ export default function AccountPage() {
                     <Phone size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mobile Number</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('mobileNumber')}</p>
                     <div className="flex items-center justify-between group/mob">
                       <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">+91 {user.mobile}</p>
                       <button 
@@ -143,9 +145,9 @@ export default function AccountPage() {
                     <Mail size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email Address</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('emailAddress')}</p>
                     <div className="flex items-center justify-between group/email">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || 'Not added yet'}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.email || t('notAddedYet')}</p>
                       <button 
                         onClick={() => setUpdateModal({ isOpen: true, type: 'email' })}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 opacity-0 group-hover/email:opacity-100 transition-all"
@@ -164,8 +166,8 @@ export default function AccountPage() {
                     <MapPin size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Address</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">{defaultAddress || 'No address added yet'}</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('yourAddress')}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">{defaultAddress || t('noAddressAdded')}</p>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 self-center group-hover/addr:translate-x-1 transition-transform" />
                 </button>
@@ -194,8 +196,8 @@ export default function AccountPage() {
                     <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-slate-800 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Icon size={24} strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{item.title}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{item.desc}</p>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t(item.titleKey)}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{t(item.descKey)}</p>
                   </button>
                 )
               })}

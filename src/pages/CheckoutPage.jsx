@@ -4,9 +4,11 @@ import CartSummary from '../components/CartSummary'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
 import { Loader2, CheckCircle2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { items, itemCount, subtotal, deliveryFee, total, placeOrder } = useCart()
   const { user, pincode, locationInfo } = useUser()
 
@@ -80,12 +82,12 @@ export default function CheckoutPage() {
 
     // Simple email validation for '@'
     if (!formData.emailAddress.includes('@')) {
-      alert('Please enter a valid email address containing @')
+      alert(t('validEmailAlert'))
       return
     }
 
     if (formData.phoneNumber.length !== 10) {
-      alert('Phone number must be exactly 10 digits')
+      alert(t('phoneDigitsAlert'))
       return
     }
 
@@ -97,9 +99,9 @@ export default function CheckoutPage() {
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">
-          Checkout
+          {t('checkout')}
         </p>
-        <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">Complete your delivery</h1>
+        <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">{t('completeYourDelivery')}</h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -107,34 +109,34 @@ export default function CheckoutPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Full Name */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Full name
+              {t('fullNameLabel')}
               <input
                 required
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => updateField('fullName', e.target.value)}
-                placeholder="Enter your full name"
+                placeholder={t('enterFullName')}
                 className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
               />
             </label>
 
             {/* Phone Number */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Phone number
+              {t('phoneNumber')}
               <input
                 required
                 type="tel"
                 maxLength={10}
                 value={formData.phoneNumber}
                 onChange={(e) => updateField('phoneNumber', e.target.value)}
-                placeholder="10-digit number"
+                placeholder={t('tenDigitNumber')}
                 className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
               />
             </label>
 
             {/* Email Address */}
             <label className="md:col-span-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Email address
+              {t('emailAddressLabel')}
               <input
                 required
                 type="email"
@@ -147,7 +149,7 @@ export default function CheckoutPage() {
 
             {/* Pincode (Asked First) */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Postal code (Pincode)
+              {t('postalCode')}
               <div className="relative">
                 <input
                   required
@@ -155,7 +157,7 @@ export default function CheckoutPage() {
                   maxLength={6}
                   value={formData.postalCode}
                   onChange={(e) => updateField('postalCode', e.target.value)}
-                  placeholder="6-digit pincode"
+                  placeholder={t('sixDigitPincode')}
                   className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
                 />
                 {loadingLocation && <Loader2 className="absolute right-4 top-[60%] -translate-y-1/2 text-emerald-600 animate-spin" size={18} />}
@@ -164,14 +166,14 @@ export default function CheckoutPage() {
 
             {/* City (Auto-filled) */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Town / City
+              {t('townCity')}
               <div className="relative">
                 <input
                   required
                   readOnly
                   type="text"
                   value={formData.city}
-                  placeholder="Enter pincode first"
+                  placeholder={t('enterPincodeFirst')}
                   className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none cursor-not-allowed"
                 />
                 {!loadingLocation && formData.city && <CheckCircle2 className="absolute right-4 top-[60%] -translate-y-1/2 text-emerald-500" size={18} />}
@@ -180,47 +182,47 @@ export default function CheckoutPage() {
 
             {/* State (Auto-filled) */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              State
+              {t('state')}
               <input
                 required
                 readOnly
                 type="text"
                 value={formData.state}
-                placeholder="Enter pincode first"
+                placeholder={t('enterPincodeFirst')}
                 className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none cursor-not-allowed"
               />
             </label>
 
             {/* Street Address */}
             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Street address
+              {t('streetAddress')}
               <input
                 required
                 type="text"
                 value={formData.streetAddress}
                 onChange={(e) => updateField('streetAddress', e.target.value)}
-                placeholder="House no., Building, Street"
+                placeholder={t('streetAddressPlaceholder')}
                 className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
               />
             </label>
           </div>
 
           <label className="mt-6 block text-sm font-semibold text-slate-700 dark:text-slate-300">
-            Delivery notes
+            {t('deliveryNotes')}
             <textarea
               rows="4"
               value={formData.deliveryNotes}
               onChange={(event) => updateField('deliveryNotes', event.target.value)}
-              placeholder="Share pickup preferences, landmark details, or handling notes"
+              placeholder={t('deliveryNotesPlaceholder')}
               className="mt-2 w-full rounded-2xl border border-emerald-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 px-4 py-3 text-slate-900 dark:text-white outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500"
             />
           </label>
 
           <div className="mt-6 rounded-3xl bg-emerald-50 dark:bg-slate-700 p-5">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Order preview</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t('orderPreview')}</h2>
             <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
               {items.length === 0 ? (
-                <li>Your cart is currently empty.</li>
+                <li>{t('cartCurrentlyEmpty')}</li>
               ) : (
                 items.map((item) => (
                   <li key={item.id} className="flex items-center justify-between gap-4">
@@ -240,7 +242,7 @@ export default function CheckoutPage() {
             className="mt-6 rounded-full bg-slate-900 dark:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
             disabled={items.length === 0}
           >
-            Place Mock Order
+            {t('placeMockOrder')}
           </button>
         </form>
 

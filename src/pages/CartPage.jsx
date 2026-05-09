@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import CartSummary from '../components/CartSummary'
 import { useCart } from '../context/cart-context'
+import { useTranslation } from 'react-i18next'
 
 export default function CartPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { items, itemCount, subtotal, deliveryFee, total, updateQuantity, removeItem } =
     useCart()
 
@@ -11,25 +13,25 @@ export default function CartPage() {
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">
-          Your Cart
+          {t('yourCart')}
         </p>
-        <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">Review your basket</h1>
+        <h1 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">{t('reviewYourBasket')}</h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
         <div className="space-y-4">
           {items.length === 0 ? (
             <div className="rounded-[2rem] bg-white dark:bg-slate-800 p-8 shadow-sm">
-              <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Your cart is empty</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('yourCartIsEmpty')}</h2>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Add fresh produce from the catalog to start your next order.
+                {t('addFreshProduce')}
               </p>
               <button
                 type="button"
                 onClick={() => navigate('/products')}
                 className="mt-6 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white"
               >
-                Browse Products
+                {t('browseProducts')}
               </button>
             </div>
           ) : (
@@ -46,7 +48,7 @@ export default function CartPage() {
                 <div>
                   <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{item.name}</h2>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Seller: {item.sellerName ?? item.farm_name}
+                    {t('seller')}: {item.sellerName ?? item.farm_name}
                   </p>
                   <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
                     Rs. {item.price}/{item.unit}
@@ -54,7 +56,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex flex-col items-start gap-3 sm:items-end">
                   <label className="text-sm text-slate-600 dark:text-slate-400">
-                    Qty
+                    {t('qty')}
                     <input
                       type="number"
                       min="0"
@@ -73,7 +75,7 @@ export default function CartPage() {
                     onClick={() => removeItem(item.cartKey)}
                     className="text-sm font-semibold text-rose-600 dark:text-rose-400"
                   >
-                    Remove
+                    {t('remove')}
                   </button>
                 </div>
               </article>
@@ -86,7 +88,7 @@ export default function CartPage() {
           subtotal={subtotal}
           deliveryFee={deliveryFee}
           total={total}
-          ctaLabel="Proceed to Checkout"
+          ctaLabel={t('proceedToCheckout')}
           onCtaClick={() => navigate('/checkout')}
         />
       </div>

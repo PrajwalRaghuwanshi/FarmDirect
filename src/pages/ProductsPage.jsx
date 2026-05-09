@@ -8,12 +8,14 @@ import ProductModal from '../components/ProductModal'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
 import { products } from '../data/products'
+import { useTranslation } from 'react-i18next'
 
 const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic']
 
 export default function ProductsPage() {
   const { addItem } = useCart()
   const { addToRecentlyViewed, pincode, locationInfo } = useUser()
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [activeProduct, setActiveProduct] = useState(null)
@@ -47,14 +49,13 @@ export default function ProductsPage() {
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-600">
-              {selectedSeason !== 'All' ? `${selectedSeason} Harvest` : 'Product Gallery'}
+              {selectedSeason !== 'All' ? `${selectedSeason} ${t('harvest')}` : t('productGallery')}
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Shop by freshness, category, and origin
+              {t('shopByFreshness')}
             </h1>
             <p className="mt-3 max-w-2xl text-base text-slate-600 dark:text-slate-400">
-              Explore farm-direct ingredients with live stock snapshots, product
-              stories, and quick cart actions.
+              {t('exploreProducts')}
             </p>
           </div>
 
@@ -64,7 +65,7 @@ export default function ProductsPage() {
                 <MapPin size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Delivering to</p>
+                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">{t('deliveringTo')}</p>
                 <div className="flex items-baseline gap-2">
                   <p className="text-lg font-bold text-slate-900 dark:text-white leading-none mt-0.5">{pincode}</p>
                   {locationInfo && (
@@ -86,7 +87,7 @@ export default function ProductsPage() {
           />
           {selectedSeason !== 'All' && (
             <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700 h-8">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Season: <span className="text-emerald-600 font-semibold">{selectedSeason}</span></span>
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('season')}: <span className="text-emerald-600 font-semibold">{selectedSeason}</span></span>
               <button 
                 onClick={() => {
                   const newParams = new URLSearchParams(searchParams)
@@ -95,7 +96,7 @@ export default function ProductsPage() {
                 }}
                 className="text-xs text-rose-500 hover:text-rose-600 font-semibold bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-md transition"
               >
-                Clear
+                {t('clear')}
               </button>
             </div>
           )}
@@ -103,8 +104,8 @@ export default function ProductsPage() {
 
         <div className="mt-6 flex items-center justify-between">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Showing <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
-            products
+            {t('showing')} <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
+            {t('products')}
           </p>
         </div>
       </div>
@@ -125,9 +126,9 @@ export default function ProductsPage() {
 
       {filteredProducts.length === 0 && (
         <div className="mt-10 rounded-3xl border border-dashed border-emerald-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 px-6 py-12 text-center transition-colors">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">No matching products</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('noMatchingProducts')}</h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Try a different search term or switch to another category.
+            {t('tryDifferentSearch')}
           </p>
         </div>
       )}

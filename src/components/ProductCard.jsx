@@ -1,9 +1,11 @@
 import { Heart, ShoppingCart } from 'lucide-react'
 import { useUser } from '../context/UserContext'
+import { useTranslation } from 'react-i18next'
 
 export default function ProductCard({ product, onAddToCart, onViewDetails }) {
   const primarySeller = product.sellers?.[0]
   const { wishlist, toggleWishlist } = useUser()
+  const { t } = useTranslation()
   const isWishlisted = wishlist.some(item => item.id === product.id)
 
   return (
@@ -41,17 +43,17 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
             </h2>
           </div>
           <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-amber-700 dark:text-amber-400 h-fit">
-            {product.stock_level} Left
+            {product.stock_level} {t('left')}
           </span>
         </div>
 
         <div className="space-y-1 text-[clamp(0.65rem,0.6vw+0.45rem,0.75rem)] text-slate-600 dark:text-slate-400">
           <p className="flex items-center gap-1.5 truncate">
-            <span className="opacity-60 shrink-0">Origin:</span>
+            <span className="opacity-60 shrink-0">{t('origin')}:</span>
             <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{product.farm_name}</span>
           </p>
           <p className="flex items-center gap-1.5">
-            <span className="opacity-60 shrink-0">Price:</span>
+            <span className="opacity-60 shrink-0">{t('price')}:</span>
             <span className="font-bold text-slate-900 dark:text-white">
               Rs. {primarySeller?.price ?? product.price}/{product.unit}
             </span>
@@ -64,7 +66,7 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
             onClick={() => onViewDetails(product)}
             className="flex-1 h-10 rounded-xl border border-slate-200 dark:border-slate-700 text-[clamp(0.65rem,0.5vw+0.45rem,0.75rem)] font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center"
           >
-            Details
+            {t('details')}
           </button>
           <button
             type="button"
@@ -83,7 +85,7 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
               )
             }
             className="flex-1 h-10 rounded-xl bg-slate-900 dark:bg-emerald-700 text-white transition hover:brightness-110 shadow-lg shadow-emerald-900/10 flex items-center justify-center"
-            title="Add to Cart"
+            title={t('addToCart')}
           >
             <ShoppingCart size={18} strokeWidth={2.5} />
           </button>
