@@ -278,5 +278,7 @@
   "qtyPrice": "बिसान: {{count}} • रु. {{price}}/गोबां",
   "totalAmount": "जोबथा: रु. {{amount}}",
   "noOrdersYet": "बे बिभागआव अर्डार गैयि",
-  "noOrdersDesc": "बथाव नागिरनो गोदान अर्डार हो, ना गोबां बेसाद नागिरनो ट्रेब सोलाय।"
+  "noOrdersDesc": "बथाव नागिरनो गोदान अर्डार हो, ना गोबां बेसाद नागिरनो ट्रेब सोलाय।",
+  "accountSettings": "Account Settings",
+  "manageCustomInfo": "Manage your profile and custom settings"
 }

@@ -3,7 +3,10 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const UserContext = createContext()
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('farmdirect-user')
+    return stored ? JSON.parse(stored) : null
+  })
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem('farmdirect-wishlist')
     return saved ? JSON.parse(saved) : []
@@ -80,6 +83,35 @@ export function UserProvider({ children }) {
     setUser(userData)
   }
 
+  const updateUser = async (updates) => {
+    if (!user || !user._id) {
+       // fallback for purely local changes if missing ID
+       const updated = { ...user, ...updates }
+       login(updated)
+       return updated
+    }
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiUrl}/api/customers/update/${user._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        login(data.user);
+        return data.user;
+      } else {
+        console.error("Update failed:", data.error);
+        return null;
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      return null;
+    }
+  }
+
   const logout = () => {
     localStorage.removeItem('farmdirect-user')
     setUser(null)
@@ -143,7 +175,7 @@ export function UserProvider({ children }) {
 
   return (
     <UserContext.Provider value={{ 
-      user, login, logout, 
+      user, login, logout, updateUser,
       wishlist, toggleWishlist, 
       recentlyViewed, addToRecentlyViewed, clearRecentlyViewed,
       pincode, updatePincode,

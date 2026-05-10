@@ -15,7 +15,7 @@ const heroImages = [
 export default function AccountPage() {
   const navigate = useNavigate()
   const { username } = useParams()
-  const { user, login, logout } = useUser()
+  const { user, login, logout, updateUser } = useUser()
   const { t } = useTranslation()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [updateModal, setUpdateModal] = useState({ isOpen: false, type: 'mobile' })
@@ -59,15 +59,19 @@ export default function AccountPage() {
     navigate('/')
   }
 
-  const handleProfileUpdate = (newValue) => {
-    login({ ...user, [updateModal.type]: newValue })
+  const handleProfileUpdate = async (newValue) => {
+    const updatedUser = await updateUser({ [updateModal.type]: newValue })
+    if (!updatedUser) {
+       alert("Failed to update profile details.")
+    }
   }
 
   const menuItems = [
-    { icon: Package, titleKey: 'yourOrders', descKey: 'trackReturnBuy', path: '/orders' },
-    { icon: History, titleKey: 'recentlyViewed', descKey: 'checkWhatViewed', path: '/profile/recently-viewed' },
-    { icon: Activity, titleKey: 'myActivity', descKey: 'reviewsWishlistImpact', path: '/profile/activity' },
-    { icon: Headset, titleKey: 'customerService', descKey: 'helpSupportDesc', path: '/support' },
+    { icon: Package, titleKey: 'yourOrders', titleFallback: 'Your Orders', descKey: 'trackReturnBuy', descFallback: 'Track, return, or buy things again', path: '/orders' },
+    { icon: Settings, titleKey: 'accountSettings', titleFallback: 'Account Settings', descKey: 'manageCustomInfo', descFallback: 'Manage your profile and custom settings', path: '/profile/settings' },
+    { icon: History, titleKey: 'recentlyViewed', titleFallback: 'Recently Viewed', descKey: 'checkWhatViewed', descFallback: 'Check what you viewed recently', path: '/profile/recently-viewed' },
+    { icon: Activity, titleKey: 'myActivity', titleFallback: 'My Activity', descKey: 'reviewsWishlistImpact', descFallback: 'Reviews, Wishlist, and Impact', path: '/profile/activity' },
+    { icon: Headset, titleKey: 'customerService', titleFallback: 'Customer Service', descKey: 'helpSupportDesc', descFallback: 'Get help and support', path: '/support' },
   ]
 
   return (
@@ -113,8 +117,8 @@ export default function AccountPage() {
               <div className="flex flex-col items-center text-center pb-6 border-b border-slate-100 dark:border-slate-800">
                 <div className="h-24 w-24 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 flex items-center justify-center mb-4 relative group">
                   <UserRound size={40} strokeWidth={1.5} />
-                  <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:bg-emerald-700 transition-transform hover:scale-105">
-                    <Edit2 size={14} />
+                  <button onClick={() => navigate('/profile/settings')} className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:bg-emerald-700 transition-transform hover:scale-105" title="Account Settings">
+                    <Settings size={14} />
                   </button>
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user.name}</h2>
@@ -196,8 +200,8 @@ export default function AccountPage() {
                     <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-slate-800 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Icon size={24} strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t(item.titleKey)}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{t(item.descKey)}</p>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t(item.titleKey, item.titleFallback)}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{t(item.descKey, item.descFallback)}</p>
                   </button>
                 )
               })}

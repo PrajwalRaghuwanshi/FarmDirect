@@ -2,8 +2,9 @@ import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
+import { useEffect, useState } from 'react'
 
-const farmers = [
+const defaultFarmers = [
   {
     name: 'Rajesh Kumar',
     location: 'Nashik, Maharashtra',
@@ -67,9 +68,50 @@ const badgeColors = {
 }
 
 export default function FarmersPage() {
-  const { locationInfo } = useUser()
+  const { locationInfo, user } = useUser()
   const { t } = useTranslation()
-  const displayLocation = locationInfo ? `${locationInfo.district}, ${locationInfo.state}` : 'Pune, Maharashtra'
+  const [farmers, setFarmers] = useState(defaultFarmers)
+
+  useEffect(() => {
+    const fetchFarmers = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/farmers?state=${user?.state || ''}`);
+
+        const data = await res.json();
+        const fetchedFarmers = data?.farmers ?? [];
+
+        if (fetchedFarmers.length > 0) {
+          const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
+            id: dbFarmer._id,
+            name: dbFarmer.name || 'Farmer',
+            location: [dbFarmer.city, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
+            distance: 'Nearby',
+            specialization: dbFarmer.crops?.length ? dbFarmer.crops : ['Organic Produce'],
+            experience: dbFarmer.experience || 5,
+            image: dbFarmer.image || defaultFarmers[i % defaultFarmers.length].image,
+            badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
+            bioKey: dbFarmer.bio || 'farmerBioRajesh',
+          }));
+          setFarmers(mappedFarmers);
+        }
+      } catch (err) {
+        console.error("Error fetching farmers:", err);
+      }
+    };
+
+    if (user?.state) {
+      fetchFarmers();
+    }
+  }, [user]);
+
+  let displayLocation = 'Pune, Maharashtra';
+  if (user && user.city && user.state) {
+    displayLocation = `${user.city}, ${user.state}`;
+  } else if (locationInfo) {
+    displayLocation = `${locationInfo.district}, ${locationInfo.state}`;
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Page Header */}
@@ -93,9 +135,9 @@ export default function FarmersPage() {
 
       {/* Farmer Cards Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {farmers.map((farmer) => (
+        {farmers.map((farmer, index) => (
           <div
-            key={farmer.name}
+            key={farmer.id || farmer.name + index}
             className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 dark:border-slate-700/50 dark:bg-slate-800/80"
           >
             {/* Top accent bar */}
@@ -168,7 +210,7 @@ export default function FarmersPage() {
                   {t('viewProducts')}
                 </button>
                 <div className="flex gap-2">
-                  <Link 
+                  <Link
                     to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
                     className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
                   >

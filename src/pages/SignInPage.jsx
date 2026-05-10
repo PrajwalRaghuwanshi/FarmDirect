@@ -10,8 +10,14 @@ const RESEND_COOLDOWN = 30
 
 export default function SignInPage() {
   const navigate = useNavigate()
-  const { login, updatePincode } = useUser()
-  const { t } = useTranslation()
+  const { user, login, updatePincode } = useUser()
+  const { t, i18n } = useTranslation()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
 
   /* ───── state ───── */
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP, 3 = Pincode
@@ -123,17 +129,54 @@ export default function SignInPage() {
   }
 
   /* ───── submit pincode ───── */
-  function handleSubmitPincode(e) {
+  async function handleSubmitPincode(e) {
     e.preventDefault()
     if (!/^\d{6}$/.test(pincodeInput.trim())) {
       setPincodeError(t('invalidPincode') || 'Please enter a valid 6-digit pincode')
       return
     }
     
-    // success — save user, set pincode, and navigate home
-    login({ name, mobile })
-    updatePincode(pincodeInput.trim())
-    window.location.href = '/'
+    try {
+      let city = '';
+      let state = '';
+      try {
+        const locationRes = await fetch(`https://api.postalpincode.in/pincode/${pincodeInput.trim()}`)
+        const locationData = await locationRes.json()
+        if (locationData && locationData[0].Status === "Success") {
+          const postOffice = locationData[0].PostOffice[0]
+          city = postOffice.District
+          state = postOffice.State
+        }
+      } catch (err) {
+        console.error("Failed to fetch location", err)
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiUrl}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          mobile,
+          pincode: pincodeInput.trim(),
+          city,
+          state,
+          languagepreference: i18n.language || 'en'
+        })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        login(data.user)
+        updatePincode(pincodeInput.trim())
+        window.location.href = '/'
+      } else {
+        setPincodeError(data.error || 'Failed to register account')
+      }
+    } catch (err) {
+      console.error(err);
+      setPincodeError('Network error. Please try again.')
+    }
   }
 
   /* ───── resend OTP ───── */

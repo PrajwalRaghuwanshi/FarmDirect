@@ -278,5 +278,7 @@
   "qtyPrice": "ꯃꯁꯤꯡ: {{count}} • ꯔꯨ. {{price}}/ꯑꯃꯝꯑꯃ",
   "totalAmount": "ꯄꯨꯝꯅꯃꯛ: ꯔꯨ. {{amount}}",
   "noOrdersYet": "ꯃꯁꯤꯒꯤ ꯁꯦꯛꯁꯟꯗ ꯍꯧꯖꯤꯛ ꯑꯣꯔꯗꯔ ꯂꯩꯇꯔꯤ",
-  "noOrdersDesc": "ꯃꯐꯝ ꯑꯁꯤꯗ ꯌꯦꯡꯅꯕ ꯑꯅꯧꯕ ꯑꯣꯔꯗꯔ ꯄꯤꯕꯤꯌꯨ꯫"
+  "noOrdersDesc": "ꯃꯐꯝ ꯑꯁꯤꯗ ꯌꯦꯡꯅꯕ ꯑꯅꯧꯕ ꯑꯣꯔꯗꯔ ꯄꯤꯕꯤꯌꯨ꯫",
+  "accountSettings": "Account Settings",
+  "manageCustomInfo": "Manage your profile and custom settings"
 }

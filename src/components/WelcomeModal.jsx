@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 export default function WelcomeModal() {
   const navigate = useNavigate()
   const { login, updatePincode, pincode: storedPincode } = useUser()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   // steps: 'choice' | 'register' | 'signin' | 'otp' | 'pincode'
   const [step, setStep] = useState('choice')
@@ -57,28 +57,45 @@ export default function WelcomeModal() {
     }, 1200)
   }
 
-  // OTP verify
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    
+    if (authMode === 'register') {
       setLoading(false)
-      if (authMode === 'register') {
-        setStep('pincode')
-      } else {
-        // Sign-in: determine if value is email or mobile
-        const isEmail = signinValue.includes('@')
-        const userData = {
-          name: '',
-          email: isEmail ? signinValue : '',
-          mobile: isEmail ? '' : signinValue,
+      setStep('pincode')
+    } else {
+      // Sign-in
+      const isEmail = signinValue.includes('@')
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+             mobile: isEmail ? '' : signinValue,
+             email: isEmail ? signinValue : '',
+             name: 'User',
+             languagepreference: i18n.language || 'en'
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          login(data.user);
+        } else {
+          login({ name: 'User', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
         }
-        login(userData)
-        sessionStorage.setItem('farmdirect-seen-welcome', 'true')
-        setIsOpen(false)
-        window.location.reload()
+      } catch (err) {
+        console.error(err);
+        login({ name: 'User', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
       }
-    }, 1200)
+      
+      setLoading(false)
+      sessionStorage.setItem('farmdirect-seen-welcome', 'true')
+      setIsOpen(false)
+      window.location.reload()
+    }
   }
 
   const handlePincodeSubmit = async (e) => {
@@ -90,9 +107,51 @@ export default function WelcomeModal() {
     finishAuth()
   }
 
-  const finishAuth = () => {
-    const userData = { name, email, mobile }
-    login(userData)
+  const finishAuth = async () => {
+    setLoading(true)
+    let city = '';
+    let state = '';
+    try {
+      if (tempPincode && tempPincode.length === 6) {
+        const locationRes = await fetch(`https://api.postalpincode.in/pincode/${tempPincode}`)
+        const locationData = await locationRes.json()
+        if (locationData && locationData[0].Status === "Success") {
+          const postOffice = locationData[0].PostOffice[0]
+          city = postOffice.District
+          state = postOffice.State
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiUrl}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name || 'User',
+          mobile,
+          email,
+          pincode: tempPincode,
+          city,
+          state,
+          languagepreference: i18n.language || 'en'
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        login(data.user)
+      } else {
+        login({ name, email, mobile })
+      }
+    } catch (err) {
+      console.error(err)
+      login({ name, email, mobile })
+    }
+
+    setLoading(false)
     sessionStorage.setItem('farmdirect-seen-welcome', 'true')
     setIsOpen(false)
     window.location.reload()
