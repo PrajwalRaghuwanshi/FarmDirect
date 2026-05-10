@@ -123,7 +123,8 @@ export function UserProvider({ children }) {
           setLocationInfo({ district, state })
 
           // 2. Fetch local products from backend based on the discovered district
-          const res = await fetch(`http://localhost:5000/api/products/local?district=${encodeURIComponent(district)}`)
+          const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+          const res = await fetch(`${apiUrl}/api/products/local?district=${encodeURIComponent(district)}`)
           const productData = await res.json()
           if (productData.products) {
             setNearbyProducts(productData.products)

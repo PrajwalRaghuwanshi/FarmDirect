@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2, MapPin } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 
@@ -10,11 +10,13 @@ const RESEND_COOLDOWN = 30
 
 export default function SignInPage() {
   const navigate = useNavigate()
-  const { login } = useUser()
+  const { login, updatePincode } = useUser()
   const { t } = useTranslation()
 
   /* ───── state ───── */
-  const [step, setStep] = useState(1) // 1 = form, 2 = OTP
+  const [step, setStep] = useState(1) // 1 = form, 2 = OTP, 3 = Pincode
+  const [pincodeInput, setPincodeInput] = useState('')
+  const [pincodeError, setPincodeError] = useState('')
   const [name, setName] = useState('')
   const [mobile, setMobile] = useState('')
   const [errors, setErrors] = useState({})
@@ -112,10 +114,26 @@ export default function SignInPage() {
     // simulate verification
     setTimeout(() => {
       setVerifying(false)
-      // success — save user and navigate home
-      login({ name, mobile })
-      window.location.href = '/'
+      setAnimating(true)
+      setTimeout(() => {
+        setStep(3)
+        setAnimating(false)
+      }, 350)
     }, 1500)
+  }
+
+  /* ───── submit pincode ───── */
+  function handleSubmitPincode(e) {
+    e.preventDefault()
+    if (!/^\d{6}$/.test(pincodeInput.trim())) {
+      setPincodeError(t('invalidPincode') || 'Please enter a valid 6-digit pincode')
+      return
+    }
+    
+    // success — save user, set pincode, and navigate home
+    login({ name, mobile })
+    updatePincode(pincodeInput.trim())
+    window.location.href = '/'
   }
 
   /* ───── resend OTP ───── */
@@ -150,23 +168,28 @@ export default function SignInPage() {
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25">
               {step === 1 ? (
                 <UserRound size={30} className="text-white" strokeWidth={1.8} />
-              ) : (
+              ) : step === 2 ? (
                 <ShieldCheck size={30} className="text-white" strokeWidth={1.8} />
+              ) : (
+                <MapPin size={30} className="text-white" strokeWidth={1.8} />
               )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {step === 1 ? t('welcomeToFarmDirect') : t('verifyYourNumber')}
+              {step === 1 ? t('welcomeToFarmDirect') : step === 2 ? t('verifyYourNumber') : t('enterDeliveryPincode') || 'Delivery Pincode'}
             </h2>
             <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
               {step === 1
                 ? t('signInDesc')
-                : (
+                : step === 2
+                ? (
                   <>
                     {t('enterOtpCode')}{' '}
                     <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                       {maskedMobile}
                     </span>
                   </>
+                ) : (
+                  t('pincodeDesc') || 'Enter your pincode to discover fresh produce near you'
                 )}
             </p>
           </div>
@@ -361,6 +384,58 @@ export default function SignInPage() {
               >
                 <ArrowRight size={12} className="rotate-180" />
                 {t('changeMobileNumber')}
+              </button>
+            </form>
+          )}
+
+          {/* ─── Step 3: Pincode ─── */}
+          {step === 3 && (
+            <form onSubmit={handleSubmitPincode} className="space-y-5 px-8 pt-6 pb-10">
+              <div>
+                <label
+                  htmlFor="signin-pincode"
+                  className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  {t('pincode') || 'Pincode'} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <MapPin
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  />
+                  <input
+                    id="signin-pincode"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={pincodeInput}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 6)
+                      setPincodeInput(v)
+                      if (pincodeError) setPincodeError('')
+                    }}
+                    placeholder="e.g. 400001"
+                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${pincodeError
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
+                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
+                      }`}
+                  />
+                </div>
+                {pincodeError && (
+                  <p className="mt-1.5 text-xs font-medium text-rose-500">{pincodeError}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={pincodeInput.length !== 6}
+                className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {t('completeSignIn') || 'Complete Sign In'}
+                <ArrowRight
+                  size={16}
+                  className="transition-transform group-hover:translate-x-1"
+                />
               </button>
             </form>
           )}
