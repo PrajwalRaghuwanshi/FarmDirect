@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react'
 import { useUser } from '../context/UserContext'
+import { useTranslation } from 'react-i18next'
 
 const OTP_LENGTH = 6
 const RESEND_COOLDOWN = 30
@@ -10,6 +11,7 @@ const RESEND_COOLDOWN = 30
 export default function SignInPage() {
   const navigate = useNavigate()
   const { login } = useUser()
+  const { t } = useTranslation()
 
   /* ───── state ───── */
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP
@@ -35,11 +37,11 @@ export default function SignInPage() {
   /* ───── validation ───── */
   function validate() {
     const e = {}
-    if (!name.trim()) e.name = 'Name is required'
+    if (!name.trim()) e.name = t('nameRequired')
     if (!mobile.trim()) {
-      e.mobile = 'Mobile number is required'
+      e.mobile = t('mobileRequired')
     } else if (!/^[6-9]\d{9}$/.test(mobile.trim())) {
-      e.mobile = 'Enter a valid 10-digit mobile number'
+      e.mobile = t('invalidMobile')
     }
     setErrors(e)
     return Object.keys(e).length === 0
@@ -102,7 +104,7 @@ export default function SignInPage() {
     e.preventDefault()
     const code = otp.join('')
     if (code.length < OTP_LENGTH) {
-      setOtpError('Please enter the full OTP')
+      setOtpError(t('enterFullOtp'))
       return
     }
 
@@ -153,14 +155,14 @@ export default function SignInPage() {
               )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {step === 1 ? 'Welcome to FarmDirect' : 'Verify Your Number'}
+              {step === 1 ? t('welcomeToFarmDirect') : t('verifyYourNumber')}
             </h2>
             <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
               {step === 1
-                ? 'Sign in to access fresh farm produce delivered to your doorstep.'
+                ? t('signInDesc')
                 : (
                   <>
-                    Enter the 6-digit code sent to{' '}
+                    {t('enterOtpCode')}{' '}
                     <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                       {maskedMobile}
                     </span>
@@ -178,7 +180,7 @@ export default function SignInPage() {
                   htmlFor="signin-name"
                   className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
                 >
-                  Full Name <span className="text-rose-500">*</span>
+                  {t('fullName')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <UserRound
@@ -193,7 +195,7 @@ export default function SignInPage() {
                       setName(e.target.value)
                       if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
                     }}
-                    placeholder="Enter your full name"
+                    placeholder={t('enterFullName')}
                     className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.name
                         ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
                         : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
@@ -211,7 +213,7 @@ export default function SignInPage() {
                   htmlFor="signin-mobile"
                   className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
                 >
-                  Mobile Number <span className="text-rose-500">*</span>
+                  {t('mobileNumber')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <Phone
@@ -253,11 +255,11 @@ export default function SignInPage() {
                 {sending ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Sending OTP…
+                    {t('sendingOtp')}
                   </>
                 ) : (
                   <>
-                    Get OTP
+                    {t('getOtp')}
                     <ArrowRight
                       size={16}
                       className="transition-transform group-hover:translate-x-1"
@@ -268,13 +270,13 @@ export default function SignInPage() {
 
               {/* Terms */}
               <p className="text-center text-[11px] leading-relaxed text-slate-400 dark:text-slate-500">
-                By signing in, you agree to our{' '}
+                {t('termsAgreement')}{' '}
                 <span className="cursor-pointer font-medium text-emerald-600 hover:underline dark:text-emerald-400">
-                  Terms of Service
+                  {t('termsOfService')}
                 </span>{' '}
-                and{' '}
+                {t('and')}{' '}
                 <span className="cursor-pointer font-medium text-emerald-600 hover:underline dark:text-emerald-400">
-                  Privacy Policy
+                  {t('privacyPolicy')}
                 </span>
               </p>
             </form>
@@ -317,12 +319,12 @@ export default function SignInPage() {
                 {verifying ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Verifying…
+                    {t('verifyingOtp')}
                   </>
                 ) : (
                   <>
                     <ShieldCheck size={18} />
-                    Verify & Sign In
+                    {t('verifyAndSignIn')}
                   </>
                 )}
               </button>
@@ -330,10 +332,10 @@ export default function SignInPage() {
               {/* Resend */}
               <div className="text-center">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Didn't receive the code?{' '}
+                  {t('didntReceiveCode')}{' '}
                   {resendTimer > 0 ? (
                     <span className="font-medium text-slate-400 dark:text-slate-500">
-                      Resend in {resendTimer}s
+                      {t('resendIn', { seconds: resendTimer })}
                     </span>
                   ) : (
                     <button
@@ -341,7 +343,7 @@ export default function SignInPage() {
                       onClick={handleResend}
                       className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
                     >
-                      Resend OTP
+                      {t('resendOtp')}
                     </button>
                   )}
                 </p>
@@ -358,7 +360,7 @@ export default function SignInPage() {
                 className="mx-auto flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
               >
                 <ArrowRight size={12} className="rotate-180" />
-                Change mobile number
+                {t('changeMobileNumber')}
               </button>
             </form>
           )}
@@ -367,7 +369,7 @@ export default function SignInPage() {
         {/* Brand footer */}
         <div className="mt-6 flex items-center justify-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
           <Leaf size={14} className="text-emerald-500" />
-          <span>FarmDirect — From Farm. To You.</span>
+          <span>{t('brandFooter')}</span>
         </div>
       </div>
     </section>

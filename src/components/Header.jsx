@@ -447,14 +447,14 @@ export default function Header() {
                   <div className="pl-4 mt-2 grid grid-cols-2 gap-4">
                     {shopCategories.map((cat) => (
                       <button
-                        key={cat.heading}
+                        key={cat.translationKey}
                         onClick={() => {
                           setMobileMenuOpen(false)
                           goToCategory(cat.category)
                         }}
                         className="text-left py-1 text-sm text-slate-500 dark:text-slate-400 hover:text-emerald-600"
                       >
-                        {cat.heading}
+                        {t(cat.translationKey)}
                       </button>
                     ))}
                   </div>

@@ -10,7 +10,7 @@ import { useUser } from '../context/UserContext'
 import { products } from '../data/products'
 import { useTranslation } from 'react-i18next'
 
-const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic']
+const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic', 'Commercial Crops', 'Spices', 'Fibers']
 
 export default function ProductsPage() {
   const { addItem } = useCart()

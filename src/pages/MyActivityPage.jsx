@@ -1,50 +1,54 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Star, Heart, Cloud, HandHeart, Activity, ArrowRight, Trash2 } from 'lucide-react'
 import { useUser } from '../context/UserContext'
+import { useTranslation } from 'react-i18next'
 
 export default function MyActivityPage() {
   const navigate = useNavigate()
   const { user, wishlist, toggleWishlist } = useUser()
+  const { t } = useTranslation()
 
   if (!user) return null
 
   const activityCards = [
     {
       id: 'reviews',
-      title: 'Your Reviews',
-      desc: 'Share your feedback on harvests you have received.',
+      titleKey: 'yourReviews',
+      descKey: 'yourReviewsDesc',
       icon: Star,
       iconColor: 'text-amber-600',
       bgColor: 'bg-amber-50 dark:bg-amber-900/20',
       path: '/profile/reviews',
-      value: '12 Reviews'
+      value: t('reviewsCount', { count: 12 })
     },
     {
       id: 'wishlist',
-      title: 'My Wishlist',
-      desc: 'Keep track of seasonal products you want to buy later.',
+      titleKey: 'myWishlist',
+      descKey: 'myWishlistDesc',
       icon: Heart,
       iconColor: 'text-rose-600',
       bgColor: 'bg-rose-50 dark:bg-rose-900/20',
       path: '/profile/wishlist',
-      value: `${wishlist.length} Items`
+      value: t('wishlistItems', { count: wishlist.length })
     }
   ]
 
   const impactMetrics = [
     {
-      label: 'Emission Saved',
+      labelKey: 'emissionSaved',
       value: '12.5 kg',
       icon: Cloud,
       color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      descKey: 'emissionSavedDesc'
     },
     {
-      label: 'Farmers Helped',
-      value: '8 Farmers',
+      labelKey: 'farmersHelped',
+      value: t('farmersHelpedValue', { count: 8 }),
       icon: HandHeart,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20'
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      descKey: 'farmersHelpedDesc'
     }
   ]
 
@@ -60,13 +64,13 @@ export default function MyActivityPage() {
               className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 mb-4 transition-colors text-sm font-medium"
             >
               <ChevronLeft size={16} />
-              Back to Account
+              {t('backToAccount')}
             </button>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
               <Activity className="text-emerald-600" size={32} />
-              My Activity & Impact
+              {t('myActivityAndImpact')}
             </h1>
-            <p className="mt-1 text-slate-500 dark:text-slate-400">Track your contributions and saved favorites</p>
+            <p className="mt-1 text-slate-500 dark:text-slate-400">{t('trackContributions')}</p>
           </div>
         </div>
 
@@ -74,7 +78,7 @@ export default function MyActivityPage() {
           
           {/* Main Activity Sections */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2 pl-1">Recent Activity</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2 pl-1">{t('recentActivity')}</h2>
             {activityCards.map((card) => {
               const Icon = card.icon
               return (
@@ -88,12 +92,12 @@ export default function MyActivityPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-bold text-slate-900 dark:text-white">{card.title}</h3>
+                      <h3 className="font-bold text-slate-900 dark:text-white">{t(card.titleKey)}</h3>
                       <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-full">
                         {card.value}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{card.desc}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{t(card.descKey)}</p>
                   </div>
                   <ArrowRight size={20} className="text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
                 </button>
@@ -103,7 +107,7 @@ export default function MyActivityPage() {
 
           {/* Impact Stats */}
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2 pl-1">Your Green Impact</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2 pl-1">{t('yourGreenImpact')}</h2>
             <div className="grid grid-cols-1 gap-4">
               {impactMetrics.map((metric, idx) => {
                 const Icon = metric.icon
@@ -115,12 +119,10 @@ export default function MyActivityPage() {
                     <div className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center mb-4">
                       <Icon className={metric.color} size={24} />
                     </div>
-                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{metric.label}</span>
+                    <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{t(metric.labelKey)}</span>
                     <p className={`text-4xl font-black ${metric.color} mt-2 tracking-tight`}>{metric.value}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-500 mt-4 leading-relaxed max-w-[200px]">
-                      {idx === 0 
-                        ? 'Estimated CO2 saved by choosing local farm-direct deliveries.' 
-                        : 'Local farmers supported through your seasonal purchases.'}
+                      {t(metric.descKey)}
                     </p>
                   </div>
                 )
@@ -134,15 +136,15 @@ export default function MyActivityPage() {
         {/* Bottom Banner */}
         <div className="mt-12 p-8 rounded-[3rem] bg-gradient-to-br from-emerald-600 to-teal-700 text-white relative overflow-hidden shadow-xl shadow-emerald-900/20">
           <div className="relative z-10 max-w-lg">
-            <h3 className="text-2xl font-bold mb-2">Keep Harvesting Goodness</h3>
+            <h3 className="text-2xl font-bold mb-2">{t('keepHarvestingGoodness')}</h3>
             <p className="text-emerald-100/90 text-sm leading-relaxed mb-6">
-              Your choices directly impact our local farming ecosystem. Every order helps a family farm thrive and reduces the carbon footprint of your food.
+              {t('keepHarvestingDesc')}
             </p>
             <button 
               onClick={() => navigate('/products')}
               className="px-6 py-3 bg-white text-emerald-700 font-bold rounded-xl text-sm hover:bg-emerald-50 transition-colors shadow-lg shadow-black/10"
             >
-              Shop New Harvests
+              {t('shopNewHarvests')}
             </button>
           </div>
           <Activity className="absolute -right-8 -bottom-8 text-white/10 w-64 h-64 rotate-12" />
