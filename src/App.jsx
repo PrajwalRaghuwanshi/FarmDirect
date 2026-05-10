@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Layout from './components/Layout'
 import AboutPage from './pages/AboutPage'
 import CartPage from './pages/CartPage'
@@ -24,7 +26,17 @@ import MyActivityPage from './pages/MyActivityPage'
 import WishlistPage from './pages/WishlistPage'
 import SupportPage from './pages/SupportPage'
 
+const RTL_LANGUAGES = ['ur', 'sd', 'ks'];
+
 export default function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const dir = RTL_LANGUAGES.includes(i18n.language) ? 'rtl' : 'ltr';
+    document.documentElement.setAttribute('dir', dir);
+    document.documentElement.setAttribute('lang', i18n.language);
+  }, [i18n.language]);
+
   return (
     <Routes>
       <Route element={<Layout />}>

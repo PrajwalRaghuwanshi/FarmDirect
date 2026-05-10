@@ -147,10 +147,13 @@ const sampleProducts = [
   },
 ]
 
+const RTL_LANGUAGES = ['ur', 'sd', 'ks'];
+
 export default function HomePage() {
   const { addItem } = useCart()
   const { addToRecentlyViewed, nearbyProducts, locationInfo, loadingLocal } = useUser()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const isRTL = RTL_LANGUAGES.includes(i18n.language)
   const [activeProduct, setActiveProduct] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -177,12 +180,12 @@ export default function HomePage() {
                   }`}
               />
             ))}
-            {/* Gradient overlay to make text readable */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent w-full md:w-2/3 z-0"></div>
+            {/* Gradient overlay to make text readable — flips for RTL */}
+            <div className={`absolute inset-0 ${isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white via-white/80 to-transparent w-full md:w-2/3 z-0`}></div>
           </div>
 
           {/* Content */}
-          <div className="relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center md:items-start md:text-left">
+          <div className={`relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center ${isRTL ? 'md:items-end md:text-right' : 'md:items-start md:text-left'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-2 text-sm font-semibold text-emerald-800 backdrop-blur-sm">
               <Leaf size={16} className="text-emerald-600" />
               {t('freshLocalSustainable')}
@@ -212,21 +215,21 @@ export default function HomePage() {
           </div>
 
           {/* Floating Know Your Farmer Card */}
-          <div className="absolute right-8 top-1/4 hidden lg:block rounded-2xl bg-white/95 p-6 shadow-xl backdrop-blur-md w-72">
+          <div className={`absolute top-1/4 hidden lg:block rounded-2xl bg-white/95 p-6 shadow-xl backdrop-blur-md w-72 ${isRTL ? 'left-8' : 'right-8'}`}>
             <h3 className="text-lg font-bold text-slate-900">{t('knowYourFarmer')}</h3>
             <p className="mt-1 text-sm text-slate-500">{t('seeWhoGrows')}</p>
 
             <Link to="/farmers" className="mt-4 flex w-fit items-center text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition">
-              {t('meetOurFarmers')} <ChevronRight size={16} className="ml-1" />
+              {t('meetOurFarmers')} <ChevronRight size={16} className={isRTL ? 'mr-1 rotate-180' : 'ml-1'} />
             </Link>
 
             <div className="mt-4 flex items-center gap-[-8px]">
               {['1', '2', '3', '4'].map((i) => (
-                <div key={i} className={`h-8 w-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden ${i !== '1' ? '-ml-2' : ''}`}>
+                <div key={i} className={`h-8 w-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden ${i !== '1' ? (isRTL ? '-mr-2' : '-ml-2') : ''}`}>
                   <img src={`https://i.pravatar.cc/100?img=${parseInt(i) + 10}`} alt="Farmer" className="w-full h-full object-cover" />
                 </div>
               ))}
-              <div className="-ml-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-[10px] font-bold text-emerald-700">
+              <div className={`${isRTL ? '-mr-2' : '-ml-2'} flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-[10px] font-bold text-emerald-700`}>
                 +25
               </div>
             </div>
