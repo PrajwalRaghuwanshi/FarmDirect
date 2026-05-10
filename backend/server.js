@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const Product = require("./models/products");
 
 const app = express();
 
@@ -18,8 +19,6 @@ app.get("/", (req, res) => {
   res.send("Server + DB working");
 });
 
-// 📦 Use EXACT collection name (important)
-const Product = mongoose.model("Product", {}, "testproduct");
 
 // 📡 Get all products
 app.get("/products", async (req, res) => {
@@ -42,8 +41,8 @@ app.get("/api/products/local", async (req, res) => {
 
     // Query MongoDB products collection using district
     // Case-insensitive search for district
-    const localProducts = await Product.find({ 
-      district: { $regex: new RegExp(district, "i") } 
+    const localProducts = await Product.find({
+      district: { $regex: new RegExp(district, "i") }
     });
 
     res.json({ products: localProducts });
