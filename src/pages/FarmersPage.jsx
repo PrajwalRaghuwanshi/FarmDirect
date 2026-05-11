@@ -55,9 +55,9 @@ export default function FarmersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchFarmers = async () => {
+    const fetchFarmers = async (isInitial = true) => {
       try {
-        setLoading(true)
+        if (isInitial) setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const targetState = user?.state || locationInfo?.state;
         let url = `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState || '')}`;
@@ -90,11 +90,15 @@ export default function FarmersPage() {
       } catch (err) {
         console.error("Error fetching farmers:", err);
       } finally {
-        setLoading(false)
+        if (isInitial) setLoading(false)
       }
     };
 
-    fetchFarmers();
+    fetchFarmers(true);
+
+    // 🔄 REAL-TIME POLLING: Refresh farmers list every 30 seconds
+    const interval = setInterval(() => fetchFarmers(false), 30000);
+    return () => clearInterval(interval);
   }, [user?.state, locationInfo?.state]);
 
   let displayLocation = 'Pune, Maharashtra';

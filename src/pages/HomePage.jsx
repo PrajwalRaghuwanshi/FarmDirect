@@ -68,7 +68,11 @@ export default function HomePage() {
     };
 
     fetchProducts();
-  }, [user?.state]);
+
+    // 🔄 REAL-TIME POLLING: Refresh products every 30 seconds
+    const interval = setInterval(fetchProducts, 30000);
+    return () => clearInterval(interval);
+  }, [user?.state, locationInfo?.state]);
 
   return (
     <div className="transition-colors">

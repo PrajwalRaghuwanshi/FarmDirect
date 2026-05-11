@@ -28,9 +28,9 @@ export default function ProductsPage() {
   const selectedFarmerId = searchParams.get('farmerId')
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = async (isInitial = true) => {
       try {
-        setLoading(true)
+        if (isInitial) setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
@@ -38,10 +38,15 @@ export default function ProductsPage() {
       } catch (err) {
         console.error("Failed to fetch products:", err);
       } finally {
-        setLoading(false)
+        if (isInitial) setLoading(false)
       }
     };
-    fetchProducts();
+
+    fetchProducts(true);
+
+    // 🔄 REAL-TIME POLLING: Refresh product list every 30 seconds
+    const interval = setInterval(() => fetchProducts(false), 30000);
+    return () => clearInterval(interval);
   }, []);
 
   function handleCategorySelect(category) {
