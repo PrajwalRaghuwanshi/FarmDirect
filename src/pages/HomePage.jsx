@@ -90,12 +90,12 @@ export default function HomePage() {
                   }`}
               />
             ))}
-            {/* Gradient overlay to make text readable — flips for RTL */}
-            <div className={`absolute inset-0 ${isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white via-white/80 to-transparent w-full md:w-2/3 z-0`}></div>
+            {/* Gradient overlay to make text readable — flips for RTL — Minimized for maximum image visibility */}
+            <div className={`absolute inset-0 ${isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-white/60 to-transparent w-full md:w-1/3 z-0`}></div>
           </div>
 
           {/* Content */}
-          <div className={`relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center ${isRTL ? 'md:items-end md:text-right' : 'md:items-start md:text-left'}`}>
+          <div className={`relative z-10 w-full md:w-1/2 p-8 lg:p-16 lg:pb-24 flex flex-col items-center text-center backdrop-blur-[2px] md:backdrop-blur-0 ${isRTL ? 'md:items-end md:text-right' : 'md:items-start md:text-left'}`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-2 text-sm font-semibold text-emerald-800 backdrop-blur-sm">
               <Leaf size={16} className="text-emerald-600" />
               {t('freshLocalSustainable')}

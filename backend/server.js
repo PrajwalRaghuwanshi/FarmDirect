@@ -12,7 +12,7 @@ app.get("/api/products/by-farmers", async (req, res) => {
   try {
     const { state } = req.query;
 
-    let query = { role: "farmer" };
+    let query = {};
     if (state) {
       query.state = { $regex: new RegExp(state, "i") };
     }
@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
 // 📡 Get all products (only from farmers)
 app.get("/products", async (req, res) => {
   try {
-    const farmers = await User.find({ role: "farmer" });
+    const farmers = await User.find({});
     const farmerIds = farmers.map(f => f._id);
     
     const products = await Product.find({
@@ -80,7 +80,6 @@ app.get("/api/products/local", async (req, res) => {
     }
 
     const farmers = await User.find({
-      role: "farmer",
       city: { $regex: new RegExp(district, "i") }
     });
 
@@ -98,7 +97,7 @@ app.get("/api/products/local", async (req, res) => {
 // Alias for products
 app.get("/api/products", async (req, res) => {
   try {
-    const farmers = await User.find({ role: "farmer" });
+    const farmers = await User.find({});
     const farmerIds = farmers.map(f => f._id);
     const products = await Product.find({ owner: { $in: farmerIds } }).populate("owner", "name");
     res.json(products);
@@ -229,7 +228,7 @@ app.get("/api/farmers", async (req, res) => {
 
     console.log("🌾 Fetching farmers, state:", state || 'all');
 
-    let query = { role: "farmer" };
+    let query = {};
     if (state) {
       query.state = { $regex: new RegExp(state, "i") };
     }

@@ -11,17 +11,17 @@ export default function Layout() {
     <div className="flex min-h-screen flex-col bg-[#fafafa] text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 relative">
       {/* Global Background Image */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        <img 
-          src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=80" 
-          alt="Farm Background" 
+        <img
+          src="/oil_painted_farm_landscape_1778488573940.png"
+          alt="Farm Background"
           className="w-full h-full object-cover"
           style={{ animation: 'bgBlend 25s infinite alternate ease-in-out' }}
         />
       </div>
       <style>{`
         @keyframes bgBlend {
-          0% { transform: scale(1); opacity: 0.03; filter: grayscale(20%); }
-          100% { transform: scale(1.1); opacity: 0.15; filter: grayscale(0%); }
+          0% { transform: scale(1); opacity: 0.3; filter: grayscale(0%); }
+          100% { transform: scale(1.1); opacity: 0.5; filter: grayscale(0%); }
         }
       `}</style>
 
@@ -41,7 +41,7 @@ export default function Layout() {
             <CheckCircle2 size={18} className="text-emerald-400" />
             {toast.message}
           </div>
-          <Link 
+          <Link
             to="/cart"
             className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-500 active:scale-95 shadow-lg shadow-emerald-900/20"
           >

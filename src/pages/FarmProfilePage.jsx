@@ -21,7 +21,7 @@ export default function FarmProfilePage() {
       { name: 'Fresh Spinach', season: 'Monsoon', rating: 4.7, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=300&q=80' }
     ],
     images: [
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
+      '/oil_painted_farm_landscape_1778488573940.png',
       'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80'
     ]

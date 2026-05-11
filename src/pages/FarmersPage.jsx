@@ -4,7 +4,7 @@ import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 const defaultFarmers = [
-  { 
+  {
     id: '1',
     name: 'Rajesh Kumar',
     location: 'Pune, Maharashtra',
@@ -15,7 +15,7 @@ const defaultFarmers = [
     badgeKey: 'certifiedOrganic',
     bioKey: 'farmerBioRajesh'
   },
-  { 
+  {
     id: '2',
     name: 'Sunita Devi',
     location: 'Satara, Maharashtra',
@@ -26,7 +26,7 @@ const defaultFarmers = [
     badgeKey: 'ecoFarmer',
     bioKey: 'farmerBioRajesh'
   },
-  { 
+  {
     id: '3',
     name: 'Amit Singh',
     location: 'Nashik, Maharashtra',
@@ -115,10 +115,10 @@ export default function FarmersPage() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/20">
           <Tractor size={28} className="text-white" strokeWidth={1.8} />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white sm:text-4xl">
+        <h1 className="text-3xl font-bold text-black dark:text-white sm:text-4xl">
           {t('farmersNearYou')}
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-sm text-slate-500 dark:text-slate-400">
+        <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-black dark:text-slate-300 sm:text-lg">
           {t('farmersNearYouDesc')}
         </p>
 
@@ -142,96 +142,96 @@ export default function FarmersPage() {
               key={farmer.id || farmer.name + index}
               className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 dark:border-slate-700/50 dark:bg-slate-800/80"
             >
-            {/* Top accent bar */}
-            <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 transition-opacity group-hover:opacity-100" />
+              {/* Top accent bar */}
+              <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 transition-opacity group-hover:opacity-100" />
 
-            <div className="p-6">
-              {/* Profile row */}
-              <div className="flex items-start gap-4">
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={farmer.image}
-                    alt={farmer.name}
-                    className="h-16 w-16 rounded-2xl object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
-                  />
-                  {/* Online dot */}
-                  <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-800" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    {farmer.name}
-                  </h3>
-                  <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                    <MapPin size={12} />
-                    {farmer.location}
-                    <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                      {farmer.distance}
-                    </span>
+              <div className="p-6">
+                {/* Profile row */}
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={farmer.image}
+                      alt={farmer.name}
+                      className="h-16 w-16 rounded-2xl object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
+                    />
+                    {/* Online dot */}
+                    <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-800" />
                   </div>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${badgeColors[farmer.badgeKey] || 'bg-slate-100 text-slate-600'}`}>
-                      <Award size={10} />
-                      {t(farmer.badgeKey)}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                      <Tractor size={10} />
-                      {farmer.experience} {t('years')}
-                    </span>
+
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      {farmer.name}
+                    </h3>
+                    <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                      <MapPin size={12} />
+                      {farmer.location}
+                      <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                        {farmer.distance}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${badgeColors[farmer.badgeKey] || 'bg-slate-100 text-slate-600'}`}>
+                        <Award size={10} />
+                        {t(farmer.badgeKey)}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                        <Tractor size={10} />
+                        {farmer.experience} {t('years')}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Bio */}
-              <p className="mt-4 text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
-                {t(farmer.bioKey)}
-              </p>
+                {/* Bio */}
+                <p className="mt-4 text-[13px] leading-relaxed text-slate-500 dark:text-slate-400">
+                  {t(farmer.bioKey)}
+                </p>
 
-              {/* Specializations */}
-              <div className="mt-4">
-                <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                  <Sprout size={12} />
-                  {t('specialization')}
+                {/* Specializations */}
+                <div className="mt-4">
+                  <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <Sprout size={12} />
+                    {t('specialization')}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {farmer.specialization.map((spec) => (
+                      <span
+                        key={spec}
+                        className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {farmer.specialization.map((spec) => (
-                    <span
-                      key={spec}
-                      className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
-                    >
-                      {spec}
-                    </span>
-                  ))}
-                </div>
-              </div>
 
-              {/* Action buttons */}
-              <div className="mt-5 space-y-2">
-                <Link
-                  to={`/products?farmerId=${farmer.id}`}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]"
-                >
-                  <Leaf size={14} />
-                  {t('viewProducts')}
-                </Link>
-                <div className="flex gap-2">
+                {/* Action buttons */}
+                <div className="mt-5 space-y-2">
                   <Link
-                    to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
+                    to={`/products?farmerId=${farmer.id}`}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]"
                   >
-                    <Home size={14} />
-                    {t('farmProfile')}
+                    <Leaf size={14} />
+                    {t('viewProducts')}
                   </Link>
-                  <button className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                    <Phone size={14} />
-                    {t('contact')}
-                  </button>
+                  <div className="flex gap-2">
+                    <Link
+                      to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400"
+                    >
+                      <Home size={14} />
+                      {t('farmProfile')}
+                    </Link>
+                    <button className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                      <Phone size={14} />
+                      {t('contact')}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))
-      )}
+          ))
+        )}
       </div>
 
       {/* Bottom CTA */}
