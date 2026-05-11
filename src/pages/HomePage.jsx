@@ -47,9 +47,8 @@ export default function HomePage() {
           );
         }
 
-        // 🚨 STRICTOR: Only show products that match the owner/state logic and have an owner
-        const rawProducts = (targetState && filteredProducts.length > 0) ? filteredProducts : allProducts;
-        const finalizedProducts = rawProducts.filter(p => p.owner);
+        // 🚨 STRICT: Only show products that match the user's state. No fallback to all products.
+        const finalizedProducts = targetState ? filteredProducts.filter(p => p.owner) : allProducts.filter(p => p.owner);
         
         const mappedProducts = finalizedProducts
           .filter(p => p.price > 0) // Filter out invalid/test products
@@ -58,7 +57,7 @@ export default function HomePage() {
             id: p._id,
             name: p.title || p.name || 'Untitled Product',
             image: (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80'),
-            farm_name: p.owner?.name || p.farm_name || 'Local Farm',
+            farm_name: p.owner?.name || p.farm_name || 'missing',
             unit: p.unit || 'kg',
             stock_level: p.stock || p.stock_level || 0,
             category: p.category || 'General'
@@ -72,7 +71,7 @@ export default function HomePage() {
           id: p.id || p._id,
           name: p.title || p.name || 'Untitled Product',
           image: (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80'),
-          farm_name: p.owner?.name || p.farm_name || 'Local Farm',
+          farm_name: p.owner?.name || p.farm_name || 'missing',
           unit: p.unit || 'kg',
           stock_level: p.stock || p.stock_level || 0,
           category: p.category || 'General'
@@ -226,10 +225,8 @@ export default function HomePage() {
       {/* Fresh Picks */}
       <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {locationInfo?.state 
-              ? `${t('freshPicksIn', 'Fresh Picks in')} ${locationInfo.state}` 
-              : t('freshPicksForYou')}
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            {t('freshPicks', 'Fresh Picks')}
           </h2>
           <Link to="/products" className="flex items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
             {t('viewAllProductsLink')} <ChevronRight size={16} className="ml-1" />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, Navigate, Link } from 'react-router-dom'
 import { seasons } from '../data/seasons'
 import { products } from '../data/products'
@@ -6,7 +6,7 @@ import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
 import ProductCard from '../components/ProductCard'
 import ProductModal from '../components/ProductModal'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Loader2, Leaf } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 export default function SeasonDetailsPage() {
@@ -15,14 +15,34 @@ export default function SeasonDetailsPage() {
   const { addToRecentlyViewed } = useUser()
   const { t } = useTranslation()
   const [activeProduct, setActiveProduct] = useState(null)
+  const [dbProducts, setDbProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/products`);
+        const data = await res.json();
+        setDbProducts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch seasonal products:", err);
+      } finally {
+        setLoading(false)
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const season = seasons.find(s => s.id === seasonId)
 
   const seasonProducts = useMemo(() => {
     if (!season) return []
-    // Match against the database value (e.g. 'Summer', 'Winter')
-    return products.filter(p => p.season === season.dbValue)
-  }, [season])
+    // Combine mock products and DB products
+    const all = [...dbProducts, ...products]
+    return all.filter(p => p.season === season.dbValue)
+  }, [season, dbProducts])
 
   if (!season) {
     return <Navigate to="/seasons" replace />
@@ -67,19 +87,29 @@ export default function SeasonDetailsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {t('availableProduce', { season: season.dbValue })}
+            {t('availableProduce', { season: t(season.nameKey) })}
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
             {t('showing')} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{seasonProducts.length}</span> {t('items')}
           </p>
         </div>
 
-        {seasonProducts.length > 0 ? (
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24">
+            <Loader2 className="h-12 w-12 text-emerald-600 animate-spin" />
+            <p className="mt-4 text-slate-500 font-medium">Loading {t(season.nameKey)} collection...</p>
+          </div>
+        ) : seasonProducts.length > 0 ? (
+          <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {seasonProducts.map((product) => (
               <ProductCard
-                key={product.id}
-                product={product}
+                key={product.id || product._id}
+                product={{
+                  ...product,
+                  id: product._id || product.id,
+                  name: product.title || product.name || 'Untitled',
+                  farm_name: product.owner?.name || product.farm_name || 'missing'
+                }}
                 onAddToCart={addItem}
                 onViewDetails={(p) => {
                   setActiveProduct(p)
@@ -89,11 +119,13 @@ export default function SeasonDetailsPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-emerald-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 px-6 py-16 text-center transition-colors">
-            <Icon size={48} className="mx-auto text-emerald-600/50 dark:text-emerald-500/50 mb-4" />
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{t('harvestingSoon')}</h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
-              {t('harvestingSoonDesc')}
+          <div className="rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 px-6 py-24 text-center transition-colors">
+            <div className="h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+              <Leaf size={40} className="text-slate-300" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t('harvestingSoon')}</h3>
+            <p className="mt-2 text-slate-500 max-w-sm mx-auto">
+              We're currently working with our farmers to bring fresh {t(season.nameKey)} produce to your doorstep.
             </p>
           </div>
         )}

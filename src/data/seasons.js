@@ -3,7 +3,7 @@ import { Sun, CloudRain, Snowflake, Sprout } from 'lucide-react'
 export const seasons = [
   {
     id: 'summer',
-    dbValue: 'Summer',
+    dbValue: 'zaid',
     nameKey: 'seasonZaidName',
     descKey: 'seasonZaidDesc',
     icon: Sun,
@@ -14,7 +14,7 @@ export const seasons = [
   },
   {
     id: 'monsoon',
-    dbValue: 'Monsoon',
+    dbValue: 'kharif',
     nameKey: 'seasonKharifName',
     descKey: 'seasonKharifDesc',
     icon: CloudRain,
@@ -25,7 +25,7 @@ export const seasons = [
   },
   {
     id: 'winter',
-    dbValue: 'Winter',
+    dbValue: 'rabi',
     nameKey: 'seasonRabiName',
     descKey: 'seasonRabiDesc',
     icon: Snowflake,
@@ -36,7 +36,7 @@ export const seasons = [
   },
   {
     id: 'all-season',
-    dbValue: 'All-Season',
+    dbValue: 'all_season',
     nameKey: 'seasonBarahmasiName',
     descKey: 'seasonBarahmasiDesc',
     icon: Sprout,

@@ -79,7 +79,7 @@ export default function ProductsPage() {
             filtered = data.filter(p => p.owner?._id === farmerIdFilter || p.owner === farmerIdFilter);
             // Get farmer name from first matching product
             if (filtered.length > 0) {
-              setSelectedFarmerName(filtered[0].owner?.name || 'Farmer');
+              setSelectedFarmerName(filtered[0].owner?.name || 'missing');
             }
           }
           setDbProducts(filtered);

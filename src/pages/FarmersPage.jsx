@@ -1,4 +1,4 @@
-import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home } from 'lucide-react'
+import { MapPin, Phone, Sprout, Tractor, Award, Leaf, Home, Check, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
@@ -54,6 +54,7 @@ export default function FarmersPage() {
   const [farmers, setFarmers] = useState(defaultFarmers)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [followedFarmers, setFollowedFarmers] = useState([]) // State for follow toggle
 
   useEffect(() => {
     const fetchFarmers = async (isInitial = true) => {
@@ -77,7 +78,7 @@ export default function FarmersPage() {
         if (Array.isArray(fetchedFarmers) && fetchedFarmers.length > 0) {
           const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
             id: dbFarmer._id,
-            name: dbFarmer.name || 'Farmer',
+            name: dbFarmer.name || <span className="text-[10px] text-slate-400 italic">missing</span>,
             location: [dbFarmer.city, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
             distance: 'Nearby',
             specialization: Array.isArray(dbFarmer.crops) && dbFarmer.crops.length ? dbFarmer.crops : ['Organic Produce'],
@@ -85,6 +86,7 @@ export default function FarmersPage() {
             image: dbFarmer.image || defaultFarmers[i % defaultFarmers.length].image,
             badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
             bioKey: dbFarmer.bio || 'farmerBioRajesh',
+            isVerified: dbFarmer.isVerified
           }));
           setFarmers(mappedFarmers);
         }
@@ -164,6 +166,12 @@ export default function FarmersPage() {
                       alt={farmer.name}
                       className="h-16 w-16 rounded-2xl object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
                     />
+                    {/* Verification Badge */}
+                    {farmer.isVerified && (
+                      <div className="absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800 flex items-center justify-center shadow-lg animate-in zoom-in-50">
+                        <Check size={14} className="text-white" strokeWidth={4} />
+                      </div>
+                    )}
                     {/* Online dot */}
                     <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-800" />
                   </div>
@@ -232,9 +240,20 @@ export default function FarmersPage() {
                       <Home size={14} />
                       {t('farmProfile')}
                     </Link>
-                    <button className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-all hover:border-emerald-300 hover:text-emerald-600 active:scale-[0.98] dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                      <Phone size={14} />
-                      {t('contact')}
+                    <button 
+                      onClick={() => {
+                        setFollowedFarmers(prev => 
+                          prev.includes(farmer.id) ? prev.filter(id => id !== farmer.id) : [...prev, farmer.id]
+                        )
+                      }}
+                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all active:scale-[0.98] ${
+                        followedFarmers.includes(farmer.id)
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <UserPlus size={14} />
+                      {followedFarmers.includes(farmer.id) ? t('followed', 'Followed') : t('follow', 'Follow')}
                     </button>
                   </div>
                 </div>

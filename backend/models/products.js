@@ -14,6 +14,11 @@ const productSchema = new mongoose.Schema({
     farm_name: String,
     highlights: [String],
     state: String,
+    season: {
+        type: String,
+        enum: ['zaid', 'rabi', 'kharif', 'all_season'],
+        default: 'all_season'
+    },
 
     owner: {
         type: mongoose.Schema.Types.ObjectId,
