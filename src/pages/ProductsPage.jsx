@@ -19,29 +19,53 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [activeProduct, setActiveProduct] = useState(null)
+  const [dbProducts, setDbProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Read category and season from URL or default to 'All'
+  // Read filters from URL
   const selectedCategory = searchParams.get('category') || 'All'
   const selectedSeason = searchParams.get('season') || 'All'
+  const selectedFarmerId = searchParams.get('farmerId')
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/products`);
+        const data = await res.json();
+        setDbProducts(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      } finally {
+        setLoading(false)
+      }
+    };
+    fetchProducts();
+  }, []);
 
   function handleCategorySelect(category) {
+    const newParams = new URLSearchParams(searchParams)
     if (category === 'All') {
-      setSearchParams({})
+      newParams.delete('category')
     } else {
-      setSearchParams({ category })
+      newParams.set('category', category)
     }
+    setSearchParams(newParams)
   }
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return dbProducts.filter((product) => {
       const matchesCategory =
         selectedCategory === 'All' || product.category === selectedCategory
       const matchesSeason =
         selectedSeason === 'All' || product.season === selectedSeason
+      const matchesFarmer =
+        !selectedFarmerId || product.owner?._id === selectedFarmerId || product.owner === selectedFarmerId
 
-      return matchesCategory && matchesSeason
+      return matchesCategory && matchesSeason && matchesFarmer
     })
-  }, [selectedCategory, selectedSeason])
+  }, [dbProducts, selectedCategory, selectedSeason, selectedFarmerId])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -104,27 +128,37 @@ export default function ProductsPage() {
 
         <div className="mt-6 flex items-center justify-between">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            {t('showing')} <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
-            {t('products')}
+            {loading ? t('loading') : (
+              <>
+                {t('showing')} <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
+                {t('products')}
+              </>
+            )}
           </p>
         </div>
       </div>
 
       <div className="mt-6 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={addItem}
-            onViewDetails={(p) => {
-              setActiveProduct(p)
-              addToRecentlyViewed(p)
-            }}
-          />
-        ))}
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-[4/5] rounded-[2rem] bg-slate-100 dark:bg-slate-800 animate-pulse" />
+          ))
+        ) : (
+          filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id || product._id}
+              product={product}
+              onAddToCart={addItem}
+              onViewDetails={(p) => {
+                setActiveProduct(p)
+                addToRecentlyViewed(p)
+              }}
+            />
+          ))
+        )}
       </div>
 
-      {filteredProducts.length === 0 && (
+      {!loading && filteredProducts.length === 0 && (
         <div className="mt-10 rounded-3xl border border-dashed border-emerald-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 px-6 py-12 text-center transition-colors">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('noMatchingProducts')}</h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">

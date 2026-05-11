@@ -29,9 +29,16 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
   const selectedSeller =
     product.sellers?.find((seller) => seller.id === selectedSellerId) ?? defaultSeller
-  const maxQuantity = selectedSeller?.stock_level ?? product.stock_level
+  
+  const productName = product.name || product.title || 'Untitled Product'
+  const productImage = (Array.isArray(product.images) && product.images.length > 0) ? product.images[0] : (product.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80')
+  const farmName = selectedSeller?.name ?? (product.owner?.name || product.farm_name || 'Local Farm')
+  const productPrice = selectedSeller?.price ?? product.price
+  const productUnit = product.unit || 'kg'
+  const stockLevel = (selectedSeller?.stock_level ?? product.stock) || product.stock_level || 0
+  
   const parsedQuantity = Number(quantity) || 0
-  const liveTotal = (selectedSeller?.price ?? product.price) * parsedQuantity
+  const liveTotal = productPrice * parsedQuantity
 
   return (
     <div
@@ -49,8 +56,8 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
         <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="relative group">
             <img
-              src={product.image}
-              alt={product.name}
+              src={productImage}
+              alt={productName}
               className="h-72 w-full rounded-[2rem] object-cover lg:h-full shadow-lg transition-transform duration-500 group-hover:scale-[1.02]"
             />
           </div>
@@ -59,10 +66,10 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-bold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">
-                  {product.category}
+                  {product.category || 'General'}
                 </p>
                 <h2 id="product-modal-title" className="mt-2 text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                  {product.name}
+                  {productName}
                 </h2>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -93,18 +100,18 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
             <div className="grid gap-3 rounded-3xl bg-emerald-50 dark:bg-slate-800 p-5 text-sm text-slate-700 dark:text-slate-300">
               <p>
                 <span className="font-semibold text-slate-900 dark:text-white">{t('farm')}:</span>{' '}
-                {selectedSeller?.name ?? product.farm_name}
+                {farmName}
               </p>
               <p>
-                <span className="font-semibold text-slate-900 dark:text-white">{t('origin')}:</span> {product.origin}
+                <span className="font-semibold text-slate-900 dark:text-white">{t('origin')}:</span> {product.origin || 'Local'}
               </p>
               <p>
                 <span className="font-semibold text-slate-900 dark:text-white">{t('price')}:</span> Rs.{' '}
-                {selectedSeller?.price ?? product.price}/{product.unit}
+                {productPrice}/{productUnit}
               </p>
               <p>
                 <span className="font-semibold text-slate-900 dark:text-white">{t('stockLevel')}:</span>{' '}
-                {selectedSeller?.stock_level ?? product.stock_level}
+                {stockLevel}
               </p>
               <p>
                 <span className="font-semibold text-slate-900 dark:text-white">{t('rating')}:</span> {product.rating}/5
@@ -136,7 +143,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            Rs. {seller.price}/{product.unit}
+                            Rs. {seller.price}/{productUnit}
                           </p>
                           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             {t('stock')}: {seller.stock_level}
@@ -168,7 +175,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 <input
                   type="number"
                   min="0"
-                  max={maxQuantity}
+                  max={stockLevel}
                   value={quantity}
                   onChange={(event) => {
                     const val = event.target.value;
@@ -178,7 +185,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     }
                     const num = parseInt(val, 10);
                     if (isNaN(num)) return;
-                    setQuantity(Math.min(num, maxQuantity));
+                    setQuantity(Math.min(num, stockLevel));
                   }}
                   className="w-16 rounded-xl border border-emerald-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 py-2 text-center text-slate-900 dark:text-white outline-none focus:border-emerald-500"
                 />

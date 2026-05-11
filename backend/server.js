@@ -8,9 +8,36 @@ const User = require("./models/user");
 
 const app = express();
 
+app.get("/api/products/by-farmers", async (req, res) => {
+  try {
+    const { state } = req.query;
+
+    let query = { role: "farmer" };
+    if (state) {
+      query.state = { $regex: new RegExp(state, "i") };
+    }
+
+    // 1. Get farmers
+    const farmers = await User.find(query);
+
+    const farmerIds = farmers.map(f => f._id);
+
+    // 2. Get products where owner is in farmerIds
+    const products = await Product.find({
+      owner: { $in: farmerIds }
+    }).populate("owner", "name");
+
+    res.json({ products });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
 // ✅ Middlewares
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5174"
+  origin: ["http://localhost:5173", "http://localhost:5174"]
 }));
 app.use(express.json());
 
@@ -28,38 +55,58 @@ app.get("/", (req, res) => {
 });
 
 
-// 📡 Get all products
+// 📡 Get all products (only from farmers)
 app.get("/products", async (req, res) => {
   try {
-    const products = await Product.find();
+    const farmers = await User.find({ role: "farmer" });
+    const farmerIds = farmers.map(f => f._id);
+    
+    const products = await Product.find({
+      owner: { $in: farmerIds }
+    }).populate("owner", "name");
+    
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
   }
 });
 
-// 📍 Local Products API (by District)
+// 📍 Get local products by district
 app.get("/api/products/local", async (req, res) => {
-  const { district } = req.query;
-
   try {
+    const { district } = req.query;
     if (!district) {
-      return res.status(400).json({ error: "District query parameter is required" });
+      return res.status(400).json({ error: "District is required" });
     }
 
-    // Query MongoDB products collection using district
-    // Case-insensitive search for district
-    const localProducts = await Product.find({
-      district: { $regex: new RegExp(district, "i") }
+    const farmers = await User.find({
+      role: "farmer",
+      city: { $regex: new RegExp(district, "i") }
     });
 
-    res.json({ products: localProducts });
+    const farmerIds = farmers.map(f => f._id);
+    const products = await Product.find({
+      owner: { $in: farmerIds }
+    }).populate("owner", "name");
 
+    res.json({ products });
   } catch (err) {
-    console.error("Local discovery error:", err);
-    res.status(500).json({ error: "Internal server error during local discovery" });
+    res.status(500).json({ error: "Failed to fetch local products" });
   }
 });
+
+// Alias for products
+app.get("/api/products", async (req, res) => {
+  try {
+    const farmers = await User.find({ role: "farmer" });
+    const farmerIds = farmers.map(f => f._id);
+    const products = await Product.find({ owner: { $in: farmerIds } }).populate("owner", "name");
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
 
 // 🧑‍🌾 CUSTOMER REGISTRATION & LOGIN
 app.post("/api/register", async (req, res) => {
@@ -180,16 +227,14 @@ app.get("/api/farmers", async (req, res) => {
   try {
     const { state } = req.query;
 
-    if (!state) {
-      return res.status(400).json({ error: "State is required" });
+    console.log("🌾 Fetching farmers, state:", state || 'all');
+
+    let query = { role: "farmer" };
+    if (state) {
+      query.state = { $regex: new RegExp(state, "i") };
     }
 
-    console.log("🌾 Fetching farmers for state:", state);
-
-    const farmers = await User.find({
-      role: "farmer",
-      state: { $regex: new RegExp(state, "i") }
-    });
+    const farmers = await User.find(query);
 
     res.json({ farmers });
 
@@ -201,6 +246,6 @@ app.get("/api/farmers", async (req, res) => {
 
 // 🚀 Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

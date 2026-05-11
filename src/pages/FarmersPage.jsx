@@ -3,60 +3,41 @@ import { Link } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
-
 const defaultFarmers = [
-  {
+  { 
+    id: '1',
     name: 'Rajesh Kumar',
-    location: 'Nashik, Maharashtra',
-    distance: '4.2 km',
-    specialization: ['Organic Vegetables', 'Tomatoes', 'Spinach'],
-    experience: 12,
-    image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=300&h=300&fit=crop&crop=face',
-    badgeKey: 'certifiedOrganic',
-    bioKey: 'farmerBioRajesh',
-  },
-  {
-    name: 'Anita Devi',
     location: 'Pune, Maharashtra',
-    distance: '6.8 km',
-    specialization: ['Fruits', 'Alphonso Mangoes', 'Guava'],
-    experience: 8,
-    image: 'https://images.unsplash.com/photo-1592878897400-47261f483216?w=300&h=300&fit=crop&crop=face',
-    badgeKey: 'topSeller',
-    bioKey: 'farmerBioAnita',
+    distance: '2.5 km',
+    specialization: ['Organic Wheat', 'Millet'],
+    experience: 15,
+    image: 'https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&w=500&q=80',
+    badgeKey: 'certifiedOrganic',
+    bioKey: 'farmerBioRajesh'
   },
-  {
-    name: 'Suresh Patil',
-    location: 'Sangli, Maharashtra',
-    distance: '11.5 km',
-    specialization: ['Sugarcane', 'Jaggery', 'Commercial Crops'],
-    experience: 20,
-    image: 'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=300&h=300&fit=crop&crop=face',
-    badgeKey: 'veteranFarmer',
-    bioKey: 'farmerBioSuresh',
-  },
-
-  {
-    name: 'Vikram Singh',
-    location: 'Ahmednagar, Maharashtra',
-    distance: '14.3 km',
-    specialization: ['Grains', 'Basmati Rice', 'Organic Millets'],
-    experience: 18,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
-    badgeKey: 'milletPioneer',
-    bioKey: 'farmerBioVikram',
-  },
-  {
-    name: 'Lakshmi Bai',
+  { 
+    id: '2',
+    name: 'Sunita Devi',
     location: 'Satara, Maharashtra',
-    distance: '9.7 km',
-    specialization: ['Cotton', 'Jute', 'Natural Fibers'],
-    experience: 10,
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face',
+    distance: '4.8 km',
+    specialization: ['Turmeric', 'Ginger'],
+    experience: 12,
+    image: 'https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=500&q=80',
     badgeKey: 'ecoFarmer',
-    bioKey: 'farmerBioLakshmi',
+    bioKey: 'farmerBioRajesh'
   },
-]
+  { 
+    id: '3',
+    name: 'Amit Singh',
+    location: 'Nashik, Maharashtra',
+    distance: '6.2 km',
+    specialization: ['Grapes', 'Onions'],
+    experience: 8,
+    image: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&w=500&q=80',
+    badgeKey: 'topSeller',
+    bioKey: 'farmerBioRajesh'
+  }
+];
 
 const badgeColors = {
   'certifiedOrganic': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
@@ -71,23 +52,34 @@ export default function FarmersPage() {
   const { locationInfo, user } = useUser()
   const { t } = useTranslation()
   const [farmers, setFarmers] = useState(defaultFarmers)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchFarmers = async () => {
       try {
+        setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/api/farmers?state=${user?.state || ''}`);
+        const targetState = user?.state || locationInfo?.state;
+        let url = `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState || '')}`;
+        let res = await fetch(url);
+        let data = await res.json();
+        let fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
 
-        const data = await res.json();
-        const fetchedFarmers = data?.farmers ?? [];
+        // Fallback to fetching all farmers if none are found in the target state
+        if (fetchedFarmers.length === 0 && targetState) {
+          url = `${apiUrl}/api/farmers?state=`;
+          res = await fetch(url);
+          data = await res.json();
+          fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
+        }
 
-        if (fetchedFarmers.length > 0) {
+        if (Array.isArray(fetchedFarmers) && fetchedFarmers.length > 0) {
           const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
             id: dbFarmer._id,
             name: dbFarmer.name || 'Farmer',
             location: [dbFarmer.city, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
             distance: 'Nearby',
-            specialization: dbFarmer.crops?.length ? dbFarmer.crops : ['Organic Produce'],
+            specialization: Array.isArray(dbFarmer.crops) && dbFarmer.crops.length ? dbFarmer.crops : ['Organic Produce'],
             experience: dbFarmer.experience || 5,
             image: dbFarmer.image || defaultFarmers[i % defaultFarmers.length].image,
             badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
@@ -97,13 +89,13 @@ export default function FarmersPage() {
         }
       } catch (err) {
         console.error("Error fetching farmers:", err);
+      } finally {
+        setLoading(false)
       }
     };
 
-    if (user?.state) {
-      fetchFarmers();
-    }
-  }, [user]);
+    fetchFarmers();
+  }, [user?.state, locationInfo?.state]);
 
   let displayLocation = 'Pune, Maharashtra';
   if (user && user.city && user.state) {
@@ -135,11 +127,17 @@ export default function FarmersPage() {
 
       {/* Farmer Cards Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {farmers.map((farmer, index) => (
-          <div
-            key={farmer.id || farmer.name + index}
-            className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 dark:border-slate-700/50 dark:bg-slate-800/80"
-          >
+        {loading ? (
+          // Skeleton loading
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-[400px] rounded-3xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+          ))
+        ) : (
+          farmers.map((farmer, index) => (
+            <div
+              key={farmer.id || farmer.name + index}
+              className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 dark:border-slate-700/50 dark:bg-slate-800/80"
+            >
             {/* Top accent bar */}
             <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 transition-opacity group-hover:opacity-100" />
 
@@ -205,10 +203,13 @@ export default function FarmersPage() {
 
               {/* Action buttons */}
               <div className="mt-5 space-y-2">
-                <button className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]">
+                <Link
+                  to={`/products?farmerId=${farmer.id}`}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98]"
+                >
                   <Leaf size={14} />
                   {t('viewProducts')}
-                </button>
+                </Link>
                 <div className="flex gap-2">
                   <Link
                     to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
@@ -225,7 +226,8 @@ export default function FarmersPage() {
               </div>
             </div>
           </div>
-        ))}
+        ))
+      )}
       </div>
 
       {/* Bottom CTA */}

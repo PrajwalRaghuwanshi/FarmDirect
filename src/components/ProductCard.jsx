@@ -8,6 +8,13 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
   const { t } = useTranslation()
   const isWishlisted = wishlist.some(item => item.id === product.id)
 
+  const productName = product.name || product.title || 'Untitled Product'
+  const productImage = (Array.isArray(product.images) && product.images.length > 0) ? product.images[0] : (product.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80')
+  const farmName = product.owner?.name || product.farm_name || 'Local Farm'
+  const productPrice = primarySeller?.price ?? product.price
+  const productUnit = product.unit || 'kg'
+  const stockLevel = (primarySeller?.stock_level ?? product.stock) || product.stock_level || 0
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-emerald-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm transition hover:-translate-y-1 hover:shadow-lg group relative">
       <button
@@ -26,8 +33,8 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
 
       <button type="button" onClick={() => onViewDetails(product)} className="block w-full overflow-hidden">
         <img
-          src={product.image}
-          alt={product.name}
+          src={productImage}
+          alt={productName}
           className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </button>
@@ -36,26 +43,26 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[clamp(0.55rem,0.5vw+0.4rem,0.65rem)] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 truncate">
-              {product.category}
+              {product.category || 'General'}
             </p>
             <h2 className="mt-1 text-[clamp(0.85rem,1vw+0.6rem,1rem)] font-extrabold text-slate-900 dark:text-white leading-[1.2] line-clamp-2">
-              {product.name}
+              {productName}
             </h2>
           </div>
           <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-amber-700 dark:text-amber-400 h-fit">
-            {product.stock_level} {t('left')}
+            {stockLevel} {t('left')}
           </span>
         </div>
 
         <div className="space-y-1 text-[clamp(0.65rem,0.6vw+0.45rem,0.75rem)] text-slate-600 dark:text-slate-400">
           <p className="flex items-center gap-1.5 truncate">
             <span className="opacity-60 shrink-0">{t('origin')}:</span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{product.farm_name}</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">{farmName}</span>
           </p>
           <p className="flex items-center gap-1.5">
             <span className="opacity-60 shrink-0">{t('price')}:</span>
             <span className="font-bold text-slate-900 dark:text-white">
-              Rs. {primarySeller?.price ?? product.price}/{product.unit}
+              Rs. {productPrice}/{productUnit}
             </span>
           </p>
         </div>
