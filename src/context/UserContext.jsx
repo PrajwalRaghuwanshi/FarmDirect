@@ -72,10 +72,26 @@ export function UserProvider({ children }) {
   }, [locationInfo])
 
   useEffect(() => {
-    const stored = localStorage.getItem('farmdirect-user')
-    if (stored) {
-      setUser(JSON.parse(stored))
+    const syncUser = async () => {
+      const stored = localStorage.getItem('farmdirect-user')
+      if (stored) {
+        const currentUser = JSON.parse(stored)
+        if (currentUser._id) {
+          try {
+            const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+            // Check for latest data
+            const res = await fetch(`${apiUrl}/api/user/check?mobile=${currentUser.mobile}&email=${currentUser.email}`);
+            const data = await res.json();
+            if (res.ok && data.user) {
+              login(data.user); // Sync local storage and state
+            }
+          } catch (err) {
+            console.error("Failed to sync user profile:", err);
+          }
+        }
+      }
     }
+    syncUser();
   }, [])
 
   const login = (userData) => {

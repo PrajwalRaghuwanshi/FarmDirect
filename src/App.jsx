@@ -25,6 +25,7 @@ import AddAddressPage from './pages/AddAddressPage'
 import MyActivityPage from './pages/MyActivityPage'
 import WishlistPage from './pages/WishlistPage'
 import SupportPage from './pages/SupportPage'
+import SearchPage from './pages/SearchPage'
 
 const RTL_LANGUAGES = ['ur', 'sd', 'ks'];
 
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/profile/activity" element={<MyActivityPage />} />
         <Route path="/profile/wishlist" element={<WishlistPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/profile" element={<Navigate to="/profile/activity" replace />} />
       </Route>
     </Routes>

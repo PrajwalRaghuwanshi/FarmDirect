@@ -20,9 +20,11 @@ export default function WelcomeModal() {
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [password, setPassword] = useState('')
+  const [signinPassword, setSigninPassword] = useState('') // password for sign-in
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [passwordError, setPasswordError] = useState('')
+  const [error, setError] = useState('') // General error message for modal
 
   useEffect(() => {
     const isSigned = localStorage.getItem('farmdirect-user')
@@ -51,15 +53,50 @@ export default function WelcomeModal() {
     }, 1200)
   }
 
-  // Sign In form submit → go to OTP
-  const handleSigninSubmit = (e) => {
+  // Sign In form submit → search for user then go to OTP
+  const handleSigninSubmit = async (e) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      setAuthMode('signin')
-      setStep('otp')
-    }, 1200)
+    const isEmail = signinValue.includes('@')
+    
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      // We use a login check that includes the password
+      const res = await fetch(`${apiUrl}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: signinValue, // could be name, email, or mobile
+          password: signinPassword
+        })
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.user) {
+        // Pre-fill found user data
+        setName(data.user.name || '')
+        setEmail(data.user.email || '')
+        setMobile(data.user.mobile || '')
+        setTempPincode(data.user.pincode || '')
+        setAuthMode('signin')
+        setStep('otp') // Still keep OTP for 2FA as per previous flow
+      } else if (res.status === 401) {
+        setError(t('invalidCredentials', 'Invalid identifier or password'))
+      } else if (res.status === 404) {
+        // Redirect to registration
+        setAuthMode('register')
+        if (isEmail) setEmail(signinValue); else setMobile(signinValue);
+        setStep('register')
+      } else {
+        setError(data.error || t('somethingWentWrong', 'Something went wrong'))
+      }
+    } catch (err) {
+      console.error("Sign-in check failed:", err);
+      setError(t('serverError', 'Cannot connect to server'))
+    }
+
+    setLoading(false)
   }
 
   const handlePasswordSubmit = (e) => {
@@ -95,7 +132,7 @@ export default function WelcomeModal() {
           body: JSON.stringify({
              mobile: isEmail ? '' : signinValue,
              email: isEmail ? signinValue : '',
-             name: 'User',
+             name: name || 'missing',
              languagepreference: i18n.language || 'en'
           })
         });
@@ -103,11 +140,11 @@ export default function WelcomeModal() {
         if (res.ok) {
           login(data.user);
         } else {
-          login({ name: 'User', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
+          login({ name: 'missing', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
         }
       } catch (err) {
         console.error(err);
-        login({ name: 'User', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
+        login({ name: name || 'missing', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
       }
       
       setLoading(false)
@@ -150,7 +187,7 @@ export default function WelcomeModal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name || 'User',
+          name: name || 'missing',
           mobile,
           email,
           pincode: tempPincode,
@@ -378,41 +415,67 @@ export default function WelcomeModal() {
 
           {/* ─── STEP: SIGN IN ─── */}
           {step === 'signin' && (
-            <form onSubmit={handleSigninSubmit} className="space-y-6">
+            <form onSubmit={handleSigninSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('mobileOrEmail', 'Mobile Number or Email')}</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('usernameOrMobile', 'Username, Mobile or Email')}</label>
                 <div className="relative">
-                  {isSigninEmail 
-                    ? <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    : <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  }
+                  <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input 
                     required
                     type="text" 
                     value={signinValue}
-                    onChange={(e) => setSigninValue(e.target.value.trim())}
-                    placeholder={t('signinPlaceholder', 'Enter mobile number or email')}
+                    onChange={(e) => setSigninValue(e.target.value)}
+                    placeholder={t('signinPlaceholder', 'Enter identifier')}
                     className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
                   />
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('password', 'Password')}</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type={showPassword ? "text" : "password"} 
+                    value={signinPassword}
+                    onChange={(e) => setSigninPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-50 text-rose-600 text-[11px] font-bold border border-rose-100 animate-in fade-in slide-in-from-top-1">
+                  <AlertCircle size={14} />
+                  {error}
+                </div>
+              )}
+
               <div className="flex flex-col gap-3 pt-2">
                 <button 
-                  disabled={loading || !signinValue}
+                  disabled={loading || !signinValue || !signinPassword}
                   type="submit"
                   className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? <Loader2 className="animate-spin" size={18} /> : (
                     <>
-                      {t('sendOtp', 'Send OTP')}
+                      {t('signIn', 'Sign In')}
                       <ArrowRight size={16} />
                     </>
                   )}
                 </button>
                 <button 
                   type="button"
-                  onClick={() => { setStep('choice'); setOtp(['', '', '', '', '', '']) }}
+                  onClick={() => { setStep('choice'); setOtp(['', '', '', '', '', '']); setError('') }}
                   className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   {t('goBack', '← Back')}

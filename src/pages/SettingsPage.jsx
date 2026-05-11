@@ -119,7 +119,7 @@ export default function SettingsPage() {
         
         {/* Breadcrumbs */}
         <Link 
-          to="/Account/User" 
+          to={`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`} 
           className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 mb-8 transition-colors text-sm font-medium"
         >
           <ChevronLeft size={16} />

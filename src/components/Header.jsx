@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart, ArrowRight } from 'lucide-react'
+import { searchKeywords } from '../data/searchKeywords'
 
 const navItems = [
   { label: 'Home', translationKey: 'home', to: '/' },
@@ -90,8 +91,12 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const shopMenuRef = useRef(null)
   const messagesRef = useRef(null)
+  const searchRef = useRef(null)
 
   const unreadCount = notifications.filter(n => n.unread).length
 
@@ -111,10 +116,35 @@ export default function Header() {
       if (messagesRef.current && !messagesRef.current.contains(e.target)) {
         setMessagesOpen(false)
       }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const handleSearchChange = (val) => {
+    setSearchQuery(val)
+    if (val.trim().length > 0) {
+      const filtered = searchKeywords
+        .filter(k => k.toLowerCase().includes(val.toLowerCase()))
+        .slice(0, 5)
+      setSuggestions(filtered)
+      setShowSuggestions(true)
+    } else {
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }
+
+  const onSearchSubmit = (e) => {
+    if (e) e.preventDefault()
+    if (searchQuery.trim()) {
+      setShowSuggestions(false)
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
   function toggleTheme() {
     const nextDarkMode = !isDarkMode
@@ -256,13 +286,43 @@ export default function Header() {
 
         {/* Right Section: Search, Cart, User */}
         <div className="flex items-center gap-6">
-          <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400">
-            <input
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              className="pl-4 pr-10 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
-            />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400" />
+          <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400" ref={searchRef}>
+            <form onSubmit={onSearchSubmit} className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+                placeholder={t("searchPlaceholder")}
+                className="pl-4 pr-10 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
+              />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400">
+                <Search size={16} />
+              </button>
+            </form>
+
+            {/* Search Suggestions */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="p-2 border-b border-slate-50 dark:border-slate-700">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{t('suggestions', 'Suggestions')}</p>
+                </div>
+                {suggestions.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      setSearchQuery(s)
+                      navigate(`/search?q=${encodeURIComponent(s)}`)
+                      setShowSuggestions(false)
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  >
+                    <span>{s}</span>
+                    <ArrowRight size={14} className="opacity-0 group-hover:opacity-100" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
 
@@ -406,13 +466,13 @@ export default function Header() {
 
             {user ? (
               <button
-                onClick={() => navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'User'}`)}
+                onClick={() => navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`)}
                 className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
                   <UserRound size={16} strokeWidth={2.5} />
                 </div>
-                <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'User'}</span>
+                <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'missing'}</span>
               </button>
             ) : (
               <NavLink to="/signin" className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">

@@ -16,7 +16,7 @@ export default function RecentlyViewedPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <Link 
-          to={`/Account/${user?.name?.replace(/\s+/g, '') || 'User'}`}
+          to={`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-600 mb-8 transition-colors text-sm font-medium"
         >
           <ChevronLeft size={16} />

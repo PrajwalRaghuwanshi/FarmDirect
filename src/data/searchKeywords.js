@@ -1,0 +1,20 @@
+export const searchKeywords = [
+  "Tomato",
+  "Potato",
+  "Mango",
+  "Basmati",
+  "Rice",
+  "Organic",
+  "Fresh",
+  "Vegetables",
+  "Fruits",
+  "Grains",
+  "Farmer",
+  "Local",
+  "Kharif",
+  "Rabi",
+  "Zaid",
+  "Dairy",
+  "Pulses",
+  "Spices"
+];
