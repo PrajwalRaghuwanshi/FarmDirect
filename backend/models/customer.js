@@ -10,7 +10,8 @@ const customerSchema = new mongoose.Schema({
   address: { type: String },
   city: { type: String },
   state: { type: String },
-  profileImage: { type: String }
+  profileImage: { type: String },
+  password: { type: String }
 }, {
   timestamps: true,
   collection: 'customer(buyer)'

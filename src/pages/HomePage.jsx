@@ -4,6 +4,7 @@ import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
 import ProductModal from '../components/ProductModal'
 import ProductCard from '../components/ProductCard'
+import { products as mockProducts } from '../data/products'
 import { Heart, Play, Users, ShieldCheck, Truck, Check, ChevronRight, Leaf, History, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -28,6 +29,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setProducts([]); // Clear current products to "ask" for fresh data
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         
         // Prioritize getting ALL products first to ensure something is always shown
@@ -40,15 +42,16 @@ export default function HomePage() {
         let filteredProducts = allProducts;
         if (targetState) {
           filteredProducts = allProducts.filter(p => 
-            p.owner?.state?.toLowerCase() === targetState.toLowerCase() ||
-            p.state?.toLowerCase() === targetState.toLowerCase()
+            p.state?.toLowerCase() === targetState.toLowerCase() ||
+            p.owner?.state?.toLowerCase() === targetState.toLowerCase()
           );
         }
 
-        // If filtering by state leaves us with nothing, show everything
-        const rawProducts = filteredProducts.length > 0 ? filteredProducts : allProducts;
+        // 🚨 STRICTOR: Only show products that match the owner/state logic and have an owner
+        const rawProducts = (targetState && filteredProducts.length > 0) ? filteredProducts : allProducts;
+        const finalizedProducts = rawProducts.filter(p => p.owner);
         
-        const mappedProducts = rawProducts
+        const mappedProducts = finalizedProducts
           .filter(p => p.price > 0) // Filter out invalid/test products
           .map(p => ({
             ...p,
@@ -63,7 +66,18 @@ export default function HomePage() {
 
         setProducts(mappedProducts);
       } catch (err) {
-        console.error("Error fetching products:", err);
+        console.error("Error fetching products, falling back to local data:", err);
+        const mappedMock = mockProducts.map(p => ({
+          ...p,
+          id: p.id || p._id,
+          name: p.title || p.name || 'Untitled Product',
+          image: (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80'),
+          farm_name: p.owner?.name || p.farm_name || 'Local Farm',
+          unit: p.unit || 'kg',
+          stock_level: p.stock || p.stock_level || 0,
+          category: p.category || 'General'
+        }));
+        setProducts(mappedMock);
       }
     };
 
@@ -212,7 +226,11 @@ export default function HomePage() {
       {/* Fresh Picks */}
       <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('freshPicksForYou')}</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            {locationInfo?.state 
+              ? `${t('freshPicksIn', 'Fresh Picks in')} ${locationInfo.state}` 
+              : t('freshPicksForYou')}
+          </h2>
           <Link to="/products" className="flex items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
             {t('viewAllProductsLink')} <ChevronRight size={16} className="ml-1" />
           </Link>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck, Mail, MapPin, LogIn, UserPlus } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, X, Loader2, ShieldCheck, Mail, MapPin, LogIn, UserPlus, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 
@@ -9,7 +9,7 @@ export default function WelcomeModal() {
   const { login, updatePincode, pincode: storedPincode } = useUser()
   const { t, i18n } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  // steps: 'choice' | 'register' | 'signin' | 'otp' | 'pincode'
+  // steps: 'choice' | 'register' | 'signin' | 'otp' | 'password' | 'pincode'
   const [step, setStep] = useState('choice')
   const [authMode, setAuthMode] = useState('register') // tracks which path the user chose
   const [name, setName] = useState('')
@@ -19,6 +19,10 @@ export default function WelcomeModal() {
   const [tempPincode, setTempPincode] = useState(storedPincode || '')
   const [loading, setLoading] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => {
     const isSigned = localStorage.getItem('farmdirect-user')
@@ -38,6 +42,7 @@ export default function WelcomeModal() {
   // Register form submit → go to OTP
   const handleRegisterSubmit = (e) => {
     e.preventDefault()
+    setPasswordError('')
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
@@ -57,6 +62,20 @@ export default function WelcomeModal() {
     }, 1200)
   }
 
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      setPasswordError(t('passwordsDontMatch', 'Passwords do not match!'))
+      return
+    }
+    if (password.length < 6) {
+      setPasswordError(t('passwordTooShort', 'Password must be at least 6 characters'))
+      return
+    }
+    setPasswordError('')
+    setStep('pincode')
+  }
+
   const handleVerify = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -64,7 +83,7 @@ export default function WelcomeModal() {
     
     if (authMode === 'register') {
       setLoading(false)
-      setStep('pincode')
+      setStep('password')
     } else {
       // Sign-in
       const isEmail = signinValue.includes('@')
@@ -137,7 +156,8 @@ export default function WelcomeModal() {
           pincode: tempPincode,
           city,
           state,
-          languagepreference: i18n.language || 'en'
+          languagepreference: i18n.language || 'en',
+          password
         })
       });
       const data = await res.json();
@@ -191,6 +211,7 @@ export default function WelcomeModal() {
       case 'register': return t('createAccount', 'Create Your Account')
       case 'signin': return t('welcomeBack', 'Welcome Back')
       case 'otp': return t('verifyIdentity', 'Verify Identity')
+      case 'password': return t('setPassword', 'Set Your Password')
       case 'pincode': return t('setDeliveryLocation', 'Set Delivery Location')
       default: return ''
     }
@@ -202,6 +223,7 @@ export default function WelcomeModal() {
       case 'register': return t('registerSubtitle', 'Fill in your details to get started.')
       case 'signin': return t('signinSubtitle', 'Enter your mobile number or email to continue.')
       case 'otp': return t('otpSubtitle', 'Enter the 6-digit code sent to your mobile.')
+      case 'password': return t('passwordSubtitle', 'Secure your account with a strong password.')
       case 'pincode': return t('pincodeSubtitle', 'Enter your pincode to check availability.')
       default: return ''
     }
@@ -438,6 +460,65 @@ export default function WelcomeModal() {
                   className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   {t('goBack', '← Back')}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* ─── STEP: PASSWORD ─── */}
+          {step === 'password' && (
+            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('password', 'Password')}</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type={showPassword ? "text" : "password"} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('confirmPassword', 'Confirm Password')}</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type={showPassword ? "text" : "password"} 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                </div>
+              </div>
+
+              {passwordError && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100">
+                  <AlertCircle size={14} />
+                  {passwordError}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 pt-2">
+                <button 
+                  type="submit"
+                  className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm"
+                >
+                  {t('continue', 'Continue')}
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </form>

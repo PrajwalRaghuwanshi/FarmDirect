@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MapPin } from 'lucide-react'
+import { MapPin, Carrot, Apple, Wheat, Tractor, Flame, Sprout, Leaf, LayoutGrid, Recycle, ShieldCheck, Filter, Check, ChevronDown, X } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
-import CategoryChips from '../components/CategoryChips'
 import ProductCard from '../components/ProductCard'
 import ProductModal from '../components/ProductModal'
 
@@ -10,33 +9,88 @@ import { useUser } from '../context/UserContext'
 import { products } from '../data/products'
 import { useTranslation } from 'react-i18next'
 
-const categories = ['All', 'Vegetables', 'Fruits', 'Grains & Pulses', 'Organic', 'Commercial Crops', 'Spices', 'Fibers']
+const categories = [
+  { id: 'All', key: 'allItems' },
+  { id: 'Vegetables', key: 'vegetables' },
+  { id: 'Fruits', key: 'fruits' },
+  { id: 'Grains & Pulses', key: 'grainsPulses' },
+  { id: 'Commercial Crops', key: 'commercialCrops' },
+  { id: 'Spices', key: 'spices' },
+  { id: 'Fibers', key: 'fibers' }
+]
 
+const categoryIcons = {
+  'All': LayoutGrid,
+  'Vegetables': Carrot,
+  'Fruits': Apple,
+  'Grains & Pulses': Wheat,
+  'Organic': Leaf,
+  'Commercial Crops': Tractor,
+  'Spices': Flame,
+  'Fibers': Sprout
+}
+
+const valueFilters = [
+  { id: 'organic', key: 'organic', icon: Leaf },
+  { id: 'sustainable', key: 'sustainable', icon: Recycle },
+  { id: 'fairTrade', key: 'fairTrade', icon: ShieldCheck },
+]
 export default function ProductsPage() {
   const { addItem } = useCart()
-  const { addToRecentlyViewed, pincode, locationInfo } = useUser()
+  const { addToRecentlyViewed, pincode, locationInfo, user } = useUser()
   const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const farmerIdFilter = searchParams.get('farmerId')
+  const [selectedFarmerName, setSelectedFarmerName] = useState('')
 
   const [activeProduct, setActiveProduct] = useState(null)
   const [dbProducts, setDbProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedValues, setSelectedValues] = useState([])
+  const [openSections, setOpenSections] = useState(['Categories', 'Values'])
+  const [error, setError] = useState(null)
 
   // Read filters from URL
-  const selectedCategory = searchParams.get('category') || 'All'
+  const categoryParam = searchParams.get('category')
+  const selectedCategories = categoryParam ? categoryParam.split(',') : ['All']
   const selectedSeason = searchParams.get('season') || 'All'
   const selectedFarmerId = searchParams.get('farmerId')
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => 
+      prev.includes(section) ? prev.filter(s => s !== section) : [...prev, section]
+    )
+  }
 
   useEffect(() => {
     const fetchProducts = async (isInitial = true) => {
       try {
-        if (isInitial) setLoading(true)
+        if (isInitial) {
+          setLoading(true);
+          setDbProducts([]); // Clear current products to force a fresh "ask"
+        }
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
-        setDbProducts(Array.isArray(data) ? data : []);
+        
+        if (Array.isArray(data)) {
+          let filtered = data;
+          if (farmerIdFilter) {
+            filtered = data.filter(p => p.owner?._id === farmerIdFilter || p.owner === farmerIdFilter);
+            // Get farmer name from first matching product
+            if (filtered.length > 0) {
+              setSelectedFarmerName(filtered[0].owner?.name || 'Farmer');
+            }
+          }
+          setDbProducts(filtered);
+        } else {
+          setDbProducts([]);
+        }
+        setError(null)
       } catch (err) {
         console.error("Failed to fetch products:", err);
+        setError("Cannot reach server. Please check your connection.")
+        setDbProducts(products); // Fallback to mock data
       } finally {
         if (isInitial) setLoading(false)
       }
@@ -47,14 +101,29 @@ export default function ProductsPage() {
     // 🔄 REAL-TIME POLLING: Refresh product list every 30 seconds
     const interval = setInterval(() => fetchProducts(false), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [searchParams, user?.state, locationInfo?.state]);
 
-  function handleCategorySelect(category) {
+  function handleCategorySelect(categoryId) {
     const newParams = new URLSearchParams(searchParams)
-    if (category === 'All') {
+    let current = [...selectedCategories]
+
+    if (categoryId === 'All') {
       newParams.delete('category')
     } else {
-      newParams.set('category', category)
+      // Remove 'All' if it's there
+      current = current.filter(c => c !== 'All')
+      
+      if (current.includes(categoryId)) {
+        current = current.filter(c => c !== categoryId)
+      } else {
+        current.push(categoryId)
+      }
+
+      if (current.length === 0) {
+        newParams.delete('category')
+      } else {
+        newParams.set('category', current.join(','))
+      }
     }
     setSearchParams(newParams)
   }
@@ -62,15 +131,22 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     return dbProducts.filter((product) => {
       const matchesCategory =
-        selectedCategory === 'All' || product.category === selectedCategory
+        selectedCategories.includes('All') || selectedCategories.includes(product.category)
       const matchesSeason =
         selectedSeason === 'All' || product.season === selectedSeason
       const matchesFarmer =
-        !selectedFarmerId || product.owner?._id === selectedFarmerId || product.owner === selectedFarmerId
+        !farmerIdFilter || product.owner?._id === farmerIdFilter || product.owner === farmerIdFilter
 
-      return matchesCategory && matchesSeason && matchesFarmer
+      // Simple mock for value filters: just check if 'organic' etc is in the name or tags if available
+      // In a real app, this would check product.attributes or product.values
+      const matchesValues = selectedValues.length === 0 || selectedValues.every(val => {
+        const str = JSON.stringify(product).toLowerCase()
+        return str.includes(val.toLowerCase())
+      })
+
+      return matchesCategory && matchesSeason && matchesFarmer && matchesValues
     })
-  }, [dbProducts, selectedCategory, selectedSeason, selectedFarmerId])
+  }, [dbProducts, selectedCategories, selectedSeason, farmerIdFilter, selectedValues])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -93,84 +169,212 @@ export default function ProductsPage() {
               <div className="h-10 w-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
                 <MapPin size={20} />
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">{t('deliveringTo')}</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-lg font-bold text-slate-900 dark:text-white leading-none mt-0.5">{pincode}</p>
-                  {locationInfo && (
-                    <p className="text-xs font-medium text-slate-400 truncate max-w-[120px]">
-                      ({locationInfo.district}, {locationInfo.state})
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">{t('deliveringTo')}</p>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-slate-900 dark:text-white leading-none">
+                        {user?.pincode || pincode}
+                      </p>
+                      <span className="h-4 w-[1px] bg-emerald-200 dark:bg-emerald-800" />
+                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 leading-none">
+                        {user?.city || locationInfo?.district || '...'}
+                      </p>
+                    </div>
+                    <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                      {user?.state || locationInfo?.state || '...'}
                     </p>
+                  </div>
+                </div>
+            </div>
+          )}
+        </div>
+
+          {/* Sidebar and Main Content Wrapper */}
+          <div className="mt-8 flex flex-col lg:flex-row gap-8">
+            
+            {/* Sidebar */}
+            <aside className="w-full lg:w-64 flex-shrink-0">
+              <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 sticky top-24">
+                
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <Filter size={20} className="text-emerald-600" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('filters')}</h2>
+                  </div>
+                  
+                  {farmerIdFilter && selectedFarmerName && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 text-[10px] font-bold animate-in zoom-in-95">
+                      <span className="truncate max-w-[80px]">{selectedFarmerName}</span>
+                      <button 
+                        onClick={() => {
+                          const newParams = new URLSearchParams(searchParams);
+                          newParams.delete('farmerId');
+                          setSearchParams(newParams);
+                          setSelectedFarmerName('');
+                        }}
+                        className="hover:text-emerald-900 dark:hover:text-emerald-200 transition-colors"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
                   )}
                 </div>
+
+                {/* Categories */}
+                <div className="mb-4">
+                  <button 
+                    onClick={() => toggleSection('Categories')}
+                    className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 hover:text-emerald-600 transition-colors"
+                  >
+                    <span>{t('categories')}</span>
+                    <ChevronDown size={14} className={`transition-transform duration-300 ${openSections.includes('Categories') ? '' : '-rotate-90'}`} />
+                  </button>
+                  
+                  {openSections.includes('Categories') && (
+                    <div className="space-y-1 animate-in slide-in-from-top-2 duration-300">
+                      {categories.map(cat => {
+                        const Icon = categoryIcons[cat.id] || LayoutGrid
+                        const isActive = selectedCategories.includes(cat.id)
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => handleCategorySelect(cat.id)}
+                            className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                              isActive 
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' 
+                                : 'text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon size={18} className={isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
+                              {t(cat.key)}
+                            </div>
+                            {isActive && cat.id !== 'All' && <Check size={14} className="text-emerald-600" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Values */}
+                <div>
+                  <button 
+                    onClick={() => toggleSection('Values')}
+                    className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 hover:text-emerald-600 transition-colors"
+                  >
+                    <span>{t('values')}</span>
+                    <ChevronDown size={14} className={`transition-transform duration-300 ${openSections.includes('Values') ? '' : '-rotate-90'}`} />
+                  </button>
+                  
+                  {openSections.includes('Values') && (
+                    <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                      {valueFilters.map(val => {
+                        const Icon = val.icon
+                        const isActive = selectedValues.includes(val.id)
+                        return (
+                          <label key={val.id} className="flex items-center gap-3 cursor-pointer group px-2 py-1">
+                            <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition-colors ${
+                              isActive 
+                                ? 'border-emerald-600 bg-emerald-600 dark:border-emerald-500 dark:bg-emerald-500' 
+                                : 'border-slate-300 bg-white group-hover:border-emerald-400 dark:border-slate-600 dark:bg-slate-800'
+                            }`}>
+                              {isActive && <Check size={14} className="text-white" strokeWidth={3} />}
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              className="sr-only"
+                              checked={isActive}
+                              onChange={() => {
+                                setSelectedValues(prev => 
+                                  prev.includes(val.id) ? prev.filter(id => id !== val.id) : [...prev, val.id]
+                                )
+                              }}
+                            />
+                            <Icon size={16} className={isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'} />
+                            <span className={`text-sm font-medium transition-colors ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                              {t(val.key)}
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
               </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-4">
+                  {selectedSeason !== 'All' && (
+                    <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700 h-8">
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('season')}: <span className="text-emerald-600 font-semibold">{selectedSeason}</span></span>
+                      <button 
+                        onClick={() => {
+                          const newParams = new URLSearchParams(searchParams)
+                          newParams.delete('season')
+                          setSearchParams(newParams)
+                        }}
+                        className="text-xs text-rose-500 hover:text-rose-600 font-semibold bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-md transition dark:bg-rose-900/20 dark:hover:bg-rose-900/40"
+                      >
+                        {t('clear')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 animate-pulse">
+                    <div className="h-2 w-2 rounded-full bg-rose-500" />
+                    {error}
+                  </div>
+                )}
+
+                <p className="text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 px-4 py-2 rounded-full shadow-sm border border-slate-100 dark:border-slate-800">
+                  {loading ? t('loading', 'Loading...') : (
+                    <>
+                      {t('showing')} <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
+                      {t('products')}
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                {loading ? (
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="aspect-[4/5] rounded-[2rem] bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                  ))
+                ) : (
+                  filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id || product._id}
+                      product={product}
+                      onAddToCart={addItem}
+                      onViewDetails={(p) => {
+                        setActiveProduct(p)
+                        addToRecentlyViewed(p)
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+
+              {!loading && filteredProducts.length === 0 && (
+                <div className="mt-10 rounded-3xl border border-dashed border-emerald-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 px-6 py-12 text-center transition-colors">
+                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('noMatchingProducts')}</h2>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    {t('tryDifferentSearch')}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <CategoryChips
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelect={handleCategorySelect}
-          />
-          {selectedSeason !== 'All' && (
-            <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700 h-8">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('season')}: <span className="text-emerald-600 font-semibold">{selectedSeason}</span></span>
-              <button 
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams)
-                  newParams.delete('season')
-                  setSearchParams(newParams)
-                }}
-                className="text-xs text-rose-500 hover:text-rose-600 font-semibold bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-md transition"
-              >
-                {t('clear')}
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 flex items-center justify-between">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            {loading ? t('loading') : (
-              <>
-                {t('showing')} <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span>{' '}
-                {t('products')}
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-[4/5] rounded-[2rem] bg-slate-100 dark:bg-slate-800 animate-pulse" />
-          ))
-        ) : (
-          filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id || product._id}
-              product={product}
-              onAddToCart={addItem}
-              onViewDetails={(p) => {
-                setActiveProduct(p)
-                addToRecentlyViewed(p)
-              }}
-            />
-          ))
-        )}
-      </div>
-
-      {!loading && filteredProducts.length === 0 && (
-        <div className="mt-10 rounded-3xl border border-dashed border-emerald-300 dark:border-slate-700 bg-white/70 dark:bg-slate-800/70 px-6 py-12 text-center transition-colors">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('noMatchingProducts')}</h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            {t('tryDifferentSearch')}
-          </p>
-        </div>
-      )}
 
       <ProductModal
         key={activeProduct?.id ?? 'empty'}

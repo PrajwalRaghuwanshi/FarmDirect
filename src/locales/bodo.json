@@ -280,5 +280,12 @@
   "noOrdersYet": "बे बिभागआव अर्डार गैयि",
   "noOrdersDesc": "बथाव नागिरनो गोदान अर्डार हो, ना गोबां बेसाद नागिरनो ट्रेब सोलाय।",
   "accountSettings": "Account Settings",
-  "manageCustomInfo": "Manage your profile and custom settings"
+  "manageCustomInfo": "Manage your profile and custom settings",
+  "spices": "मसाले",
+  "fibers": "रेशे",
+  "sustainable": "टिकाऊ",
+  "fairTrade": "निष्पक्ष व्यापार",
+  "filters": "फिल्टर",
+  "categories": "श्रेणी",
+  "values": "मान"
 }

@@ -119,9 +119,10 @@ export function UserProvider({ children }) {
 
   const toggleWishlist = (product) => {
     setWishlist(prev => {
-      const exists = prev.find(item => item.id === product.id)
+      const productId = product.id || product._id
+      const exists = prev.find(item => (item.id || item._id) === productId)
       if (exists) {
-        return prev.filter(item => item.id !== product.id)
+        return prev.filter(item => (item.id || item._id) !== productId)
       }
       return [...prev, product]
     })
@@ -129,7 +130,8 @@ export function UserProvider({ children }) {
 
   const addToRecentlyViewed = (product) => {
     setRecentlyViewed(prev => {
-      const filtered = prev.filter(item => item.id !== product.id)
+      const productId = product.id || product._id
+      const filtered = prev.filter(item => (item.id || item._id) !== productId)
       return [product, ...filtered].slice(0, 12)
     })
   }

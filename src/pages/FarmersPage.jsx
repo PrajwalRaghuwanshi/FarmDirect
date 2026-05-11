@@ -53,6 +53,7 @@ export default function FarmersPage() {
   const { t } = useTranslation()
   const [farmers, setFarmers] = useState(defaultFarmers)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const fetchFarmers = async (isInitial = true) => {
@@ -87,8 +88,10 @@ export default function FarmersPage() {
           }));
           setFarmers(mappedFarmers);
         }
+        setError(null)
       } catch (err) {
         console.error("Error fetching farmers:", err);
+        setError("Cannot reach server. Please check your connection.")
       } finally {
         if (isInitial) setLoading(false)
       }
@@ -127,6 +130,13 @@ export default function FarmersPage() {
           <MapPin size={13} />
           {t('showingFarmersNear', { location: displayLocation })}
         </div>
+
+        {error && (
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 animate-pulse">
+            <div className="h-2 w-2 rounded-full bg-rose-500" />
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Farmer Cards Grid */}

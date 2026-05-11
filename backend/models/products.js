@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema({
     rating: Number,
     farm_name: String,
     highlights: [String],
+    state: String,
 
     owner: {
         type: mongoose.Schema.Types.ObjectId,

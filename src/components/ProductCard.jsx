@@ -6,7 +6,8 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
   const primarySeller = product.sellers?.[0]
   const { wishlist, toggleWishlist } = useUser()
   const { t } = useTranslation()
-  const isWishlisted = wishlist.some(item => item.id === product.id)
+  const productId = product.id || product._id
+  const isWishlisted = wishlist.some(item => (item.id || item._id) === productId)
 
   const productName = product.name || product.title || 'Untitled Product'
   const productImage = (Array.isArray(product.images) && product.images.length > 0) ? product.images[0] : (product.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80')

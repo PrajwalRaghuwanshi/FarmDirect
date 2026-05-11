@@ -4,6 +4,7 @@ const cors = require("cors");
 const Product = require("./models/products");
 const Customer = require("./models/customer");
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
 const User = require("./models/user");
 
 const app = express();
@@ -25,7 +26,7 @@ app.get("/api/products/by-farmers", async (req, res) => {
     // 2. Get products where owner is in farmerIds
     const products = await Product.find({
       owner: { $in: farmerIds }
-    }).populate("owner", "name");
+    }).populate("owner", "name state");
 
     res.json({ products });
 
@@ -63,7 +64,7 @@ app.get("/products", async (req, res) => {
     
     const products = await Product.find({
       owner: { $in: farmerIds }
-    }).populate("owner", "name");
+    }).populate("owner", "name state");
     
     res.json(products);
   } catch (err) {
@@ -86,7 +87,7 @@ app.get("/api/products/local", async (req, res) => {
     const farmerIds = farmers.map(f => f._id);
     const products = await Product.find({
       owner: { $in: farmerIds }
-    }).populate("owner", "name");
+    }).populate("owner", "name state");
 
     res.json({ products });
   } catch (err) {
@@ -99,7 +100,7 @@ app.get("/api/products", async (req, res) => {
   try {
     const farmers = await User.find({});
     const farmerIds = farmers.map(f => f._id);
-    const products = await Product.find({ owner: { $in: farmerIds } }).populate("owner", "name");
+    const products = await Product.find({ owner: { $in: farmerIds } }).populate("owner", "name state");
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
@@ -113,8 +114,7 @@ app.post("/api/register", async (req, res) => {
 
     console.log("🔥 REGISTER API CALLED");
     console.log("📦 Incoming Data:", req.body);
-
-    const { name, mobile, email, pincode, address, city, state, profileImage, languagepreference } = req.body;
+    const { name, mobile, email, pincode, address, city, state, profileImage, languagepreference, password } = req.body;
 
     // Validation
     if (!mobile && !email) {
@@ -168,8 +168,14 @@ app.post("/api/register", async (req, res) => {
       }
     }
 
+    // Hash password if provided
+    let hashedPassword = "";
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      hashedPassword = await bcrypt.hash(password, salt);
+    }
     const newCustomer = new Customer({
-      name, mobile, email, pincode, address, city, state, profileImage, languagepreference
+      name, mobile, email, pincode, address, city, state, profileImage, languagepreference, password: hashedPassword
     });
 
     console.log("💾 Saving customer:", newCustomer);
