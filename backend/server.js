@@ -312,8 +312,8 @@ app.post("/api/orders", async (req, res) => {
           { _id: item.productId },
           {
             $inc: { 
-              stock_level: -item.quantity,
-              stock: -item.quantity 
+              stock: -item.quantity,
+              stock_level: -item.quantity
             }
           },
           { new: true }

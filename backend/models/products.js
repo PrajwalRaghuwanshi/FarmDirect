@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
     description: String,
     origin: String,
     stock_level: Number,
+    stock: Number,
     rating: Number,
     farm_name: String,
     highlights: [String],
