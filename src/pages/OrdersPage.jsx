@@ -4,9 +4,7 @@ import { useTranslation } from 'react-i18next'
 import OrderStatusStepper from '../components/OrderStatusStepper'
 import ReceiptModal from '../components/ReceiptModal'
 import { useCart } from '../context/cart-context'
-import { orders } from '../data/orders'
 import { products } from '../data/products'
-import { advanceStatus } from '../utils/orderStatus'
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState('current')
@@ -14,20 +12,35 @@ export default function OrdersPage() {
   const { orderHistory, recentOrder } = useCart()
   const [statusOverrides, setStatusOverrides] = useState({})
   const { t } = useTranslation()
-  const mergedOrders = useMemo(() => [...orderHistory, ...orders], [orderHistory])
+
+  const mergedOrders = useMemo(() => {
+    // Normalize backend data structure to match what the UI expects
+    const normalizedHistory = orderHistory.map(o => ({
+      ...o,
+      id: o._id || o.id,
+      placedOn: o.placedAt ? new Date(o.placedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : o.placedOn,
+      total: o.summary?.total || o.total,
+      receiptItems: o.items || o.receiptItems || []
+    }))
+    
+    return normalizedHistory
+  }, [orderHistory])
+
   const liveOrders = useMemo(() => mergedOrders.map((order) => {
     const override = statusOverrides[order.id]
     if (!override) return order
     return { ...order, status: override.status, eta: override.eta }
   }), [mergedOrders, statusOverrides])
 
+  // Disabled automatic status simulator to show REAL status from database
+  /*
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setStatusOverrides((current) => {
         const next = { ...current }
         mergedOrders.forEach((order) => {
           const cur = current[order.id]?.status ?? order.status
-          if (cur === 'Delivered') return
+          if (cur === 'Delivered' || cur === 'Cancelled') return
           const ns = advanceStatus(cur)
           next[order.id] = { status: ns, eta: ns === 'Delivered' ? `Delivered on ${new Date().toLocaleDateString('en-GB')}` : ns === 'Out for Delivery' ? 'Courier is on the way' : order.eta }
         })
@@ -36,6 +49,7 @@ export default function OrdersPage() {
     }, 30000)
     return () => window.clearInterval(intervalId)
   }, [mergedOrders, recentOrder])
+  */
 
   const currentOrders = useMemo(() => liveOrders.filter((o) => o.status !== 'Delivered'), [liveOrders])
   const previousOrders = useMemo(() => liveOrders.filter((o) => o.status === 'Delivered'), [liveOrders])

@@ -310,6 +310,22 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
+// 📋 GET USER ORDERS
+app.get("/api/orders/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("📋 FETCHING ORDERS FOR USER:", userId);
+    
+    // Find orders for this user, sorted by newest first
+    const userOrders = await Order.find({ userId }).sort({ placedAt: -1 });
+    
+    res.json(userOrders);
+  } catch (error) {
+    console.error("Fetch orders error:", error);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
 // 🌾 GET FARMERS BY STATE (from users collection)
 app.get("/api/farmers", async (req, res) => {
   try {

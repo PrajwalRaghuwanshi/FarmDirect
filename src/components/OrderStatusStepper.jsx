@@ -1,12 +1,23 @@
 import { getStatusStepIndex, statusFlow as steps } from '../utils/orderStatus'
 
 export default function OrderStatusStepper({ status }) {
+  if (status === 'Cancelled') {
+    return (
+      <div className="rounded-2xl bg-rose-50 dark:bg-rose-900/20 p-4 border border-rose-200 dark:border-rose-800 text-center">
+        <p className="text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider text-sm">
+          This Order Has Been Cancelled
+        </p>
+      </div>
+    )
+  }
+
   const activeIndex = getStatusStepIndex(status)
+  const filteredSteps = steps.filter(s => s !== 'Cancelled')
 
   return (
     <div className="space-y-3">
       <div className="grid gap-3 md:grid-cols-4">
-        {steps.map((step, index) => {
+        {filteredSteps.map((step, index) => {
           const isComplete = index <= activeIndex
 
           return (

@@ -145,6 +145,41 @@ export function CartProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }, [state])
 
+  // Fetch orders from backend when user changes
+  useEffect(() => {
+    if (user) {
+      const normalizeId = (id) => {
+        if (!id) return id;
+        if (typeof id === 'string') return id;
+        if (id.$oid) return id.$oid;
+        return id.toString();
+      };
+
+      const fetchUserOrders = async () => {
+        try {
+          const userId = normalizeId(user._id || user.id);
+          if (!userId) return;
+          
+          const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
+          const res = await fetch(`${apiUrl}/api/orders/user/${userId}`);
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            dispatch({
+              type: 'HYDRATE',
+              payload: {
+                ...state,
+                orderHistory: data
+              }
+            });
+          }
+        } catch (err) {
+          console.error("Failed to fetch user orders:", err);
+        }
+      }
+      fetchUserOrders();
+    }
+  }, [user])
+
   const value = useMemo(() => {
     const itemCount = state.items.reduce((total, item) => total + item.quantity, 0)
     const subtotal = state.items.reduce(
@@ -215,7 +250,7 @@ export function CartProvider({ children }) {
             deliveryFee,
             total
           },
-          status: 'Order Confirmed',
+          status: 'Processing',
           placedAt: new Date().toISOString()
         }
 

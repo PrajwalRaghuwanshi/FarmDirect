@@ -1,8 +1,9 @@
 export const statusFlow = [
-  'Order Confirmed',
+  'Processing',
   'Shipped',
   'Out for Delivery',
   'Delivered',
+  'Cancelled',
 ]
 
 export function getStatusStepIndex(status) {

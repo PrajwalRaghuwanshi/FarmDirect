@@ -25,7 +25,11 @@ const OrderSchema = new mongoose.Schema({
     deliveryFee: { type: Number, required: true },
     total: { type: Number, required: true }
   },
-  status: { type: String, default: "Order Confirmed" },
+  status: { 
+    type: String, 
+    enum: ["Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"],
+    default: "Processing" 
+  },
   placedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 
