@@ -132,7 +132,7 @@ export default function SignInPage() {
       // Simulate verification delay
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
       // Check if user exists with this email and mobile
       const res = await fetch(`${apiUrl}/api/user/check?email=${encodeURIComponent(email)}&mobile=${mobile}`);
       const data = await res.json();
@@ -184,7 +184,7 @@ export default function SignInPage() {
         console.error("Failed to fetch location", err)
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
       const res = await fetch(`${apiUrl}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

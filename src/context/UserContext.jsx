@@ -78,7 +78,7 @@ export function UserProvider({ children }) {
         const currentUser = JSON.parse(stored)
         if (currentUser._id) {
           try {
-            const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+            const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
             // Check for latest data
             const res = await fetch(`${apiUrl}/api/user/check?mobile=${currentUser.mobile}&email=${currentUser.email}`);
             const data = await res.json();
@@ -108,7 +108,7 @@ export function UserProvider({ children }) {
     }
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
       const res = await fetch(`${apiUrl}/api/customers/update/${user._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -173,7 +173,7 @@ export function UserProvider({ children }) {
           setLocationInfo({ district, state })
 
           // 2. Fetch local products from backend based on the discovered district
-          const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+          const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
           const res = await fetch(`${apiUrl}/api/products/local?district=${encodeURIComponent(district)}`)
           const productData = await res.json()
           if (productData.products) {

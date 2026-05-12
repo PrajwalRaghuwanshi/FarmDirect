@@ -69,7 +69,7 @@ export default function ProductsPage() {
           setLoading(true);
           setDbProducts([]); // Clear current products to force a fresh "ask"
         }
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
         

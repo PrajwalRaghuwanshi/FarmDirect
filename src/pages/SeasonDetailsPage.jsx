@@ -22,7 +22,7 @@ export default function SeasonDetailsPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true)
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
         setDbProducts(Array.isArray(data) ? data : []);

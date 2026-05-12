@@ -30,7 +30,7 @@ export default function HomePage() {
     const fetchProducts = async () => {
       try {
         setProducts([]); // Clear current products to "ask" for fresh data
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         
         // Prioritize getting ALL products first to ensure something is always shown
         const res = await fetch(`${apiUrl}/api/products`);

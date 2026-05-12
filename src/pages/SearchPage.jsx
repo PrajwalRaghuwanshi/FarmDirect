@@ -24,7 +24,7 @@ export default function SearchPage() {
     const fetchResults = async () => {
       setLoading(true)
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         
         // Fetch products and farmers in parallel
         const [prodRes, farmRes] = await Promise.all([

@@ -60,7 +60,7 @@ export default function FarmersPage() {
     const fetchFarmers = async (isInitial = true) => {
       try {
         if (isInitial) setLoading(true)
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         const targetState = user?.state || locationInfo?.state;
         let url = `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState || '')}`;
         let res = await fetch(url);

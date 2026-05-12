@@ -61,7 +61,7 @@ export default function WelcomeModal() {
     const isEmail = signinValue.includes('@')
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
       // We use a login check that includes the password
       const res = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
@@ -125,7 +125,7 @@ export default function WelcomeModal() {
       // Sign-in
       const isEmail = signinValue.includes('@')
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
         const res = await fetch(`${apiUrl}/api/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -182,7 +182,7 @@ export default function WelcomeModal() {
     }
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
       const res = await fetch(`${apiUrl}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
