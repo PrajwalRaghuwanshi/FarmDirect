@@ -302,7 +302,22 @@ app.post("/api/orders", async (req, res) => {
     const newOrder = new Order(orderData);
     await newOrder.save();
 
-    console.log("✅ Order saved successfully:", newOrder._id);
+    // 📉 DECREASE STOCK
+    for (const item of orderData.items) {
+      try {
+        // Try to update both possible field names for flexibility
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: { 
+            stock_level: -item.quantity,
+            stock: -item.quantity // Fallback for some documents
+          }
+        });
+      } catch (err) {
+        console.error(`Failed to update stock for product ${item.productId}:`, err);
+      }
+    }
+
+    console.log("✅ Order saved and stock updated:", newOrder._id);
     res.status(201).json({ message: "Order placed successfully", orderId: newOrder._id });
   } catch (error) {
     console.error("Order error:", error);
