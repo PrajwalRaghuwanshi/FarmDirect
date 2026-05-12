@@ -62,21 +62,21 @@ export default function FarmersPage() {
       try {
         if (isInitial) setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
-        
+
         let url = `${apiUrl}/api/farmers`;
         if (filter === 'local') {
           const targetState = user?.state || locationInfo?.state;
           const targetPincode = user?.pincode || locationInfo?.pincode;
-          
+
           const params = new URLSearchParams();
           if (targetState) params.append('state', targetState);
           if (targetPincode) params.append('pincode', targetPincode);
-          
+
           if (params.toString()) {
             url += `?${params.toString()}`;
           }
         }
-        
+
         let res = await fetch(url);
         let data = await res.json();
         let fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
@@ -107,7 +107,7 @@ export default function FarmersPage() {
 
     const interval = setInterval(() => fetchFarmers(false), 30000);
     return () => clearInterval(interval);
-  }, [user?.state, user?.pincode, locationInfo, filter]); 
+  }, [user?.state, user?.pincode, locationInfo, filter]);
 
   let displayLocation = '';
   if (user && user.city && user.state) {
@@ -124,16 +124,16 @@ export default function FarmersPage() {
           <Tractor size={28} className="text-white" strokeWidth={1.8} />
         </div>
         <h1 className="text-3xl font-bold text-black dark:text-white sm:text-4xl">
-          {user ? t('farmersNearYou') : t('allFarmers', 'Our Farmers')}
+          {user ? t('farmersNearYou') : t('allFarmers')}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-black dark:text-slate-300 sm:text-lg">
-          {user ? t('farmersNearYouDesc') : t('allFarmersDesc', 'Explore farmers from all over the country connecting directly with you.')}
+          {user ? t('farmersNearYouDesc') : t('allFarmersDesc')}
         </p>
 
         {/* Location indicator */}
         <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
           <MapPin size={13} />
-          {user ? t('showingFarmersNear', { location: displayLocation }) : t('showingAllFarmers', 'Showing all registered farmers')}
+          {user ? t('showingFarmersNear', { location: displayLocation }) : t('showingAllFarmers')}
         </div>
 
         {/* Filter Toggle */}
@@ -141,23 +141,21 @@ export default function FarmersPage() {
           <div className="inline-flex rounded-2xl bg-slate-100 p-1 dark:bg-slate-800 shadow-inner">
             <button
               onClick={() => setFilter('all')}
-              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${
-                filter === 'all'
+              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${filter === 'all'
                   ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
-              {t('all', 'All Farmers')}
+              {t('allFarmersFilter')}
             </button>
             <button
               onClick={() => setFilter('local')}
-              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${
-                filter === 'local'
+              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${filter === 'local'
                   ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
+                }`}
             >
-              {user?.state || locationInfo?.state || 'My State'}
+              {t(user?.state || locationInfo?.state || 'myState')}
             </button>
           </div>
         </div>
@@ -266,17 +264,16 @@ export default function FarmersPage() {
                       <Home size={14} />
                       {t('farmProfile')}
                     </Link>
-                    <button 
+                    <button
                       onClick={() => {
-                        setFollowedFarmers(prev => 
+                        setFollowedFarmers(prev =>
                           prev.includes(farmer.id) ? prev.filter(id => id !== farmer.id) : [...prev, farmer.id]
                         )
                       }}
-                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all active:scale-[0.98] ${
-                        followedFarmers.includes(farmer.id)
+                      className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all active:scale-[0.98] ${followedFarmers.includes(farmer.id)
                           ? 'bg-emerald-600 border-emerald-600 text-white'
                           : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                      }`}
+                        }`}
                     >
                       <UserPlus size={14} />
                       {followedFarmers.includes(farmer.id) ? t('followed', 'Followed') : t('follow', 'Follow')}
@@ -295,7 +292,10 @@ export default function FarmersPage() {
         <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
           {t('areYouFarmerDesc')}
         </p>
-        <button className="mt-5 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.98]">
+        <button 
+          onClick={() => window.location.href = "https://hackathonwebapp.vercel.app"}
+          className="mt-5 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.98]"
+        >
           {t('registerAsFarmer')}
         </button>
       </div>

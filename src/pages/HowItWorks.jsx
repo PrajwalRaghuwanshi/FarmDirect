@@ -40,8 +40,8 @@ export default function HowItWorksPage() {
                                 {t('howItWorksBody1')}
                             </p>
                         </div>
-                        <div className="order-1 md:order-2 relative">
-                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2">
+                        <div className="order-1 md:order-2 relative group">
+                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-2 animate-float transition-transform duration-700 group-hover:scale-105">
                                 <img 
                                     src="/images/farm_harvest.png" 
                                     alt="Farming" 
@@ -60,8 +60,8 @@ export default function HowItWorksPage() {
 
                     {/* Block 2: The Delivery */}
                     <div className="grid md:grid-cols-2 gap-12 items-center">
-                        <div className="relative">
-                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl -rotate-2">
+                        <div className="relative group">
+                            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl -rotate-2 animate-float-reverse transition-transform duration-700 group-hover:scale-105">
                                 <img 
                                     src="/images/direct_delivery.png" 
                                     alt="Delivery" 
@@ -93,8 +93,7 @@ export default function HowItWorksPage() {
                         </h2>
                     </div>
 
-                    {/* Block 3: Sustainability */}
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                    <div className="grid md:grid-cols-2 gap-12 items-center group">
                         <div>
                             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 mb-8">
                                 <Globe className="h-8 w-8" />
@@ -109,12 +108,12 @@ export default function HowItWorksPage() {
                                     <Heart className="h-10 w-10 text-green-600 mb-4" />
                                     <h4 className="font-bold text-slate-900 dark:text-white">{t('supportLocalFarmers')}</h4>
                                 </div>
-                                <div className="aspect-square rounded-2xl overflow-hidden grayscale">
+                                <div className="aspect-square rounded-2xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700 animate-float shadow-lg relative top-2">
                                     <img src="/images/sustainable_landscape.png" alt="Nature" className="w-full h-full object-cover" />
                                 </div>
                             </div>
                             <div className="space-y-4 pt-12">
-                                <div className="aspect-square rounded-2xl overflow-hidden">
+                                <div className="aspect-square rounded-2xl overflow-hidden animate-float-reverse shadow-lg">
                                     <img src="/images/eco_sprout.png" alt="Eco" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="aspect-[4/5] rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex flex-col items-center justify-center p-6 text-center border border-amber-100 dark:border-amber-800/30">

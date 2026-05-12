@@ -70,6 +70,9 @@ export default function OrdersPage() {
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">{t('realTimeTracking')}</p>
               <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{t('trackingOrder', { id: trackedOrder.id })}</h2>
+              {trackedOrder.status === 'Cancelled' && (
+                <p className="mt-1 text-sm font-bold text-rose-500 uppercase tracking-tight italic">the order was cancelled</p>
+              )}
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('currentStatus', { status: trackedOrder.status, eta: trackedOrder.eta })}</p>
             </div>
             <button type="button" onClick={() => setSelectedReceipt(trackedOrder)} className="rounded-full border border-slate-200 dark:border-slate-600 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-emerald-300 dark:hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400">{t('viewDigitalReceipt')}</button>
@@ -115,9 +118,12 @@ export default function OrdersPage() {
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">{t('orderLabel', { id: order.id })}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{order.status}</h2>
+                {order.status === 'Cancelled' && (
+                  <p className="mt-1 text-sm font-bold text-rose-500 uppercase tracking-tight italic">the order was cancelled</p>
+                )}
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('placedOn', { date: order.placedOn, eta: order.eta })}</p>
               </div>
-              <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400">{order.status}</span>
+              <span className={`rounded-full px-4 py-2 text-sm font-semibold ${order.status === 'Cancelled' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'}`}>{order.status}</span>
             </div>
             <div className="mt-5"><OrderStatusStepper status={order.status} /></div>
             <div className="mt-5">
