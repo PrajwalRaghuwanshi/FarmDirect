@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart, ArrowRight } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart, ArrowRight, Mic } from 'lucide-react'
 import { searchKeywords } from '../data/searchKeywords'
+import { translateTerm } from '../data/cropTranslator'
 
 const navItems = [
   { label: 'Home', translationKey: 'home', to: '/' },
@@ -94,6 +95,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const shopMenuRef = useRef(null)
   const messagesRef = useRef(null)
   const searchRef = useRef(null)
@@ -107,6 +109,17 @@ export default function Header() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
   }, [isDarkMode])
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [mobileMenuOpen])
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -144,6 +157,33 @@ export default function Header() {
       setShowSuggestions(false)
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
+  }
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert(t('voiceNotSupported', 'Voice recognition not supported in this browser'))
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.lang = i18n.language === 'en' ? 'en-IN' : i18n.language
+    
+    recognition.onstart = () => setIsListening(true)
+    recognition.onend = () => setIsListening(false)
+    recognition.onerror = () => setIsListening(false)
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript
+      const translated = translateTerm(transcript)
+      setSearchQuery(translated)
+      // Auto submit after a short delay
+      setTimeout(() => {
+        navigate(`/search?q=${encodeURIComponent(translated.trim())}`)
+      }, 500)
+    }
+
+    recognition.start()
   }
 
   function toggleTheme() {
@@ -294,11 +334,20 @@ export default function Header() {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                 placeholder={t("searchPlaceholder")}
-                className="pl-4 pr-10 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
+                className="pl-4 pr-16 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
               />
-              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400">
-                <Search size={16} />
-              </button>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <button 
+                  type="button"
+                  onClick={startVoiceSearch}
+                  className={`p-1.5 rounded-full transition-all ${isListening ? 'text-rose-500 animate-pulse bg-rose-50 dark:bg-rose-900/20' : 'text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+                >
+                  <Mic size={16} />
+                </button>
+                <button type="submit" className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+                  <Search size={16} />
+                </button>
+              </div>
             </form>
 
             {/* Search Suggestions */}
@@ -487,7 +536,7 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[72px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5">
+        <div className="lg:hidden fixed inset-0 top-[72px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5 overflow-y-auto overscroll-contain pb-20">
           <nav className="flex flex-col p-6 gap-4">
             {navItems.map((item) => (
               <div key={item.to} className="flex flex-col">
