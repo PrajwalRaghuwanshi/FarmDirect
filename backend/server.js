@@ -37,9 +37,7 @@ app.get("/api/products/by-farmers", async (req, res) => {
 });
 
 // ✅ Middlewares
-app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"]
-}));
+app.use(cors());
 app.use(express.json());
 
 // 🔌 Connect MongoDB

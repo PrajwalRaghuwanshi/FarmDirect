@@ -30,6 +30,13 @@ export default function SignInPage() {
   const [resendTimer, setResendTimer] = useState(0)
   const [otpError, setOtpError] = useState('')
   const [animating, setAnimating] = useState(false)
+  const [userNotFound, setUserNotFound] = useState(false)
+  
+  // Registration state for new users
+  const [regName, setRegName] = useState('')
+  const [regPincode, setRegPincode] = useState('')
+  const [regError, setRegError] = useState('')
+  const [registering, setRegistering] = useState(false)
 
   const otpRefs = useRef([])
 
@@ -139,12 +146,76 @@ export default function SignInPage() {
         }, 350)
       } else {
         setVerifying(false)
-        setOtpError(data.error || 'User not found. Please register first.')
+        setUserNotFound(true)
+        setOtpError(data.error || 'User not found in our records.')
       }
     } catch (err) {
       console.error(err)
       setVerifying(false)
       setOtpError('Network error. Please try again.')
+    }
+  }
+
+  /* ───── handle registration for new users ───── */
+  async function handleRegister(e) {
+    e.preventDefault()
+    if (!regName.trim()) {
+      setRegError('Name is required')
+      return
+    }
+    if (!/^\d{6}$/.test(regPincode.trim())) {
+      setRegError('Please enter a valid 6-digit pincode')
+      return
+    }
+
+    setRegistering(true)
+    try {
+      let city = '';
+      let state = '';
+      try {
+        const locationRes = await fetch(`https://api.postalpincode.in/pincode/${regPincode.trim()}`)
+        const locationData = await locationRes.json()
+        if (locationData && locationData[0].Status === "Success") {
+          const postOffice = locationData[0].PostOffice[0]
+          city = postOffice.District
+          state = postOffice.State
+        }
+      } catch (err) {
+        console.error("Failed to fetch location", err)
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiUrl}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: regName.trim(),
+          mobile,
+          email,
+          pincode: regPincode.trim(),
+          city,
+          state,
+          languagepreference: i18n.language || 'en'
+        })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        login(data.user)
+        updatePincode(regPincode.trim())
+        setRegistering(false)
+        setAnimating(true)
+        setTimeout(() => {
+          navigate('/')
+        }, 350)
+      } else {
+        setRegistering(false)
+        setRegError(data.error || 'Failed to register account')
+      }
+    } catch (err) {
+      console.error(err);
+      setRegistering(false)
+      setRegError('Network error. Please try again.')
     }
   }
 
@@ -185,22 +256,24 @@ export default function SignInPage() {
               ) : step === 2 ? (
                 <ShieldCheck size={30} className="text-white" strokeWidth={1.8} />
               ) : (
-                <ShieldCheck size={30} className="text-white" strokeWidth={1.8} />
+                <UserRound size={30} className="text-white" strokeWidth={1.8} />
               )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {step === 1 ? t('welcomeToFarmDirect') : t('verifyYourIdentity') || 'Verify Your Identity'}
+              {step === 1 ? t('welcomeToFarmDirect') : step === 2 ? t('verifyYourIdentity') || 'Verify Your Identity' : t('createAccount') || 'Create Account'}
             </h2>
             <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
               {step === 1 ? (
                 t('signInDesc')
-              ) : (
+              ) : step === 2 ? (
                 <>
                   {t('enterOtpCode')}{' '}
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                     {maskedMobile}
                   </span>
                 </>
+              ) : (
+                t('registerSubtitle') || 'Join our community to start shopping fresh produce.'
               )}
             </p>
           </div>
@@ -358,10 +431,33 @@ export default function SignInPage() {
                 ) : (
                   <>
                     <ShieldCheck size={18} />
-                    {t('verifyAndSignIn')}
+                    {userNotFound ? 'Try Again' : t('verifyAndSignIn')}
                   </>
                 )}
               </button>
+
+              {userNotFound && (
+                <div className="pt-2">
+                  <div className="relative mb-6 flex items-center justify-center">
+                    <div className="h-px w-full bg-slate-200 dark:bg-slate-700"></div>
+                    <span className="absolute bg-white px-3 text-xs font-medium text-slate-400 dark:bg-slate-800">OR</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAnimating(true)
+                      setTimeout(() => {
+                        setStep(3)
+                        setAnimating(false)
+                      }, 350)
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-emerald-600 px-6 py-3 text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-500 dark:hover:bg-emerald-500/10"
+                  >
+                    <UserRound size={18} />
+                    Register as a New User
+                  </button>
+                </div>
+              )}
 
               {/* Resend */}
               <div className="text-center">
@@ -399,7 +495,113 @@ export default function SignInPage() {
             </form>
           )}
 
-          {/* Step 3 (Pincode) removed */}
+          {/* ─── Step 3: Registration ─── */}
+          {step === 3 && (
+            <form onSubmit={handleRegister} className="space-y-5 px-8 pt-6 pb-10">
+              {/* Name */}
+              <div>
+                <label
+                  htmlFor="reg-name"
+                  className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  {t('fullName')} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <UserRound
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  />
+                  <input
+                    id="reg-name"
+                    type="text"
+                    value={regName}
+                    onChange={(e) => {
+                      setRegName(e.target.value)
+                      if (regError) setRegError('')
+                    }}
+                    placeholder={t('enterFullName') || 'Enter your name'}
+                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white ${regError && !regName
+                        ? 'border-rose-400 focus:ring-rose-500/20'
+                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600'
+                      }`}
+                  />
+                </div>
+              </div>
+
+              {/* Pincode */}
+              <div>
+                <label
+                  htmlFor="reg-pincode"
+                  className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  {t('pincode')} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <MapPin
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  />
+                  <input
+                    id="reg-pincode"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={regPincode}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 6)
+                      setRegPincode(v)
+                      if (regError) setRegError('')
+                    }}
+                    placeholder="6-digit pincode"
+                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white ${regError && regPincode.length !== 6
+                        ? 'border-rose-400 focus:ring-rose-500/20'
+                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600'
+                      }`}
+                  />
+                </div>
+              </div>
+
+              {regError && (
+                <p className="text-center text-xs font-medium text-rose-500">{regError}</p>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={registering || !regName || regPincode.length !== 6}
+                className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {registering ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Complete Registration
+                    <ArrowRight
+                      size={16}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </>
+                )}
+              </button>
+
+              {/* Back to sign in */}
+              <button
+                type="button"
+                onClick={() => {
+                  setStep(1)
+                  setUserNotFound(false)
+                  setOtpError('')
+                }}
+                className="mx-auto flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              >
+                <ArrowRight size={12} className="rotate-180" />
+                Back to Sign In
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Brand footer */}
