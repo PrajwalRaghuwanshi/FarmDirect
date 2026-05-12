@@ -109,9 +109,15 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                 <span className="font-semibold text-slate-900 dark:text-white">{t('price')}:</span> Rs.{' '}
                 {productPrice}/{productUnit}
               </p>
-              <p>
-                <span className="font-semibold text-slate-900 dark:text-white">{t('stockLevel')}:</span>{' '}
-                {stockLevel}
+              <p className="flex items-center gap-2">
+                <span className="font-semibold text-slate-900 dark:text-white">{t('stockLevel', 'Availability')}:</span>
+                {stockLevel > 10 ? (
+                  <span className="text-emerald-600 font-bold">{t('inStock', 'In Stock')}</span>
+                ) : stockLevel > 0 ? (
+                  <span className="text-amber-600 font-bold">{stockLevel} {t('fewLeft', 'Few Left')}</span>
+                ) : (
+                  <span className="text-rose-600 font-bold">{t('outOfStock', 'Out of Stock')}</span>
+                )}
               </p>
               <p>
                 <span className="font-semibold text-slate-900 dark:text-white">{t('rating')}:</span> {product.rating}/5
@@ -197,31 +203,30 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
               <button
                 type="button"
                 onClick={() => {
-                  if (!selectedSeller) {
-                    return
-                  }
-                  if (parsedQuantity <= 0) {
-                    return
-                  }
+                  if (stockLevel <= 0 || parsedQuantity <= 0) return
 
                   onAddToCart(
                     {
                       ...product,
-                      cartKey: `${product.id}-${selectedSeller.id}`,
-                      sellerId: selectedSeller.id,
-                      sellerName: selectedSeller.name,
-                      farm_name: selectedSeller.name,
-                      price: selectedSeller.price,
-                      stock_level: selectedSeller.stock_level,
+                      cartKey: `${product.id}-${selectedSeller?.id ?? 'direct'}`,
+                      sellerId: selectedSeller?.id ?? 'direct',
+                      sellerName: selectedSeller?.name ?? farmName,
+                      farm_name: selectedSeller?.name ?? farmName,
+                      price: productPrice,
+                      stock_level: stockLevel,
                     },
                     parsedQuantity,
                   )
                   onClose()
                 }}
-                className="rounded-full bg-slate-900 dark:bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 whitespace-nowrap sm:ml-auto flex-shrink-0"
-                disabled={!selectedSeller}
+                className={`rounded-full px-6 py-3 text-sm font-bold text-white transition whitespace-nowrap sm:ml-auto flex-shrink-0 ${
+                  stockLevel <= 0
+                    ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed text-slate-500'
+                    : 'bg-slate-900 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-600'
+                }`}
+                disabled={stockLevel <= 0}
               >
-                {t('addToCart')}
+                {stockLevel <= 0 ? t('outOfStock', 'Sold Out') : t('addToCart')}
               </button>
             </div>
           </div>

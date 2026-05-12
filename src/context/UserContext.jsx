@@ -29,14 +29,14 @@ export function UserProvider({ children }) {
         console.error("Failed to parse addresses:", err)
       }
     }
-    // 2. Fallback to manually set pincode
-    return localStorage.getItem('farmdirect-pincode') || ''
+    // 2. Fallback to manually set pincode (default to Global for new guests)
+    return localStorage.getItem('farmdirect-pincode') || '000'
   })
 
   const [nearbyProducts, setNearbyProducts] = useState([])
   const [locationInfo, setLocationInfo] = useState(() => {
     const saved = localStorage.getItem('farmdirect-location')
-    return saved ? JSON.parse(saved) : null
+    return saved ? JSON.parse(saved) : { district: 'India', state: 'Global' }
   })
   const [loadingLocal, setLoadingLocal] = useState(false)
 
@@ -157,8 +157,9 @@ export function UserProvider({ children }) {
   }
 
   const updatePincode = async (code) => {
-    setPincode(code)
-    if (code && code.length === 6) {
+    const finalCode = code || '000'
+    setPincode(finalCode)
+    if (finalCode && finalCode.length === 6) {
       setLoadingLocal(true)
       try {
         // 1. Fetch District/State from India Post API Directly
@@ -187,7 +188,8 @@ export function UserProvider({ children }) {
       }
     } else {
       setNearbyProducts([])
-      setLocationInfo(null)
+      setLocationInfo({ district: 'India', state: 'Global' })
+      if (!code) setPincode('000')
     }
   }
 
@@ -196,7 +198,7 @@ export function UserProvider({ children }) {
       user, login, logout, updateUser,
       wishlist, toggleWishlist, 
       recentlyViewed, addToRecentlyViewed, clearRecentlyViewed,
-      pincode, updatePincode,
+      pincode: pincode || '000', updatePincode,
       nearbyProducts, locationInfo, loadingLocal
     }}>
       {children}

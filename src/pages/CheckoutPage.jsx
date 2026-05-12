@@ -76,9 +76,11 @@ export default function CheckoutPage() {
     }
   }, [formData.postalCode])
 
-  function handlePlaceOrder(e) {
-    e.preventDefault()
-    if (items.length === 0) return
+  const [placingOrder, setPlacingOrder] = useState(false)
+
+  async function handlePlaceOrder(e) {
+    if (e) e.preventDefault()
+    if (items.length === 0 || placingOrder) return
 
     // Simple email validation for '@'
     if (!formData.emailAddress.includes('@')) {
@@ -91,8 +93,16 @@ export default function CheckoutPage() {
       return
     }
 
-    placeOrder(formData)
-    navigate('/checkout/success')
+    setPlacingOrder(true)
+    try {
+      await placeOrder(formData)
+      navigate('/checkout/success')
+    } catch (err) {
+      console.error(err)
+      alert("Something went wrong while placing your order. Please try again.")
+    } finally {
+      setPlacingOrder(false)
+    }
   }
 
   return (
@@ -237,12 +247,18 @@ export default function CheckoutPage() {
           </div>
 
           <button
-            type="button"
-            onClick={handlePlaceOrder}
-            className="mt-6 rounded-full bg-slate-900 dark:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
-            disabled={items.length === 0}
+            type="submit"
+            disabled={items.length === 0 || placingOrder}
+            className="mt-6 flex items-center justify-center gap-2 rounded-full bg-slate-900 dark:bg-emerald-700 px-8 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600 min-w-[200px]"
           >
-            {t('placeMockOrder')}
+            {placingOrder ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                {t('processing')}...
+              </>
+            ) : (
+              t('placeMockOrder')
+            )}
           </button>
         </form>
 

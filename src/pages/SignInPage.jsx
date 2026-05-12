@@ -21,6 +21,7 @@ export default function SignInPage() {
 
   /* ───── state ───── */
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP, 3 = Pincode
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [mobile, setMobile] = useState('')
   const [errors, setErrors] = useState({})
@@ -31,6 +32,8 @@ export default function SignInPage() {
   const [otpError, setOtpError] = useState('')
   const [animating, setAnimating] = useState(false)
   const [userNotFound, setUserNotFound] = useState(false)
+  
+  const [isRegisterMode, setIsRegisterMode] = useState(false)
   
   // Registration state for new users
   const [regName, setRegName] = useState('')
@@ -50,6 +53,10 @@ export default function SignInPage() {
   /* ───── validation ───── */
   function validate() {
     const e = {}
+    if (!name.trim()) {
+      e.name = t('nameRequired', 'Name is required')
+    }
+    
     if (!email.trim()) {
       e.email = t('emailRequired') || 'Email is required'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -58,7 +65,7 @@ export default function SignInPage() {
 
     if (!mobile.trim()) {
       e.mobile = t('mobileRequired')
-    } else if (!/^[6-9]\d{9}$/.test(mobile.trim())) {
+    } else if (!/^\d{10}$/.test(mobile.trim())) {
       e.mobile = t('invalidMobile')
     }
     setErrors(e)
@@ -70,6 +77,7 @@ export default function SignInPage() {
     e.preventDefault()
     if (!validate()) return
 
+    setRegName(name)
     setSending(true)
     // simulate OTP send
     setTimeout(() => {
@@ -146,8 +154,16 @@ export default function SignInPage() {
         }, 350)
       } else {
         setVerifying(false)
-        setUserNotFound(true)
-        setOtpError(data.error || 'User not found in our records.')
+        // If we're in register mode or user not found, go to registration info
+        if (isRegisterMode || res.status === 404) {
+          setAnimating(true)
+          setTimeout(() => {
+            setStep(3)
+            setAnimating(false)
+          }, 350)
+        } else {
+          setOtpError(data.error || 'Verification failed. Please try again.')
+        }
       }
     } catch (err) {
       console.error(err)
@@ -219,8 +235,6 @@ export default function SignInPage() {
     }
   }
 
-  /* Step 3 (Pincode) removed per user request for Sign In flow */
-
   /* ───── resend OTP ───── */
   function handleResend() {
     if (resendTimer > 0) return
@@ -260,11 +274,11 @@ export default function SignInPage() {
               )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {step === 1 ? t('welcomeToFarmDirect') : step === 2 ? t('verifyYourIdentity') || 'Verify Your Identity' : t('createAccount') || 'Create Account'}
+              {step === 1 ? (isRegisterMode ? t('createAccount', 'Create Account') : t('welcomeToFarmDirect')) : step === 2 ? t('verifyYourIdentity') || 'Verify Your Identity' : t('createAccount') || 'Create Account'}
             </h2>
             <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
               {step === 1 ? (
-                t('signInDesc')
+                isRegisterMode ? t('registerSubtitle', 'Join our community to start shopping fresh produce.') : t('signInDesc')
               ) : step === 2 ? (
                 <>
                   {t('enterOtpCode')}{' '}
@@ -278,9 +292,41 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {/* ─── Step 1: Name & Mobile ─── */}
+          {/* ─── Step 1: Name, Email & Mobile ─── */}
           {step === 1 && (
             <form onSubmit={handleSendOtp} className="space-y-5 px-8 pt-6 pb-10">
+              {/* Name */}
+              <div>
+                <label
+                  htmlFor="signin-name"
+                  className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
+                  {t('fullName')} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <UserRound
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+                  />
+                  <input
+                    id="signin-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
+                    }}
+                    placeholder={t('enterFullName') || 'Enter your name'}
+                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.name
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
+                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
+                      }`}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.name}</p>
+                )}
+              </div>
               {/* Email */}
               <div>
                 <label
@@ -313,6 +359,7 @@ export default function SignInPage() {
                   <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.email}</p>
                 )}
               </div>
+
 
               {/* Mobile */}
               <div>
@@ -366,7 +413,7 @@ export default function SignInPage() {
                   </>
                 ) : (
                   <>
-                    {t('getOtp')}
+                    {isRegisterMode ? t('continueToRegister', 'Continue to Register') : t('getOtp')}
                     <ArrowRight
                       size={16}
                       className="transition-transform group-hover:translate-x-1"
@@ -374,6 +421,17 @@ export default function SignInPage() {
                   </>
                 )}
               </button>
+
+              {/* Toggle Sign In / Register */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsRegisterMode(!isRegisterMode)}
+                  className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors dark:text-emerald-400"
+                >
+                  {isRegisterMode ? t('alreadyHaveAccount', 'Already have an account? Sign In') : t('dontHaveAccount', "New to FarmDirect? Create an account")}
+                </button>
+              </div>
 
               {/* Terms */}
               <p className="text-center text-[11px] leading-relaxed text-slate-400 dark:text-slate-500">
@@ -514,9 +572,10 @@ export default function SignInPage() {
                   <input
                     id="reg-name"
                     type="text"
-                    value={regName}
+                    value={regName || name}
                     onChange={(e) => {
                       setRegName(e.target.value)
+                      setName(e.target.value)
                       if (regError) setRegError('')
                     }}
                     placeholder={t('enterFullName') || 'Enter your name'}

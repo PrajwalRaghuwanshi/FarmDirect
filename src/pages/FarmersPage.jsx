@@ -61,19 +61,14 @@ export default function FarmersPage() {
       try {
         if (isInitial) setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
-        const targetState = user?.state || locationInfo?.state;
-        let url = `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState || '')}`;
+        const targetState = user?.state;
+        let url = (user && targetState) 
+          ? `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState)}`
+          : `${apiUrl}/api/farmers?state=`; // Fetch all if not signed in or no state
+        
         let res = await fetch(url);
         let data = await res.json();
         let fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
-
-        // Fallback to fetching all farmers if none are found in the target state
-        if (fetchedFarmers.length === 0 && targetState) {
-          url = `${apiUrl}/api/farmers?state=`;
-          res = await fetch(url);
-          data = await res.json();
-          fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
-        }
 
         if (Array.isArray(fetchedFarmers) && fetchedFarmers.length > 0) {
           const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
@@ -104,9 +99,9 @@ export default function FarmersPage() {
     // 🔄 REAL-TIME POLLING: Refresh farmers list every 30 seconds
     const interval = setInterval(() => fetchFarmers(false), 30000);
     return () => clearInterval(interval);
-  }, [user?.state, locationInfo?.state]);
+  }, [user?.state]); // Only re-run if user state changes
 
-  let displayLocation = 'Pune, Maharashtra';
+  let displayLocation = '';
   if (user && user.city && user.state) {
     displayLocation = `${user.city}, ${user.state}`;
   } else if (locationInfo) {
@@ -121,16 +116,16 @@ export default function FarmersPage() {
           <Tractor size={28} className="text-white" strokeWidth={1.8} />
         </div>
         <h1 className="text-3xl font-bold text-black dark:text-white sm:text-4xl">
-          {t('farmersNearYou')}
+          {user ? t('farmersNearYou') : t('allFarmers', 'Our Farmers')}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base font-medium text-black dark:text-slate-300 sm:text-lg">
-          {t('farmersNearYouDesc')}
+          {user ? t('farmersNearYouDesc') : t('allFarmersDesc', 'Explore farmers from all over the country connecting directly with you.')}
         </p>
 
         {/* Location indicator */}
         <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
           <MapPin size={13} />
-          {t('showingFarmersNear', { location: displayLocation })}
+          {user ? t('showingFarmersNear', { location: displayLocation }) : t('showingAllFarmers', 'Showing all registered farmers')}
         </div>
 
         {error && (

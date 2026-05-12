@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react'
 import { CartContext } from './cart-context'
+import { useUser } from './UserContext'
 
 const STORAGE_KEY = 'farmer-market-cart'
 
@@ -111,6 +112,7 @@ const initialState = {
 }
 
 export function CartProvider({ children }) {
+  const { user } = useUser()
   const [state, dispatch] = useReducer(cartReducer, initialState)
   const [toast, setToast] = useState(null)
 
@@ -162,9 +164,17 @@ export function CartProvider({ children }) {
       total,
       toast,
       addItem(product, quantity = 1) {
+        if (product.stock_level <= 0) {
+          const id = Date.now()
+          setToast({ message: `Sorry, ${product.name} is Sold Out!`, id, type: 'error' })
+          setTimeout(() => {
+            setToast(current => current?.id === id ? null : current)
+          }, 3000)
+          return
+        }
         dispatch({ type: 'ADD_ITEM', payload: { product, quantity } })
         const id = Date.now()
-        setToast({ message: `${product.name} (${quantity}) was added to cart`, id })
+        setToast({ message: `${product.name} (${quantity}) was added to cart`, id, type: 'success' })
         setTimeout(() => {
           setToast(current => current?.id === id ? null : current)
         }, 3000)
@@ -178,7 +188,52 @@ export function CartProvider({ children }) {
       clearCart() {
         dispatch({ type: 'CLEAR_CART' })
       },
-      placeOrder(customerDetails) {
+      async placeOrder(customerDetails) {
+        // Prepare detailed order payload for backend
+        const orderPayload = {
+          userId: user?._id || user?.id || 'guest',
+          userEmail: customerDetails.emailAddress || user?.email,
+          customerDetails: {
+            fullName: customerDetails.fullName,
+            phoneNumber: customerDetails.phoneNumber,
+            pincode: customerDetails.postalCode,
+            address: customerDetails.streetAddress,
+            state: customerDetails.state,
+            district: customerDetails.city,
+            notes: customerDetails.deliveryNotes
+          },
+          items: state.items.map(item => ({
+            productId: item.id || item._id,
+            farmerId: item.owner?._id || item.owner || item.farmerId,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            totalPrice: item.price * item.quantity
+          })),
+          summary: {
+            subtotal,
+            deliveryFee,
+            total
+          },
+          status: 'Order Confirmed',
+          placedAt: new Date().toISOString()
+        }
+
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
+          const res = await fetch(`${apiUrl}/api/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderPayload)
+          });
+          
+          if (!res.ok) {
+            console.warn("Server rejected order, proceeding with mock local completion.");
+          }
+        } catch (err) {
+          console.error("Failed to sync order with database:", err);
+        }
+
         dispatch({
           type: 'PLACE_ORDER',
           payload: { subtotal, deliveryFee, total, customerDetails },

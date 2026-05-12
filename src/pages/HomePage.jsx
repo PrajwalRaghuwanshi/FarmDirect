@@ -35,26 +35,30 @@ export default function HomePage() {
         // Prioritize getting ALL products first to ensure something is always shown
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
-        const allProducts = Array.isArray(data) ? data : (Array.isArray(data.products) ? data.products : []);
+        const allProducts = Array.isArray(data) ? data : (Array.isArray(data.products) ? data.products : (data.products ? [data.products] : []));
 
-        const targetState = user?.state || locationInfo?.state;
+        const normalizeId = (id) => (id && typeof id === 'object' && id.$oid) ? id.$oid : id;
+        const targetState = user?.state;
         
         let filteredProducts = allProducts;
-        if (targetState) {
-          filteredProducts = allProducts.filter(p => 
-            p.state?.toLowerCase() === targetState.toLowerCase() ||
-            p.owner?.state?.toLowerCase() === targetState.toLowerCase()
-          );
+        if (user && targetState) {
+          filteredProducts = allProducts.filter(p => {
+            const stateMatch = p.state?.toLowerCase() === targetState.toLowerCase() ||
+                             p.owner?.state?.toLowerCase() === targetState.toLowerCase();
+            return stateMatch;
+          });
         }
 
-        // 🚨 STRICT: Only show products that match the user's state. No fallback to all products.
-        const finalizedProducts = targetState ? filteredProducts.filter(p => p.owner) : allProducts.filter(p => p.owner);
+        // Strictly require 'owner' key for existence check
+        const finalizedProducts = (user && targetState) 
+          ? filteredProducts.filter(p => p.owner || p.ownerId) 
+          : allProducts.filter(p => p.owner || p.ownerId);
         
         const mappedProducts = finalizedProducts
-          .filter(p => p.price > 0) // Filter out invalid/test products
+          .filter(p => Number(p.price) > 0) // Filter out invalid/test products
           .map(p => ({
             ...p,
-            id: p._id,
+            id: normalizeId(p._id),
             name: p.title || p.name || 'Untitled Product',
             image: (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : (p.image || 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=500&q=80'),
             farm_name: p.owner?.name || p.farm_name || 'missing',
@@ -225,9 +229,16 @@ export default function HomePage() {
       {/* Fresh Picks */}
       <section className="mx-auto max-w-7xl px-4 pb-16 mt-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {t('freshPicks', 'Fresh Picks')}
-          </h2>
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {t('freshPicks', 'Fresh Picks')}
+            </h2>
+            {user && user.state && (
+              <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mt-1">
+                {t('freshFrom')} {user.city || user.state}
+              </p>
+            )}
+          </div>
           <Link to="/products" className="flex items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
             {t('viewAllProductsLink')} <ChevronRight size={16} className="ml-1" />
           </Link>

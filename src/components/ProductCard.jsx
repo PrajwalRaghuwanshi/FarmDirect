@@ -50,9 +50,19 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
               {productName}
             </h2>
           </div>
-          <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-amber-700 dark:text-amber-400 h-fit">
-            {stockLevel} {t('left')}
-          </span>
+          {stockLevel > 10 ? (
+            <span className="shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-emerald-700 dark:text-emerald-400 h-fit">
+              {t('inStock', 'In Stock')}
+            </span>
+          ) : stockLevel > 0 ? (
+            <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-amber-700 dark:text-amber-400 h-fit">
+              {stockLevel} {t('fewLeft', 'Few Left')}
+            </span>
+          ) : (
+            <span className="shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/30 px-2 py-0.5 text-[clamp(0.5rem,0.4vw+0.4rem,0.6rem)] font-bold text-rose-700 dark:text-rose-400 h-fit">
+              {t('outOfStock', 'Out of Stock')}
+            </span>
+          )}
         </div>
 
         <div className="space-y-1 text-[clamp(0.65rem,0.6vw+0.45rem,0.75rem)] text-slate-600 dark:text-slate-400">
@@ -92,8 +102,13 @@ export default function ProductCard({ product, onAddToCart, onViewDetails }) {
                 1,
               )
             }
-            className="flex-1 h-10 rounded-xl bg-slate-900 dark:bg-emerald-700 text-white transition hover:brightness-110 shadow-lg shadow-emerald-900/10 flex items-center justify-center"
-            title={t('addToCart')}
+            className={`flex-1 h-10 rounded-xl transition shadow-lg flex items-center justify-center ${
+              stockLevel <= 0 
+                ? 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed text-slate-500' 
+                : 'bg-slate-900 dark:bg-emerald-700 text-white hover:brightness-110 shadow-emerald-900/10'
+            }`}
+            disabled={stockLevel <= 0}
+            title={stockLevel <= 0 ? t('outOfStock') : t('addToCart')}
           >
             <ShoppingCart size={18} strokeWidth={2.5} />
           </button>

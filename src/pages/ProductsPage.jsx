@@ -80,16 +80,22 @@ export default function ProductsPage() {
         const res = await fetch(`${apiUrl}/api/products`);
         const data = await res.json();
 
-        if (Array.isArray(data)) {
-          let filtered = data;
+        const normalizeId = (id) => (id && typeof id === 'object' && id.$oid) ? id.$oid : id;
+        const productsArray = Array.isArray(data) ? data : (Array.isArray(data.products) ? data.products : []);
+
+        if (productsArray.length > 0) {
+          let filtered = productsArray;
           if (farmerIdFilter) {
-            filtered = data.filter(p => p.owner?._id === farmerIdFilter || p.owner === farmerIdFilter);
+            filtered = productsArray.filter(p => {
+              const ownerId = normalizeId(p.owner?._id || p.owner);
+              return ownerId === farmerIdFilter;
+            });
             // Get farmer name from first matching product
             if (filtered.length > 0) {
               setSelectedFarmerName(filtered[0].owner?.name || 'missing');
             }
           }
-          setDbProducts(filtered);
+          setDbProducts(filtered.map(p => ({ ...p, _id: normalizeId(p._id), id: normalizeId(p._id) })));
         } else {
           setDbProducts([]);
         }
@@ -142,7 +148,9 @@ export default function ProductsPage() {
       const matchesSeason =
         selectedSeason === 'All' || product.season === selectedSeason
       const matchesFarmer =
-        !farmerIdFilter || product.owner?._id === farmerIdFilter || product.owner === farmerIdFilter
+        !farmerIdFilter || 
+        product.owner?._id === farmerIdFilter || product.owner === farmerIdFilter ||
+        product.farmer?._id === farmerIdFilter || product.farmer === farmerIdFilter
 
       // Simple mock for value filters: just check if 'organic' etc is in the name or tags if available
       // In a real app, this would check product.attributes or product.values
@@ -189,17 +197,14 @@ export default function ProductsPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">{t('deliveringTo')}</p>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <p className="text-lg font-bold text-slate-900 dark:text-white leading-none">
-                      {user?.pincode || pincode}
-                    </p>
-                    <span className="h-4 w-[1px] bg-emerald-200 dark:bg-emerald-800" />
-                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 leading-none">
-                      {user?.city || locationInfo?.district || '...'}
-                    </p>
-                  </div>
-                  <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-tighter">
+                <div className="flex flex-col mt-1">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                    {user?.pincode || pincode}
+                  </p>
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 leading-tight">
+                    {user?.city || locationInfo?.district || '...'}
+                  </p>
+                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
                     {user?.state || locationInfo?.state || '...'}
                   </p>
                 </div>

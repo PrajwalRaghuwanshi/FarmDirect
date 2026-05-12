@@ -6,6 +6,7 @@ const Customer = require("./models/customer");
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const User = require("./models/user");
+const Order = require("./models/order");
 
 const app = express();
 
@@ -285,6 +286,27 @@ app.get("/api/customers/:id", async (req, res) => {
   } catch (error) {
     console.error("Get customer error:", error);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+// 📦 PLACE ORDER
+app.post("/api/orders", async (req, res) => {
+  try {
+    console.log("📦 NEW ORDER RECEIVED");
+    const orderData = req.body;
+    
+    if (!orderData.items || orderData.items.length === 0) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    const newOrder = new Order(orderData);
+    await newOrder.save();
+
+    console.log("✅ Order saved successfully:", newOrder._id);
+    res.status(201).json({ message: "Order placed successfully", orderId: newOrder._id });
+  } catch (error) {
+    console.error("Order error:", error);
+    res.status(500).json({ error: "Server error while placing order" });
   }
 });
 
