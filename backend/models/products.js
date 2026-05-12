@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema({
     origin: String,
     stock_level: Number,
     stock: Number,
+    sold: { type: Number, default: 0 },
     rating: Number,
     farm_name: String,
     highlights: [String],

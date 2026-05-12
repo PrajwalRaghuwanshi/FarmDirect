@@ -51,40 +51,49 @@ const badgeColors = {
 export default function FarmersPage() {
   const { locationInfo, user } = useUser()
   const { t } = useTranslation()
+  const [filter, setFilter] = useState('all') // 'all' or 'local'
   const [farmers, setFarmers] = useState(defaultFarmers)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [followedFarmers, setFollowedFarmers] = useState([]) // State for follow toggle
+  const [followedFarmers, setFollowedFarmers] = useState([])
 
   useEffect(() => {
     const fetchFarmers = async (isInitial = true) => {
       try {
         if (isInitial) setLoading(true)
         const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
-        const targetState = user?.state;
-        let url = (user && targetState) 
-          ? `${apiUrl}/api/farmers?state=${encodeURIComponent(targetState)}`
-          : `${apiUrl}/api/farmers?state=`; // Fetch all if not signed in or no state
+        
+        let url = `${apiUrl}/api/farmers`;
+        if (filter === 'local') {
+          const targetState = user?.state || locationInfo?.state;
+          const targetPincode = user?.pincode || locationInfo?.pincode;
+          
+          const params = new URLSearchParams();
+          if (targetState) params.append('state', targetState);
+          if (targetPincode) params.append('pincode', targetPincode);
+          
+          if (params.toString()) {
+            url += `?${params.toString()}`;
+          }
+        }
         
         let res = await fetch(url);
         let data = await res.json();
         let fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
 
-        if (Array.isArray(fetchedFarmers) && fetchedFarmers.length > 0) {
-          const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
-            id: dbFarmer._id,
-            name: dbFarmer.name || <span className="text-[10px] text-slate-400 italic">missing</span>,
-            location: [dbFarmer.city, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
-            distance: 'Nearby',
-            specialization: Array.isArray(dbFarmer.crops) && dbFarmer.crops.length ? dbFarmer.crops : ['Organic Produce'],
-            experience: dbFarmer.experience || 5,
-            image: dbFarmer.image || defaultFarmers[i % defaultFarmers.length].image,
-            badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
-            bioKey: dbFarmer.bio || 'farmerBioRajesh',
-            isVerified: dbFarmer.isVerified
-          }));
-          setFarmers(mappedFarmers);
-        }
+        const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
+          id: dbFarmer._id,
+          name: dbFarmer.name || <span className="text-[10px] text-slate-400 italic">missing</span>,
+          location: [dbFarmer.city || dbFarmer.villageLocality, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
+          distance: dbFarmer.pincode === (user?.pincode || locationInfo?.pincode) ? 'Very Close' : 'Nearby',
+          specialization: Array.isArray(dbFarmer.crops) && dbFarmer.crops.length ? dbFarmer.crops : ['Organic Produce'],
+          experience: dbFarmer.experience || 5,
+          image: dbFarmer.profilePhoto || dbFarmer.image || '',
+          badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
+          bioKey: dbFarmer.bio || 'farmerBioRajesh',
+          isVerified: dbFarmer.isVerified
+        }));
+        setFarmers(mappedFarmers);
         setError(null)
       } catch (err) {
         console.error("Error fetching farmers:", err);
@@ -96,10 +105,9 @@ export default function FarmersPage() {
 
     fetchFarmers(true);
 
-    // 🔄 REAL-TIME POLLING: Refresh farmers list every 30 seconds
     const interval = setInterval(() => fetchFarmers(false), 30000);
     return () => clearInterval(interval);
-  }, [user?.state]); // Only re-run if user state changes
+  }, [user?.state, user?.pincode, locationInfo, filter]); 
 
   let displayLocation = '';
   if (user && user.city && user.state) {
@@ -128,6 +136,32 @@ export default function FarmersPage() {
           {user ? t('showingFarmersNear', { location: displayLocation }) : t('showingAllFarmers', 'Showing all registered farmers')}
         </div>
 
+        {/* Filter Toggle */}
+        <div className="mt-8 flex justify-center">
+          <div className="inline-flex rounded-2xl bg-slate-100 p-1 dark:bg-slate-800 shadow-inner">
+            <button
+              onClick={() => setFilter('all')}
+              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${
+                filter === 'all'
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              {t('all', 'All Farmers')}
+            </button>
+            <button
+              onClick={() => setFilter('local')}
+              className={`rounded-xl px-6 py-2 text-sm font-bold transition-all ${
+                filter === 'local'
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white'
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              {user?.state || locationInfo?.state || 'My State'}
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 animate-pulse">
             <div className="h-2 w-2 rounded-full bg-rose-500" />
@@ -147,17 +181,14 @@ export default function FarmersPage() {
           farmers.map((farmer, index) => (
             <div
               key={farmer.id || farmer.name + index}
-              className="group relative overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 dark:border-slate-700/50 dark:bg-slate-800/80"
+              className="group bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-100 dark:border-slate-800 hover:border-emerald-500 transition-all shadow-sm hover:shadow-xl hover:shadow-emerald-500/5"
             >
-              {/* Top accent bar */}
-              <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 transition-opacity group-hover:opacity-100" />
-
-              <div className="p-6">
+              <div className="p-1">
                 {/* Profile row */}
                 <div className="flex items-start gap-4">
                   <div className="relative flex-shrink-0">
                     <img
-                      src={farmer.image}
+                      src={farmer.image || ''}
                       alt={farmer.name}
                       className="h-16 w-16 rounded-2xl object-cover shadow-sm ring-2 ring-white dark:ring-slate-700"
                     />

@@ -313,7 +313,7 @@ app.post("/api/orders", async (req, res) => {
           {
             $inc: { 
               stock: -item.quantity,
-              stock_level: -item.quantity
+              sold: item.quantity
             }
           },
           { new: true }
@@ -356,17 +356,18 @@ app.get("/api/orders/user/:userId", async (req, res) => {
 // 🌾 GET FARMERS BY STATE (from users collection)
 app.get("/api/farmers", async (req, res) => {
   try {
-    const { state } = req.query;
-
-    console.log("🌾 Fetching farmers, state:", state || 'all');
+    const { state, pincode } = req.query;
+    console.log(`🌾 Fetching farmers - State: ${state || 'any'}, Pincode: ${pincode || 'any'}`);
 
     let query = {};
     if (state) {
       query.state = { $regex: new RegExp(state, "i") };
     }
+    if (pincode) {
+      query.pincode = pincode;
+    }
 
     const farmers = await User.find(query);
-
     res.json({ farmers });
 
   } catch (err) {

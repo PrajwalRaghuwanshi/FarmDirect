@@ -129,19 +129,19 @@ export default function SearchPage() {
                   {farmers.map(farmer => (
                     <Link 
                       key={farmer._id || farmer.id}
-                      to={`/farmers`} // Navigate to directory for now
-                      className="group bg-white dark:bg-slate-900 rounded-[2rem] p-5 border border-slate-100 dark:border-slate-800 hover:border-emerald-500 transition-all shadow-sm hover:shadow-xl hover:shadow-emerald-500/5"
+                      to={`/farm-profile/${encodeURIComponent(farmer.name)}`}
+                      className="group bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 transition-all shadow-sm hover:shadow-lg"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="h-16 w-16 rounded-2xl overflow-hidden bg-slate-100">
+                        <div className="h-16 w-16 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0">
                           <img 
-                            src={farmer.image || `https://i.pravatar.cc/150?u=${farmer._id}`} 
+                            src={farmer.profilePhoto}
                             alt={farmer.name}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-slate-900 dark:text-white truncate">{farmer.name || 'missing'}</h3>
+                          <h3 className="font-bold text-slate-900 dark:text-white truncate">{farmer.name}</h3>
                           <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                             <Leaf size={12} className="text-emerald-500" />
                             {farmer.crops?.join(', ') || 'Various Crops'}
