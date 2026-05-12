@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2, MapPin } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2, MapPin, Mail } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 
@@ -21,9 +21,7 @@ export default function SignInPage() {
 
   /* ───── state ───── */
   const [step, setStep] = useState(1) // 1 = form, 2 = OTP, 3 = Pincode
-  const [pincodeInput, setPincodeInput] = useState('')
-  const [pincodeError, setPincodeError] = useState('')
-  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [mobile, setMobile] = useState('')
   const [errors, setErrors] = useState({})
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''))
@@ -45,7 +43,12 @@ export default function SignInPage() {
   /* ───── validation ───── */
   function validate() {
     const e = {}
-    if (!name.trim()) e.name = t('nameRequired')
+    if (!email.trim()) {
+      e.email = t('emailRequired') || 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      e.email = t('invalidEmail') || 'Enter a valid email address'
+    }
+
     if (!mobile.trim()) {
       e.mobile = t('mobileRequired')
     } else if (!/^[6-9]\d{9}$/.test(mobile.trim())) {
@@ -107,8 +110,8 @@ export default function SignInPage() {
     otpRefs.current[focusIdx]?.focus()
   }
 
-  /* ───── verify OTP ───── */
-  function handleVerifyOtp(e) {
+  /* ───── verify OTP & Sign In ───── */
+  async function handleVerifyOtp(e) {
     e.preventDefault()
     const code = otp.join('')
     if (code.length < OTP_LENGTH) {
@@ -117,67 +120,35 @@ export default function SignInPage() {
     }
 
     setVerifying(true)
-    // simulate verification
-    setTimeout(() => {
-      setVerifying(false)
-      setAnimating(true)
-      setTimeout(() => {
-        setStep(3)
-        setAnimating(false)
-      }, 350)
-    }, 1500)
-  }
-
-  /* ───── submit pincode ───── */
-  async function handleSubmitPincode(e) {
-    e.preventDefault()
-    if (!/^\d{6}$/.test(pincodeInput.trim())) {
-      setPincodeError(t('invalidPincode') || 'Please enter a valid 6-digit pincode')
-      return
-    }
     
     try {
-      let city = '';
-      let state = '';
-      try {
-        const locationRes = await fetch(`https://api.postalpincode.in/pincode/${pincodeInput.trim()}`)
-        const locationData = await locationRes.json()
-        if (locationData && locationData[0].Status === "Success") {
-          const postOffice = locationData[0].PostOffice[0]
-          city = postOffice.District
-          state = postOffice.State
-        }
-      } catch (err) {
-        console.error("Failed to fetch location", err)
-      }
+      // Simulate verification delay
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          mobile,
-          pincode: pincodeInput.trim(),
-          city,
-          state,
-          languagepreference: i18n.language || 'en'
-        })
-      });
+      // Check if user exists with this email and mobile
+      const res = await fetch(`${apiUrl}/api/user/check?email=${encodeURIComponent(email)}&mobile=${mobile}`);
       const data = await res.json();
-      
-      if (res.ok) {
+
+      if (res.ok && data.user) {
         login(data.user)
-        updatePincode(pincodeInput.trim())
-        window.location.href = '/'
+        setVerifying(false)
+        setAnimating(true)
+        setTimeout(() => {
+          navigate('/')
+        }, 350)
       } else {
-        setPincodeError(data.error || 'Failed to register account')
+        setVerifying(false)
+        setOtpError(data.error || 'User not found. Please register first.')
       }
     } catch (err) {
-      console.error(err);
-      setPincodeError('Network error. Please try again.')
+      console.error(err)
+      setVerifying(false)
+      setOtpError('Network error. Please try again.')
     }
   }
+
+  /* Step 3 (Pincode) removed per user request for Sign In flow */
 
   /* ───── resend OTP ───── */
   function handleResend() {
@@ -214,62 +185,59 @@ export default function SignInPage() {
               ) : step === 2 ? (
                 <ShieldCheck size={30} className="text-white" strokeWidth={1.8} />
               ) : (
-                <MapPin size={30} className="text-white" strokeWidth={1.8} />
+                <ShieldCheck size={30} className="text-white" strokeWidth={1.8} />
               )}
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {step === 1 ? t('welcomeToFarmDirect') : step === 2 ? t('verifyYourNumber') : t('enterDeliveryPincode') || 'Delivery Pincode'}
+              {step === 1 ? t('welcomeToFarmDirect') : t('verifyYourIdentity') || 'Verify Your Identity'}
             </h2>
             <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
-              {step === 1
-                ? t('signInDesc')
-                : step === 2
-                ? (
-                  <>
-                    {t('enterOtpCode')}{' '}
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      {maskedMobile}
-                    </span>
-                  </>
-                ) : (
-                  t('pincodeDesc') || 'Enter your pincode to discover fresh produce near you'
-                )}
+              {step === 1 ? (
+                t('signInDesc')
+              ) : (
+                <>
+                  {t('enterOtpCode')}{' '}
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    {maskedMobile}
+                  </span>
+                </>
+              )}
             </p>
           </div>
 
           {/* ─── Step 1: Name & Mobile ─── */}
           {step === 1 && (
             <form onSubmit={handleSendOtp} className="space-y-5 px-8 pt-6 pb-10">
-              {/* Name */}
+              {/* Email */}
               <div>
                 <label
-                  htmlFor="signin-name"
+                  htmlFor="signin-email"
                   className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
                 >
-                  {t('fullName')} <span className="text-rose-500">*</span>
+                  {t('emailAddress')} <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <UserRound
+                  <Mail
                     size={18}
                     className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
                   />
                   <input
-                    id="signin-name"
-                    type="text"
-                    value={name}
+                    id="signin-email"
+                    type="email"
+                    value={email}
                     onChange={(e) => {
-                      setName(e.target.value)
-                      if (errors.name) setErrors((prev) => ({ ...prev, name: '' }))
+                      setEmail(e.target.value)
+                      if (errors.email) setErrors((prev) => ({ ...prev, email: '' }))
                     }}
-                    placeholder={t('enterFullName')}
-                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.name
+                    placeholder={t('enterEmail') || 'Enter your email ID'}
+                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${errors.email
                         ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
                         : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
                       }`}
                   />
                 </div>
-                {errors.name && (
-                  <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.name}</p>
+                {errors.email && (
+                  <p className="mt-1.5 text-xs font-medium text-rose-500">{errors.email}</p>
                 )}
               </div>
 
@@ -431,57 +399,7 @@ export default function SignInPage() {
             </form>
           )}
 
-          {/* ─── Step 3: Pincode ─── */}
-          {step === 3 && (
-            <form onSubmit={handleSubmitPincode} className="space-y-5 px-8 pt-6 pb-10">
-              <div>
-                <label
-                  htmlFor="signin-pincode"
-                  className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
-                >
-                  {t('pincode') || 'Pincode'} <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin
-                    size={18}
-                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
-                  />
-                  <input
-                    id="signin-pincode"
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    value={pincodeInput}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, '').slice(0, 6)
-                      setPincodeInput(v)
-                      if (pincodeError) setPincodeError('')
-                    }}
-                    placeholder="e.g. 400001"
-                    className={`w-full rounded-2xl border bg-white py-3.5 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 dark:bg-slate-700/60 dark:text-white dark:placeholder:text-slate-500 ${pincodeError
-                        ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-500'
-                        : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-slate-600 dark:focus:border-emerald-500'
-                      }`}
-                  />
-                </div>
-                {pincodeError && (
-                  <p className="mt-1.5 text-xs font-medium text-rose-500">{pincodeError}</p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={pincodeInput.length !== 6}
-                className="group relative flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {t('completeSignIn') || 'Complete Sign In'}
-                <ArrowRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-1"
-                />
-              </button>
-            </form>
-          )}
+          {/* Step 3 (Pincode) removed */}
         </div>
 
         {/* Brand footer */}

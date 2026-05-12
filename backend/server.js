@@ -42,8 +42,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// 🔌 Connect MongoDB (local)
-mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/test_db")
+// 🔌 Connect MongoDB
+mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/FarmDirectDB's")
   .then(() => {
     console.log("MongoDB connected");
     console.log("DATABASE:", process.env.MONGO_URI);

@@ -25,6 +25,9 @@ const productSchema = new mongoose.Schema({
         ref: "User",
         required: true
     }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    collection: "products"
+});
 
 module.exports = mongoose.model("Product", productSchema);

@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
-        collection: "users"
+        collection: "Farmer"
     }
 );
 

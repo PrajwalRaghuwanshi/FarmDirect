@@ -306,5 +306,8 @@
   "privacyPolicy": "Privacy Policy",
   "brandFooter": "FarmDirect — From Farm. To You.",
   "accountSettings": "Account Settings",
-  "manageCustomInfo": "Manage your profile and custom settings"
+  "manageCustomInfo": "Manage your profile and custom settings",
+  "verifyYourIdentity": "Verify Your Identity",
+  "emailRequired": "Email is required",
+  "invalidEmail": "Enter a valid email address"
 }

@@ -14,7 +14,7 @@ const customerSchema = new mongoose.Schema({
   password: { type: String }
 }, {
   timestamps: true,
-  collection: 'customer(buyer)'
+  collection: 'Buyer'
 });
 
 module.exports = mongoose.model('Customer', customerSchema);
