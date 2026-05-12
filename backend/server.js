@@ -305,19 +305,31 @@ app.post("/api/orders", async (req, res) => {
     // 📉 DECREASE STOCK
     for (const item of orderData.items) {
       try {
-        // Try to update both possible field names for flexibility
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { 
-            stock_level: -item.quantity,
-            stock: -item.quantity // Fallback for some documents
-          }
-        });
+        console.log(`📉 Attempting to decrease stock for product: ${item.name} (${item.productId}) by ${item.quantity}`);
+        
+        // Find by both ID string and ObjectId to be safe
+        const updateResult = await Product.findOneAndUpdate(
+          { _id: item.productId },
+          {
+            $inc: { 
+              stock_level: -item.quantity,
+              stock: -item.quantity 
+            }
+          },
+          { new: true }
+        );
+
+        if (updateResult) {
+          console.log(`✅ Stock updated for ${item.name}. New stock_level: ${updateResult.stock_level}, New stock: ${updateResult.stock}`);
+        } else {
+          console.warn(`⚠️ Could not find product with ID ${item.productId} to update stock.`);
+        }
       } catch (err) {
-        console.error(`Failed to update stock for product ${item.productId}:`, err);
+        console.error(`❌ Failed to update stock for product ${item.productId}:`, err);
       }
     }
 
-    console.log("✅ Order saved and stock updated:", newOrder._id);
+    console.log("✅ Order process complete for:", newOrder._id);
     res.status(201).json({ message: "Order placed successfully", orderId: newOrder._id });
   } catch (error) {
     console.error("Order error:", error);
