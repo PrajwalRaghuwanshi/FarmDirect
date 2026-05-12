@@ -287,5 +287,12 @@
   "fairTrade": "निष्पक्ष व्यापार",
   "filters": "फिल्टरहरू",
   "categories": "कोटीहरू",
-  "values": "मानहरू"
+  "values": "मानहरू",
+  "seedsNuts": "बीउ र नट",
+  "primaryProcessed": "प्राथमिक प्रक्रिया",
+  "organicFarming": "अर्गानिक खेती",
+  "chemicalFree": "रसायन मुक्त",
+  "freshHarvest": "ताजा फसल",
+  "lowStock": "कम स्टक",
+  "bestSelling": "सबै भन्दा राम्रो बिक्री"
 }

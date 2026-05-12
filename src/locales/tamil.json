@@ -405,5 +405,12 @@
   "fairTrade": "நியாயமான வர்த்தகம்",
   "filters": "வடிகட்டிகள்",
   "categories": "வகைகள்",
-  "values": "மதிப்புகள்"
+  "values": "மதிப்புகள்",
+  "seedsNuts": "விதைகள் மற்றும் கொட்டைகள்",
+  "primaryProcessed": "முதன்மை செயலாக்கப்பட்டது",
+  "organicFarming": "இயற்கை விவசாயம்",
+  "chemicalFree": "ரசாயனம் இல்லாதது",
+  "freshHarvest": "புதிய அறுவடை",
+  "lowStock": "குறைந்த இருப்பு",
+  "bestSelling": "சிறந்த விற்பனை"
 }

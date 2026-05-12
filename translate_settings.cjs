@@ -53,16 +53,27 @@ async function run() {
     const filePath = path.join(localesDir, file);
     const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     
-    // Only translate if missing or if it's English but file is not English
-    if (!content.accountSettings || (content.accountSettings === 'Account Settings' && code !== 'en')) {
-      const translatedTitle = await translateText('Account Settings', code);
-      const translatedDesc = await translateText('Manage your profile and custom settings', code);
-      
-      content.accountSettings = translatedTitle;
-      content.manageCustomInfo = translatedDesc;
-      
+    const keysToTranslate = {
+      'seedsNuts': 'Seeds & Nuts',
+      'primaryProcessed': 'Primary Processed',
+      'organicFarming': 'Organic farming',
+      'chemicalFree': 'Chemical free',
+      'freshHarvest': 'Fresh harvest',
+      'lowStock': 'Low stock',
+      'bestSelling': 'Best selling'
+    };
+    
+    let updated = false;
+    for (const [key, value] of Object.entries(keysToTranslate)) {
+      if (!content[key] || (content[key] === value && code !== 'en')) {
+        content[key] = await translateText(value, code);
+        updated = true;
+      }
+    }
+    
+    if (updated) {
       fs.writeFileSync(filePath, JSON.stringify(content, null, 2));
-      console.log(`  -> Saved ${langName}: ${translatedTitle}`);
+      console.log(`  -> Updated ${langName}`);
     } else {
       console.log(`  -> Already translated`);
     }

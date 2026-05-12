@@ -287,5 +287,12 @@
   "fairTrade": "निष्पक्ष व्यापार",
   "filters": "फिल्टर",
   "categories": "श्रेणी",
-  "values": "मान"
+  "values": "मान",
+  "seedsNuts": "Seeds & Nuts",
+  "primaryProcessed": "Primary Processed",
+  "organicFarming": "Organic farming",
+  "chemicalFree": "Chemical free",
+  "freshHarvest": "Fresh harvest",
+  "lowStock": "Low stock",
+  "bestSelling": "Best selling"
 }

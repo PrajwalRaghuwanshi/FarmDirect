@@ -287,5 +287,12 @@
   "fairTrade": "रास्त व्यापार",
   "filters": "फिल्टर",
   "categories": "श्रेणी",
-  "values": "मूल्य"
+  "values": "मूल्य",
+  "seedsNuts": "बिया आणि नट",
+  "primaryProcessed": "प्राथमिक प्रक्रिया",
+  "organicFarming": "सेंद्रिय शेती",
+  "chemicalFree": "केमिकल फ्री",
+  "freshHarvest": "ताजी कापणी",
+  "lowStock": "कमी साठा",
+  "bestSelling": "सर्वोत्तम विक्री"
 }

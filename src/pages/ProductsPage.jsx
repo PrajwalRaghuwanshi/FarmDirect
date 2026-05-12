@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MapPin, Carrot, Apple, Wheat, Tractor, Flame, Sprout, Leaf, LayoutGrid, Recycle, ShieldCheck, Filter, Check, ChevronDown, X } from 'lucide-react'
+import { MapPin, Carrot, Apple, Wheat, Tractor, Flame, Sprout, Leaf, LayoutGrid, Recycle, ShieldCheck, Filter, Check, ChevronDown, X, AlertCircle, Award, Cherry, Shrub, Factory } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import ProductModal from '../components/ProductModal'
@@ -16,7 +16,9 @@ const categories = [
   { id: 'Grains & Pulses', key: 'grainsPulses' },
   { id: 'Commercial Crops', key: 'commercialCrops' },
   { id: 'Spices', key: 'spices' },
-  { id: 'Fibers', key: 'fibers' }
+  { id: 'Fibers', key: 'fibers' },
+  { id: 'Seeds & Nuts', key: 'seedsNuts' },
+  { id: 'Primary Processed', key: 'primaryProcessed' }
 ]
 
 const categoryIcons = {
@@ -27,13 +29,17 @@ const categoryIcons = {
   'Organic': Leaf,
   'Commercial Crops': Tractor,
   'Spices': Flame,
-  'Fibers': Sprout
+  'Fibers': Sprout,
+  'Seeds & Nuts': Wheat,
+  'Primary Processed': Factory
 }
 
 const valueFilters = [
-  { id: 'organic', key: 'organic', icon: Leaf },
-  { id: 'sustainable', key: 'sustainable', icon: Recycle },
-  { id: 'fairTrade', key: 'fairTrade', icon: ShieldCheck },
+  { id: 'organicFarming', key: 'organicFarming', icon: Leaf },
+  { id: 'chemicalFree', key: 'chemicalFree', icon: ShieldCheck },
+  { id: 'freshHarvest', key: 'freshHarvest', icon: Shrub },
+  { id: 'lowStock', key: 'lowStock', icon: AlertCircle },
+  { id: 'bestSelling', key: 'bestSelling', icon: Award },
 ]
 export default function ProductsPage() {
   const { addItem } = useCart()
@@ -48,6 +54,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedValues, setSelectedValues] = useState([])
   const [openSections, setOpenSections] = useState(['Categories', 'Values'])
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false)
   const [error, setError] = useState(null)
 
   // Read filters from URL
@@ -139,9 +146,20 @@ export default function ProductsPage() {
 
       // Simple mock for value filters: just check if 'organic' etc is in the name or tags if available
       // In a real app, this would check product.attributes or product.values
+      // Specific logic for value filters
       const matchesValues = selectedValues.length === 0 || selectedValues.every(val => {
+        if (val === 'lowStock') return product.stock_level > 0 && product.stock_level < 15;
+        if (val === 'bestSelling') return product.rating >= 4.8 || product.badge === 'Best Seller';
+        
+        // Generic check for others (Organic farming, Chemical free, Fresh harvest)
         const str = JSON.stringify(product).toLowerCase()
-        return str.includes(val.toLowerCase())
+        const searchTerms = {
+          'organicFarming': ['organic', 'pesticide-free', 'natural'],
+          'chemicalFree': ['chemical', 'non-toxic', 'pesticide-free'],
+          'freshHarvest': ['fresh', 'harvest', 'new']
+        }
+        const terms = searchTerms[val] || [val.toLowerCase()];
+        return terms.some(term => str.includes(term));
       })
 
       return matchesCategory && matchesSeason && matchesFarmer && matchesValues
@@ -196,12 +214,25 @@ export default function ProductsPage() {
           {/* Sidebar */}
           <aside className="w-full lg:w-64 flex-shrink-0">
             <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 sticky top-24">
-
-              <div className="flex items-center justify-between mb-6">
+              
+              {/* Mobile Filter Toggle */}
+              <button 
+                onClick={() => setShowFiltersMobile(!showFiltersMobile)}
+                className="w-full lg:hidden flex items-center justify-between mb-0"
+              >
                 <div className="flex items-center gap-2">
                   <Filter size={20} className="text-emerald-600" />
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('filters')}</h2>
                 </div>
+                <ChevronDown size={20} className={`text-slate-400 transition-transform duration-300 ${showFiltersMobile ? 'rotate-180' : ''}`} />
+              </button>
+
+              <div className={`mt-6 lg:block ${showFiltersMobile ? 'block animate-in fade-in slide-in-from-top-2' : 'hidden'}`}>
+                <div className="hidden lg:flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <Filter size={20} className="text-emerald-600" />
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('filters')}</h2>
+                  </div>
 
                 {farmerIdFilter && selectedFarmerName && (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 text-[10px] font-bold animate-in zoom-in-95">
@@ -300,9 +331,9 @@ export default function ProductsPage() {
                   </div>
                 )}
               </div>
-
             </div>
-          </aside>
+          </div>
+        </aside>
 
           {/* Main Content Area */}
           <div className="flex-1">

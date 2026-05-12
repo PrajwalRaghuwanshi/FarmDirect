@@ -287,5 +287,12 @@
   "fairTrade": "निष्पक्ष व्यापार",
   "filters": "फिल्टर",
   "categories": "श्रेणियां",
-  "values": "मान"
+  "values": "मान",
+  "seedsNuts": "बीज और मेवे",
+  "primaryProcessed": "प्राथमिक संसाधित",
+  "organicFarming": "जैविक खेती",
+  "chemicalFree": "रसायन मुक्त",
+  "freshHarvest": "ताजा फसल",
+  "lowStock": "कम स्टॉक",
+  "bestSelling": "सर्वश्रेष्ठ बिक्री"
 }

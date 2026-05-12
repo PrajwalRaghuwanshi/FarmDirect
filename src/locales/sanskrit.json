@@ -287,5 +287,12 @@
   "fairTrade": "न्यायव्यापारः",
   "filters": "शोधनिकाः",
   "categories": "विभागाः",
-  "values": "मूल्यानि"
+  "values": "मूल्यानि",
+  "seedsNuts": "बीज एवं अखरोट",
+  "primaryProcessed": "प्राथमिक संसाधित",
+  "organicFarming": "जैविक कृषि",
+  "chemicalFree": "रसायन मुक्त",
+  "freshHarvest": "नवीनं फलानि",
+  "lowStock": "कम स्टॉक",
+  "bestSelling": "सर्वोत्तमविक्रयणम्"
 }

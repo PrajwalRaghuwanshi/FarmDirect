@@ -306,5 +306,12 @@
   "fairTrade": "సరసమైన వ్యాపారం",
   "filters": "ఫిల్టర్లు",
   "categories": "వర్గాలు",
-  "values": "విలువలు"
+  "values": "విలువలు",
+  "seedsNuts": "విత్తనాలు & గింజలు",
+  "primaryProcessed": "ప్రాథమిక ప్రాసెస్ చేయబడింది",
+  "organicFarming": "సేంద్రియ వ్యవసాయం",
+  "chemicalFree": "రసాయన రహిత",
+  "freshHarvest": "తాజా పంట",
+  "lowStock": "తక్కువ స్టాక్",
+  "bestSelling": "బెస్ట్ సెల్లింగ్"
 }

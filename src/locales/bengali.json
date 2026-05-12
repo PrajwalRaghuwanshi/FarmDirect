@@ -306,5 +306,12 @@
   "fairTrade": "ন্যায্য বাণিজ্য",
   "filters": "ফিল্টার",
   "categories": "বিভাগ",
-  "values": "মান"
+  "values": "মান",
+  "seedsNuts": "বীজ এবং বাদাম",
+  "primaryProcessed": "প্রাথমিক প্রক্রিয়াজাত",
+  "organicFarming": "জৈব চাষ",
+  "chemicalFree": "রাসায়নিক মুক্ত",
+  "freshHarvest": "তাজা ফসল",
+  "lowStock": "কম স্টক",
+  "bestSelling": "বেস্ট সেলিং"
 }

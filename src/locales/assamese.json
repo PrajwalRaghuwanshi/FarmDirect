@@ -287,5 +287,12 @@
   "fairTrade": "ন্যায়সঙ্গত বাণিজ্য",
   "filters": "ফিল্টাৰ",
   "categories": "শ্ৰेণীসমূহ",
-  "values": "মূল্য"
+  "values": "মূল্য",
+  "seedsNuts": "বীজ আৰু বাদাম",
+  "primaryProcessed": "প্ৰাথমিক প্ৰক্ৰিয়াকৃত",
+  "organicFarming": "জৈৱিক কৃষি",
+  "chemicalFree": "ৰাসায়নিক মুক্ত",
+  "freshHarvest": "সতেজ চপোৱা",
+  "lowStock": "কম ষ্টক",
+  "bestSelling": "বেষ্ট চেলিং"
 }

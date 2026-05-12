@@ -155,6 +155,7 @@ export default function Header() {
     if (e) e.preventDefault()
     if (searchQuery.trim()) {
       setShowSuggestions(false)
+      setMobileMenuOpen(false)
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
@@ -200,343 +201,402 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 shadow-sm transition-colors">
-      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4">
 
-        {/* Logo Area */}
-        <NavLink to="/" className="flex items-center gap-2 group">
-          <div className="text-emerald-600">
-            <Leaf size={32} strokeWidth={2} className="fill-emerald-600" />
+          {/* Logo Area */}
+          <NavLink to="/" className="flex items-center gap-2 group">
+            <div className="text-emerald-600">
+              <Leaf size={32} strokeWidth={2} className="fill-emerald-600" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                FarmDirect
+              </h1>
+              <p className="text-[10px] uppercase font-semibold tracking-wider text-slate-500 dark:text-slate-400">
+                From Farm. To You.
+              </p>
+            </div>
+          </NavLink>
+
+          {/* Mobile Menu Button - Shown only on small screens */}
+          <div className="flex lg:hidden items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
-              FarmDirect
-            </h1>
-            <p className="text-[10px] uppercase font-semibold tracking-wider text-slate-500 dark:text-slate-400">
-              From Farm. To You.
-            </p>
-          </div>
-        </NavLink>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
-        >
-          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+            {navItems.map((item) => (
+              item.hasDropdown ? (
+                <div key={item.to} className="relative" ref={shopMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShopMenuOpen((prev) => !prev)}
+                    className={`flex items-center gap-1 pb-1 transition border-b-2 ${shopMenuOpen
+                      ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                      : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
+                      }`}
+                  >
+                    {t(item.translationKey)}
+                    <ChevronDown size={14} className={`transition-transform ${shopMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
-          {navItems.map((item) => (
-            item.hasDropdown ? (
-              <div key={item.to} className="relative" ref={shopMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setShopMenuOpen((prev) => !prev)}
-                  className={`flex items-center gap-1 pb-1 transition border-b-2 ${shopMenuOpen
-                    ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                    : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
-                    }`}
-                >
-                  {t(item.translationKey)}
-                  <ChevronDown size={14} className={`transition-transform ${shopMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
+                  {/* Mega Menu Dropdown */}
+                  {shopMenuOpen && (
+                    <div className="absolute left-[-250px] top-full mt-4 w-[760px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
+                      {/* Arrow */}
+                      <div className="absolute -top-2 left-[265px] w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
 
-                {/* Mega Menu Dropdown */}
-                {shopMenuOpen && (
-                  <div className="absolute left-[-250px] top-full mt-4 w-[760px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 z-50 animate-in fade-in">
-                    {/* Arrow */}
-                    <div className="absolute -top-2 left-[265px] w-4 h-4 rotate-45 bg-white dark:bg-slate-800 border-l border-t border-slate-200 dark:border-slate-700"></div>
+                      <div className="flex items-center justify-between mb-5">
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("storeByCategory")}</h3>
+                        <button
+                          onClick={() => { setShopMenuOpen(false); navigate('/products'); }}
+                          className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
+                        >
+                          {t("viewAllProducts")}
+                        </button>
+                      </div>
 
-                    <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white">{t("storeByCategory")}</h3>
-                      <button
-                        onClick={() => { setShopMenuOpen(false); navigate('/products'); }}
-                        className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
-                      >
-                        {t("viewAllProducts")}
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-6">
-                      {shopCategories.map((cat) => {
-                        const Icon = cat.icon
-                        return (
-                          <div key={cat.translationKey}>
-                            <button
-                              onClick={() => goToCategory(cat.category)}
-                              className="flex items-center gap-2 mb-3 group/cat"
-                            >
-                              <Icon size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
-                              <span className="whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white group-hover/cat:text-emerald-600 dark:group-hover/cat:text-emerald-400 transition">
-                                {t(cat.translationKey)}
-                              </span>
-                            </button>
-                            <ul className="space-y-2">
-                              {cat.items.map((subItem) => (
-                                <li key={subItem}>
+                      <div className="grid grid-cols-4 gap-6">
+                        {shopCategories.map((cat) => {
+                          const Icon = cat.icon
+                          return (
+                            <div key={cat.translationKey}>
+                              <button
+                                onClick={() => goToCategory(cat.category)}
+                                className="flex items-center gap-2 mb-3 group/cat"
+                              >
+                                <Icon size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
+                                <span className="whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white group-hover/cat:text-emerald-600 dark:group-hover/cat:text-emerald-400 transition">
+                                  {t(cat.translationKey)}
+                                </span>
+                              </button>
+                              <ul className="space-y-2">
+                                {cat.items.map((subItem) => (
+                                  <li key={subItem}>
+                                    <button
+                                      onClick={() => goToCategory(cat.category)}
+                                      className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition w-full text-left"
+                                    >
+                                      {subItem}
+                                    </button>
+                                  </li>
+                                ))}
+                                <li>
                                   <button
                                     onClick={() => goToCategory(cat.category)}
-                                    className="text-[13px] text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition w-full text-left"
+                                    className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
                                   >
-                                    {subItem}
+                                    {t('all')} {t(cat.translationKey)} →
                                   </button>
                                 </li>
-                              ))}
-                              <li>
-                                <button
-                                  onClick={() => goToCategory(cat.category)}
-                                  className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
-                                >
-                                  {t('all')} {t(cat.translationKey)} →
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        )
-                      })}
-                    </div>
+                              </ul>
+                            </div>
+                          )
+                        })}
+                      </div>
 
-                    {/* Bottom bar */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-                      <button onClick={() => { setShopMenuOpen(false); navigate('/products'); }} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                        🛒 {t("allItems")}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) =>
-                  `pb-1 transition border-b-2 ${isActive && !shopMenuOpen
-                    ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
-                    : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
-                  }`
-                }
-              >
-                {t(item.translationKey)}
-              </NavLink>
-            )
-          ))}
-        </nav>
-
-        {/* Right Section: Search, Cart, User */}
-        <div className="flex items-center gap-6">
-          <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400" ref={searchRef}>
-            <form onSubmit={onSearchSubmit} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                placeholder={t("searchPlaceholder")}
-                className="pl-4 pr-16 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                <button 
-                  type="button"
-                  onClick={startVoiceSearch}
-                  className={`p-1.5 rounded-full transition-all ${isListening ? 'text-rose-500 animate-pulse bg-rose-50 dark:bg-rose-900/20' : 'text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
-                >
-                  <Mic size={16} />
-                </button>
-                <button type="submit" className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400">
-                  <Search size={16} />
-                </button>
-              </div>
-            </form>
-
-            {/* Search Suggestions */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="p-2 border-b border-slate-50 dark:border-slate-700">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{t('suggestions', 'Suggestions')}</p>
-                </div>
-                {suggestions.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      setSearchQuery(s)
-                      navigate(`/search?q=${encodeURIComponent(s)}`)
-                      setShowSuggestions(false)
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                  >
-                    <span>{s}</span>
-                    <ArrowRight size={14} className="opacity-0 group-hover:opacity-100" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-
-          <div className="flex items-center gap-5">
-            {/* Theme toggle */}
-            <button onClick={toggleTheme} className="hidden lg:flex text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
-            </button>
-            {/* Desktop Language Selector */}
-            <div className="relative hidden lg:flex ml-4">
-              <button
-                onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition min-w-[60px] justify-center"
-                aria-haspopup="true"
-                aria-expanded={languageMenuOpen}
-              >
-                {languages.find(l => l.code === i18n.language)?.short || 'EN'}
-                <ChevronDown className={`w-4 h-4 transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {languageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                  <div className="p-2 border-b border-slate-100 dark:border-slate-700">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Select Language</p>
-                  </div>
-                  <ul className="max-h-80 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-                    {languages.map((lang) => (
-                      <li key={lang.code}>
-                        <button
-                          onClick={() => {
-                            i18n.changeLanguage(lang.code);
-                            localStorage.setItem('i18nextLng', lang.code);
-                            setLanguageMenuOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
-                            i18n.language === lang.code
-                              ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 font-bold'
-                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-                          }`}
-                        >
-                          <span>{lang.label}</span>
-                          {i18n.language === lang.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>}
+                      {/* Bottom bar */}
+                      <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+                        <button onClick={() => { setShopMenuOpen(false); navigate('/products'); }} className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                          🛒 {t("allItems")}
                         </button>
-                      </li>
-                    ))}
-                  </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  className={({ isActive }) =>
+                    `pb-1 transition border-b-2 ${isActive && !shopMenuOpen
+                      ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                      : 'border-transparent text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-600'
+                    }`
+                  }
+                >
+                  {t(item.translationKey)}
+                </NavLink>
+              )
+            ))}
+          </nav>
+
+          {/* Right Section: Search, Cart, User */}
+          <div className="flex items-center gap-6">
+            <div className="hidden lg:flex relative text-slate-400 dark:text-slate-500 focus-within:text-emerald-600 dark:focus-within:text-emerald-400" ref={searchRef}>
+              <form onSubmit={onSearchSubmit} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+                  placeholder={t("searchPlaceholder")}
+                  className="pl-4 pr-16 py-2 w-64 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <button 
+                    type="button"
+                    onClick={startVoiceSearch}
+                    className={`p-1.5 rounded-full transition-all ${isListening ? 'text-rose-500 animate-pulse bg-rose-50 dark:bg-rose-900/20' : 'text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+                  >
+                    <Mic size={16} />
+                  </button>
+                  <button type="submit" className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+                    <Search size={16} />
+                  </button>
+                </div>
+              </form>
+
+              {/* Search Suggestions */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="p-2 border-b border-slate-50 dark:border-slate-700">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{t('suggestions', 'Suggestions')}</p>
+                  </div>
+                  {suggestions.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => {
+                        setSearchQuery(s)
+                        setMobileMenuOpen(false)
+                        navigate(`/search?q=${encodeURIComponent(s)}`)
+                        setShowSuggestions(false)
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                    >
+                      <span>{s}</span>
+                      <ArrowRight size={14} className="opacity-0 group-hover:opacity-100" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
-            <NavLink
-              to="/cart"
-              className={`relative transition flex items-center ${location.pathname === '/cart'
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
-                }`}
-            >
-              <ShoppingCart size={24} strokeWidth={2} className={location.pathname === '/cart' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                  {itemCount}
-                </span>
-              )}
-            </NavLink>
 
-            <div className="hidden lg:block relative" ref={messagesRef}>
-              <button
-                onClick={() => setMessagesOpen(!messagesOpen)}
-                className={`relative transition flex items-center ${messagesOpen
+            <div className="flex items-center gap-5">
+              {/* Theme toggle */}
+              <button onClick={toggleTheme} className="hidden lg:flex text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
+                  {isDarkMode ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
+              </button>
+              {/* Desktop Language Selector */}
+              <div className="relative hidden lg:flex ml-4">
+                <button
+                  onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition min-w-[60px] justify-center"
+                  aria-haspopup="true"
+                  aria-expanded={languageMenuOpen}
+                >
+                  {languages.find(l => l.code === i18n.language)?.short || 'EN'}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {languageMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="p-2 border-b border-slate-100 dark:border-slate-700">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">Select Language</p>
+                    </div>
+                    <ul className="max-h-80 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                      {languages.map((lang) => (
+                        <li key={lang.code}>
+                          <button
+                            onClick={() => {
+                              i18n.changeLanguage(lang.code);
+                              localStorage.setItem('i18nextLng', lang.code);
+                              setLanguageMenuOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
+                              i18n.language === lang.code
+                                ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 font-bold'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            <span>{lang.label}</span>
+                            {i18n.language === lang.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <NavLink
+                to="/cart"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`relative transition flex items-center ${location.pathname === '/cart'
                   ? 'text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
                   }`}
-                title="Notifications"
               >
-                <Bell size={24} strokeWidth={2} className={messagesOpen ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
-                {unreadCount > 0 && (
+                <ShoppingCart size={24} strokeWidth={2} className={location.pathname === '/cart' ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+                {itemCount > 0 && (
                   <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                    {unreadCount}
+                    {itemCount}
                   </span>
                 )}
-              </button>
+              </NavLink>
 
-              {messagesOpen && (
-                <div className="absolute right-0 top-full mt-4 w-80 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="bg-emerald-600 p-4 text-white">
-                    <h3 className="font-bold text-base">{t("notifications")}</h3>
-                    <p className="text-xs text-emerald-100">You have {unreadCount} new {unreadCount === 1 ? 'notification' : 'notifications'}</p>
-                  </div>
-                  <div className="max-h-[350px] overflow-y-auto">
-                    {notifications.length > 0 ? (
-                      notifications.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className="group/msg relative w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700 last:border-0"
-                        >
-                          <div className="relative flex-shrink-0">
-                            <img src={msg.avatar} alt={msg.name} className="w-10 h-10 rounded-full object-cover" />
-                            {msg.unread && (
-                              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
-                            )}
-                          </div>
-                          <div className="flex-1 text-left min-w-0">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm font-bold text-slate-900 dark:text-white truncate pr-4">{msg.name}</span>
-                              <span className="text-[10px] text-slate-400 whitespace-nowrap">{msg.time}</span>
-                            </div>
-                            <p className={`text-xs line-clamp-2 ${msg.unread ? 'text-slate-900 dark:text-slate-200 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
-                              {msg.message}
-                            </p>
-                          </div>
+              <div className="hidden lg:block relative" ref={messagesRef}>
+                <button
+                  onClick={() => setMessagesOpen(!messagesOpen)}
+                  className={`relative transition flex items-center ${messagesOpen
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400'
+                    }`}
+                  title="Notifications"
+                >
+                  <Bell size={24} strokeWidth={2} className={messagesOpen ? 'fill-emerald-50 dark:fill-emerald-900/50' : ''} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
 
-                          {/* Remove button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeNotification(msg.id);
-                            }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 opacity-0 group-hover/msg:opacity-100 transition-all duration-200"
-                            title="Remove notification"
+                {messagesOpen && (
+                  <div className="absolute right-0 top-full mt-4 w-80 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                    <div className="bg-emerald-600 p-4 text-white">
+                      <h3 className="font-bold text-base">{t("notifications")}</h3>
+                      <p className="text-xs text-emerald-100">You have {unreadCount} new {unreadCount === 1 ? 'notification' : 'notifications'}</p>
+                    </div>
+                    <div className="max-h-[350px] overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map((msg) => (
+                          <div
+                            key={msg.id}
+                            className="group/msg relative w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition border-b border-slate-100 dark:border-slate-700 last:border-0"
                           >
-                            <X size={12} strokeWidth={2.5} />
-                          </button>
+                            <div className="relative flex-shrink-0">
+                              <img src={msg.avatar} alt={msg.name} className="w-10 h-10 rounded-full object-cover" />
+                              {msg.unread && (
+                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full"></span>
+                              )}
+                            </div>
+                            <div className="flex-1 text-left min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm font-bold text-slate-900 dark:text-white truncate pr-4">{msg.name}</span>
+                                <span className="text-[10px] text-slate-400 whitespace-nowrap">{msg.time}</span>
+                              </div>
+                              <p className={`text-xs line-clamp-2 ${msg.unread ? 'text-slate-900 dark:text-slate-200 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                                {msg.message}
+                              </p>
+                            </div>
+
+                            {/* Remove button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeNotification(msg.id);
+                              }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 opacity-0 group-hover/msg:opacity-100 transition-all duration-200"
+                              title="Remove notification"
+                            >
+                              <X size={12} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-8 text-center">
+                          <Bell className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3 opacity-20" />
+                          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t("allCaughtUp")}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t("noNotifications")}</p>
                         </div>
-                      ))
-                    ) : (
-                      <div className="p-8 text-center">
-                        <Bell className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600 mb-3 opacity-20" />
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{t("allCaughtUp")}</p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t("noNotifications")}</p>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700">
+                      <button className="w-full py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition">
+                        View All in WhatsApp
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-3 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700">
-                    <button className="w-full py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition">
-                      View All in WhatsApp
-                    </button>
+                )}
+              </div>
+
+              {user ? (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`);
+                  }}
+                  className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
+                    <UserRound size={16} strokeWidth={2.5} />
                   </div>
-                </div>
+                  <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'missing'}</span>
+                </button>
+              ) : (
+                <NavLink 
+                  to="/signin" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                >
+                  <User size={18} strokeWidth={2.5} />
+                  <span className="hidden sm:inline">{t("signIn")}</span>
+                </NavLink>
               )}
             </div>
-
-
-
-            {user ? (
-              <button
-                onClick={() => navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`)}
-                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
-              >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
-                  <UserRound size={16} strokeWidth={2.5} />
-                </div>
-                <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'missing'}</span>
-              </button>
-            ) : (
-              <NavLink to="/signin" className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition">
-                <User size={18} strokeWidth={2.5} />
-                <span className="hidden sm:inline">{t("signIn")}</span>
-              </NavLink>
-            )}
           </div>
         </div>
+      </div>
 
+      {/* Mobile Search Bar - Dedicated row for small screens */}
+      <div className="lg:hidden px-4 pb-4 max-w-7xl mx-auto">
+        <form onSubmit={onSearchSubmit} className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+            placeholder={t("searchPlaceholder")}
+            className="w-full pl-4 pr-16 py-2.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 transition shadow-sm"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={startVoiceSearch}
+              className={`p-2 rounded-full transition-all ${isListening ? 'text-rose-500 animate-pulse bg-rose-50 dark:bg-rose-900/20' : 'text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+            >
+              <Mic size={18} />
+            </button>
+            <button type="submit" className="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400">
+              <Search size={18} />
+            </button>
+          </div>
+
+          {/* Mobile Suggestions */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2">
+              <div className="p-2 border-b border-slate-50 dark:border-slate-700">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2">{t('suggestions', 'Suggestions')}</p>
+              </div>
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    setSearchQuery(s)
+                    setMobileMenuOpen(false)
+                    navigate(`/search?q=${encodeURIComponent(s)}`)
+                    setShowSuggestions(false)
+                  }}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                >
+                  <span>{s}</span>
+                  <ArrowRight size={14} className="text-slate-400" />
+                </button>
+              ))}
+            </div>
+          )}
+        </form>
       </div>
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[72px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5 overflow-y-auto overscroll-contain pb-20">
+        <div className="lg:hidden fixed inset-0 top-[135px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5 overflow-y-auto overscroll-contain pb-20">
           <nav className="flex flex-col p-6 gap-4">
             {navItems.map((item) => (
               <div key={item.to} className="flex flex-col">

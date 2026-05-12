@@ -306,5 +306,12 @@
   "fairTrade": "ನ್ಯಾಯಯುತ ವ್ಯಾಪಾರ",
   "filters": "ಫಿಲ್ಟರ್‌ಗಳು",
   "categories": "ವಿಭಾಗಗಳು",
-  "values": "ಮೌಲ್ಯಗಳು"
+  "values": "ಮೌಲ್ಯಗಳು",
+  "seedsNuts": "ಬೀಜಗಳು ಮತ್ತು ಬೀಜಗಳು",
+  "primaryProcessed": "ಪ್ರಾಥಮಿಕ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗಿದೆ",
+  "organicFarming": "ಸಾವಯವ ಕೃಷಿ",
+  "chemicalFree": "ರಾಸಾಯನಿಕ ಮುಕ್ತ",
+  "freshHarvest": "ತಾಜಾ ಕೊಯ್ಲು",
+  "lowStock": "ಕಡಿಮೆ ಸ್ಟಾಕ್",
+  "bestSelling": "ಹೆಚ್ಚು ಮಾರಾಟವಾಗುತ್ತಿದೆ"
 }
