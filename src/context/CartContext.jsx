@@ -145,16 +145,16 @@ export function CartProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }, [state])
 
+  const normalizeId = (id) => {
+    if (!id) return id;
+    if (typeof id === 'string') return id;
+    if (id.$oid) return id.$oid;
+    return id.toString();
+  };
+
   // Fetch orders from backend when user changes
   useEffect(() => {
     if (user) {
-      const normalizeId = (id) => {
-        if (!id) return id;
-        if (typeof id === 'string') return id;
-        if (id.$oid) return id.$oid;
-        return id.toString();
-      };
-
       const fetchUserOrders = async () => {
         try {
           const userId = normalizeId(user._id || user.id);
@@ -226,7 +226,7 @@ export function CartProvider({ children }) {
       async placeOrder(customerDetails) {
         // Prepare detailed order payload for backend
         const orderPayload = {
-          userId: user?._id || user?.id || 'guest',
+          userId: normalizeId(user?._id || user?.id) || 'guest',
           userEmail: customerDetails.emailAddress || user?.email,
           customerDetails: {
             fullName: customerDetails.fullName,
@@ -238,9 +238,9 @@ export function CartProvider({ children }) {
             notes: customerDetails.deliveryNotes
           },
           items: state.items.map(item => ({
-            productId: item.id || item._id,
-            farmerId: item.owner?._id || item.owner || item.farmerId,
-            name: item.name,
+            productId: normalizeId(item.id || item._id),
+            farmerId: normalizeId(item.owner?._id || item.owner || item.farmerId),
+            name: item.title || item.name || 'Unknown Product',
             quantity: item.quantity,
             price: item.price,
             totalPrice: item.price * item.quantity
