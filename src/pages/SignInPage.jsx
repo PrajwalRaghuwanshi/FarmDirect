@@ -38,6 +38,7 @@ export default function SignInPage() {
   // Registration state for new users
   const [regName, setRegName] = useState('')
   const [regPincode, setRegPincode] = useState('')
+  const [regProfileImage, setRegProfileImage] = useState(null)
   const [regError, setRegError] = useState('')
   const [registering, setRegistering] = useState(false)
 
@@ -201,18 +202,22 @@ export default function SignInPage() {
       }
 
       const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
+      
+      const formData = new FormData();
+      formData.append('name', regName.trim());
+      formData.append('mobile', mobile);
+      formData.append('email', email);
+      formData.append('pincode', regPincode.trim());
+      formData.append('city', city);
+      formData.append('state', state);
+      formData.append('languagepreference', i18n.language || 'en');
+      if (regProfileImage) {
+        formData.append('profileImage', regProfileImage);
+      }
+
       const res = await fetch(`${apiUrl}/api/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: regName.trim(),
-          mobile,
-          email,
-          pincode: regPincode.trim(),
-          city,
-          state,
-          languagepreference: i18n.language || 'en'
-        })
+        body: formData
       });
       const data = await res.json();
       
@@ -295,6 +300,30 @@ export default function SignInPage() {
           {/* ─── Step 1: Name, Email & Mobile ─── */}
           {step === 1 && (
             <form onSubmit={handleSendOtp} className="space-y-5 px-8 pt-6 pb-10">
+              {/* Profile Image Upload (only for registration mode) */}
+              {isRegisterMode && (
+                <div className="flex flex-col items-center gap-4 pb-4">
+                  <div className="relative group">
+                    <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-700 shadow-sm bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                      {regProfileImage ? (
+                        <img src={URL.createObjectURL(regProfileImage)} alt="Preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <UserRound size={32} className="text-slate-300" />
+                      )}
+                    </div>
+                    <label className="absolute bottom-0 right-0 p-1.5 bg-emerald-600 text-white rounded-full cursor-pointer shadow-md hover:bg-emerald-700 transition-all active:scale-90">
+                      <Save size={12} />
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*" 
+                        onChange={(e) => setRegProfileImage(e.target.files[0])} 
+                      />
+                    </label>
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Profile Picture (Optional)</p>
+                </div>
+              )}
               {/* Name */}
               <div>
                 <label
@@ -556,6 +585,29 @@ export default function SignInPage() {
           {/* ─── Step 3: Registration ─── */}
           {step === 3 && (
             <form onSubmit={handleRegister} className="space-y-5 px-8 pt-6 pb-10">
+              {/* Profile Image Upload */}
+              <div className="flex flex-col items-center gap-4 pb-4">
+                <div className="relative group">
+                  <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-700 shadow-sm bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                    {regProfileImage ? (
+                      <img src={URL.createObjectURL(regProfileImage)} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <UserRound size={32} className="text-slate-300" />
+                    )}
+                  </div>
+                  <label className="absolute bottom-0 right-0 p-1.5 bg-emerald-600 text-white rounded-full cursor-pointer shadow-md hover:bg-emerald-700 transition-all active:scale-90">
+                    <Save size={12} />
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*" 
+                      onChange={(e) => setRegProfileImage(e.target.files[0])} 
+                    />
+                  </label>
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upload Profile Picture (Optional)</p>
+              </div>
+
               {/* Name */}
               <div>
                 <label

@@ -42,7 +42,8 @@ export default function SettingsPage() {
     pincode: user?.pincode || '',
     city: user?.city || '',
     state: user?.state || '',
-    languagepreference: user?.languagepreference || i18n.language || 'en'
+    languagepreference: user?.languagepreference || i18n.language || 'en',
+    profileImage: null // To store the File object
   })
   const [isSaving, setIsSaving] = useState(false)
   const [isLookingUp, setIsLookingUp] = useState(false)
@@ -58,7 +59,8 @@ export default function SettingsPage() {
         pincode: user.pincode || '',
         city: user.city || '',
         state: user.state || '',
-        languagepreference: user.languagepreference || i18n.language || 'en'
+        languagepreference: user.languagepreference || i18n.language || 'en',
+        profileImage: null
       })
     }
   }, [user, i18n.language])
@@ -112,6 +114,13 @@ export default function SettingsPage() {
   const handleLanguageChange = (code) => {
     setFormData({ ...formData, languagepreference: code })
   }
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setFormData(prev => ({ ...prev, profileImage: file }))
+    }
+  }
   
   return (
     <div className="bg-[#fafafa] dark:bg-slate-950 min-h-screen py-12 transition-colors">
@@ -159,6 +168,28 @@ export default function SettingsPage() {
               {activeTab === 'personal' && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">Personal Information</h2>
+                  
+                  {/* Profile Image Upload */}
+                  <div className="flex flex-col items-center gap-4 pb-6 border-b border-slate-50 dark:border-slate-800">
+                    <div className="relative group">
+                      <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-800">
+                        {formData.profileImage ? (
+                          <img src={URL.createObjectURL(formData.profileImage)} alt="Preview" className="h-full w-full object-cover" />
+                        ) : user?.profileImage ? (
+                          <img src={user.profileImage} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-slate-400">
+                            <User size={40} />
+                          </div>
+                        )}
+                      </div>
+                      <label className="absolute bottom-0 right-0 p-2 bg-emerald-600 text-white rounded-full cursor-pointer shadow-lg hover:bg-emerald-700 transition-all active:scale-90">
+                        <Save size={14} />
+                        <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      </label>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Profile Picture</p>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Full Name</label>

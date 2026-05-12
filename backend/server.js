@@ -7,6 +7,21 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const User = require("./models/user");
 const Order = require("./models/order");
+const { upload } = require("./cloudinaryConfig");
+
+// 🖼️ Conditional Multer Middleware
+const handleUpload = (req, res, next) => {
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    return upload.single('profileImage')(req, res, (err) => {
+      if (err) {
+        console.error("Multer Error:", err);
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  }
+  next();
+};
 
 const app = express();
 
@@ -171,12 +186,13 @@ app.get("/api/user/check", async (req, res) => {
 });
 
 // 🧑‍🌾 CUSTOMER REGISTRATION & LOGIN
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", handleUpload, async (req, res) => {
   try {
 
     console.log("🔥 REGISTER API CALLED");
     console.log("📦 Incoming Data:", req.body);
-    const { name, mobile, email, pincode, address, city, state, profileImage, languagepreference, password } = req.body;
+    const { name, mobile, email, pincode, address, city, state, languagepreference, password } = req.body;
+    let profileImage = req.file ? req.file.path : req.body.profileImage;
 
     // Validation
     if (!mobile && !email) {
@@ -253,10 +269,13 @@ app.post("/api/register", async (req, res) => {
 });
 
 // 🧑‍🌾 CUSTOMER UPDATE
-app.put("/api/customers/update/:id", async (req, res) => {
+app.put("/api/customers/update/:id", handleUpload, async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+    if (req.file) {
+      updates.profileImage = req.file.path;
+    }
 
     if (updates.mobile && updates.mobile.length !== 10) {
       return res.status(400).json({ error: "Phone number must be exactly 10 digits" });
@@ -270,7 +289,7 @@ app.put("/api/customers/update/:id", async (req, res) => {
     res.json({ message: "Profile updated successfully", user: updatedCustomer });
   } catch (error) {
     console.error("Update error:", error);
-    res.status(500).json({ error: "Server error during update" });
+    res.status(500).json({ error: "Server error during update", details: error.message });
   }
 });
 

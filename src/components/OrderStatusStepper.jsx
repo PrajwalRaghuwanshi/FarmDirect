@@ -3,8 +3,8 @@ import { getStatusStepIndex, statusFlow as steps } from '../utils/orderStatus'
 export default function OrderStatusStepper({ status }) {
   if (status === 'Cancelled') {
     return (
-      <div className="rounded-2xl bg-rose-50 dark:bg-rose-900/20 p-4 border border-rose-200 dark:border-rose-800 text-center">
-        <p className="text-rose-700 dark:text-rose-400 font-bold uppercase tracking-wider text-sm">
+      <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 text-center">
+        <p className="text-red-700 dark:text-red-400 font-bold uppercase tracking-wider text-sm">
           This Order Has Been Cancelled
         </p>
       </div>

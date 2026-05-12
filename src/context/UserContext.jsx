@@ -109,10 +109,31 @@ export function UserProvider({ children }) {
     
     try {
       const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
+      
+      let body;
+      let headers = {};
+      
+      // Check if any update is a File (e.g. profileImage)
+      const hasFile = Object.values(updates).some(val => val instanceof File);
+      
+      if (hasFile) {
+        const formData = new FormData();
+        Object.keys(updates).forEach(key => {
+          if (updates[key] !== undefined && updates[key] !== null) {
+            formData.append(key, updates[key]);
+          }
+        });
+        body = formData;
+        // Don't set Content-Type header for FormData, let browser set it with boundary
+      } else {
+        headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(updates);
+      }
+
       const res = await fetch(`${apiUrl}/api/customers/update/${user._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
+        headers,
+        body
       });
       const data = await res.json();
       if (res.ok && data.user) {

@@ -22,7 +22,7 @@ export default function OrdersPage() {
       total: o.summary?.total || o.total,
       receiptItems: o.items || o.receiptItems || []
     }))
-    
+
     return normalizedHistory
   }, [orderHistory])
 
@@ -69,16 +69,24 @@ export default function OrdersPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">{t('realTimeTracking')}</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{t('trackingOrder', { id: trackedOrder.id })}</h2>
-              {trackedOrder.status === 'Cancelled' && (
-                <p className="mt-1 text-sm font-bold text-rose-500 uppercase tracking-tight italic">the order was cancelled</p>
-              )}
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('currentStatus', { status: trackedOrder.status, eta: trackedOrder.eta })}</p>
+              <h2 className={`mt-2 text-2xl font-semibold ${trackedOrder.status?.toLowerCase() === 'cancelled' ? 'text-red-600 dark:text-red-500' : 'text-slate-900 dark:text-white'}`}>
+                {t('trackingOrder', { id: trackedOrder.id })}
+              </h2>
+              <p className={`mt-2 text-sm ${trackedOrder.status?.toLowerCase() === 'cancelled' ? 'text-red-600 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+                {t('currentStatus', { status: trackedOrder.status, eta: trackedOrder.eta })}
+              </p>
             </div>
             <button type="button" onClick={() => setSelectedReceipt(trackedOrder)} className="rounded-full border border-slate-200 dark:border-slate-600 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-emerald-300 dark:hover:border-emerald-600 hover:text-emerald-700 dark:hover:text-emerald-400">{t('viewDigitalReceipt')}</button>
           </div>
+          {trackedOrder.status === 'Cancelled' && (
+            <div className="my-8 flex justify-center">
+              <p className="text-2xl font-black text-red-600 dark:text-red-500 uppercase tracking-[0.3em] text-center drop-shadow-sm">
+                the order was cancelled
+              </p>
+            </div>
+          )}
           <div className="mt-6"><OrderStatusStepper status={trackedOrder.status} /></div>
-          
+
           <div className="mt-8 border-t border-slate-100 dark:border-slate-700 pt-8">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t('itemsInTransit')}</h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -117,14 +125,22 @@ export default function OrdersPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-400">{t('orderLabel', { id: order.id })}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{order.status}</h2>
-                {order.status === 'Cancelled' && (
-                  <p className="mt-1 text-sm font-bold text-rose-500 uppercase tracking-tight italic">the order was cancelled</p>
-                )}
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('placedOn', { date: order.placedOn, eta: order.eta })}</p>
+                <h2 className={`mt-2 text-2xl font-semibold ${order.status?.toLowerCase() === 'cancelled' ? 'text-red-600 dark:text-red-500' : 'text-slate-900 dark:text-white'}`}>
+                  {order.status}
+                </h2>
+                <p className={`mt-2 text-sm ${order.status?.toLowerCase() === 'cancelled' ? 'text-red-600 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+                  {t('placedOn', { date: order.placedOn, eta: order.eta })}
+                </p>
               </div>
-              <span className={`rounded-full px-4 py-2 text-sm font-semibold ${order.status === 'Cancelled' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'}`}>{order.status}</span>
+              <span className={`rounded-full px-4 py-2 text-sm font-semibold ${order.status?.toLowerCase() === 'cancelled' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'}`}>{order.status}</span>
             </div>
+            {order.status === 'Cancelled' && (
+              <div className="mt-6 flex justify-center">
+                <p className="text-lg font-black text-red-600 uppercase tracking-[0.2em] text-center">
+                  the order was cancelled
+                </p>
+              </div>
+            )}
             <div className="mt-5"><OrderStatusStepper status={order.status} /></div>
             <div className="mt-5">
               <p className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{t('itemsInThisOrder')}</p>
