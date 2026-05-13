@@ -66,14 +66,9 @@ export default function FarmersPage() {
         let url = `${apiUrl}/api/farmers`;
         if (filter === 'local') {
           const targetState = user?.state || locationInfo?.state;
-          const targetPincode = user?.pincode || locationInfo?.pincode;
 
-          const params = new URLSearchParams();
-          if (targetState) params.append('state', targetState);
-          if (targetPincode) params.append('pincode', targetPincode);
-
-          if (params.toString()) {
-            url += `?${params.toString()}`;
+          if (targetState && targetState !== 'Global') {
+            url += `?state=${encodeURIComponent(targetState)}`;
           }
         }
 
@@ -81,18 +76,28 @@ export default function FarmersPage() {
         let data = await res.json();
         let fetchedFarmers = Array.isArray(data?.farmers) ? data.farmers : [];
 
-        const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => ({
-          id: dbFarmer._id,
-          name: dbFarmer.name || <span className="text-[10px] text-slate-400 italic">missing</span>,
-          location: [dbFarmer.city || dbFarmer.villageLocality, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
-          distance: dbFarmer.pincode === (user?.pincode || locationInfo?.pincode) ? 'Very Close' : 'Nearby',
-          specialization: Array.isArray(dbFarmer.crops) && dbFarmer.crops.length ? dbFarmer.crops : ['Organic Produce'],
-          experience: dbFarmer.experience || 5,
-          image: dbFarmer.profilePhoto || dbFarmer.image || '',
-          badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
-          bioKey: dbFarmer.bio || 'farmerBioRajesh',
-          isVerified: dbFarmer.isVerified
-        }));
+        const mappedFarmers = fetchedFarmers.map((dbFarmer, i) => {
+          const specialization = [
+            ...new Set([
+              ...(Array.isArray(dbFarmer.crops) ? dbFarmer.crops : []),
+              ...(Array.isArray(dbFarmer.primaryCrops) ? dbFarmer.primaryCrops : []),
+              ...(Array.isArray(dbFarmer.otherCrops) ? dbFarmer.otherCrops : [])
+            ])
+          ].filter(Boolean);
+
+          return {
+            id: dbFarmer._id,
+            name: dbFarmer.name || <span className="text-[10px] text-slate-400 italic">missing</span>,
+            location: [dbFarmer.city || dbFarmer.villageLocality || dbFarmer.district, dbFarmer.state].filter(Boolean).join(', ') || 'Local',
+            distance: String(dbFarmer.pincode) === String(user?.pincode || locationInfo?.pincode || '') ? 'Very Close' : 'Nearby',
+            specialization: specialization.length ? specialization : ['Organic Produce'],
+            experience: dbFarmer.experience || 5,
+            image: dbFarmer.profilePhoto || dbFarmer.image || '',
+            badgeKey: dbFarmer.isVerified ? 'certifiedOrganic' : 'ecoFarmer',
+            bioKey: dbFarmer.bio || 'farmerBioRajesh',
+            isVerified: dbFarmer.isVerified
+          };
+        });
         setFarmers(mappedFarmers);
         setError(null)
       } catch (err) {

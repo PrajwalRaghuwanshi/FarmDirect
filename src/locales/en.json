@@ -313,5 +313,8 @@
   "manageCustomInfo": "Manage your profile and custom settings",
   "verifyYourIdentity": "Verify Your Identity",
   "emailRequired": "Email is required",
-  "invalidEmail": "Enter a valid email address"
+  "invalidEmail": "Enter a valid email address",
+  "priceRange": "Price Range",
+  "min": "Min",
+  "max": "Max"
 }

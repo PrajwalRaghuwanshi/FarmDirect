@@ -321,5 +321,8 @@
   "chemicalFree": "रसायन मुक्त",
   "freshHarvest": "ताजा फसल",
   "lowStock": "कम स्टॉक",
-  "bestSelling": "सर्वश्रेष्ठ बिक्री"
+  "bestSelling": "सर्वश्रेष्ठ बिक्री",
+  "priceRange": "कीमत सीमा",
+  "min": "न्यूनतम",
+  "max": "अधिकतम"
 }

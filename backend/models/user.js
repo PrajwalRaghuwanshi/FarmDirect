@@ -7,9 +7,11 @@ const userSchema = new mongoose.Schema(
         language: String,
 
         phone: String,
-        pincode: Number,
+        pincode: mongoose.Schema.Types.Mixed, // Can be string or number
         state: String,
         city: String,
+        district: String,
+        villageLocality: String,
 
         bio: String,
         gender: String,
@@ -34,6 +36,19 @@ const userSchema = new mongoose.Schema(
             type: Array,
             default: []
         },
+
+        primaryCrops: {
+            type: Array,
+            default: []
+        },
+
+        otherCrops: {
+            type: Array,
+            default: []
+        },
+
+        profilePhoto: String,
+        image: String,
 
         certifications: {
             type: Array,

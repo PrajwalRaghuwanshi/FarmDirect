@@ -53,9 +53,10 @@ export default function ProductsPage() {
   const [dbProducts, setDbProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedValues, setSelectedValues] = useState([])
-  const [openSections, setOpenSections] = useState(['Categories', 'Values'])
+  const [openSections, setOpenSections] = useState(['Categories', 'Values', 'Price'])
   const [showFiltersMobile, setShowFiltersMobile] = useState(false)
   const [error, setError] = useState(null)
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 2000 })
 
   // Read filters from URL
   const categoryParam = searchParams.get('category')
@@ -170,9 +171,11 @@ export default function ProductsPage() {
         return terms.some(term => str.includes(term));
       })
 
-      return matchesCategory && matchesSeason && matchesFarmer && matchesValues
+      const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max
+
+      return matchesCategory && matchesSeason && matchesFarmer && matchesValues && matchesPrice
     })
-  }, [dbProducts, selectedCategories, selectedSeason, farmerIdFilter, selectedValues])
+  }, [dbProducts, selectedCategories, selectedSeason, farmerIdFilter, selectedValues, priceRange])
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -220,6 +223,86 @@ export default function ProductsPage() {
           <aside className="w-full lg:w-64 flex-shrink-0">
             <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-sm border border-slate-100 dark:border-slate-800 sticky top-24">
               
+              {/* Price Range */}
+              <div className="mb-10 bg-emerald-50/50 dark:bg-emerald-900/10 p-5 rounded-3xl border border-emerald-100/50 dark:border-emerald-800/30">
+                <button
+                  onClick={() => toggleSection('Price')}
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-emerald-600 mb-4"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{t('priceRange', 'Price Range')}</span>
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${openSections.includes('Price') ? '' : '-rotate-90'}`} />
+                </button>
+
+                {openSections.includes('Price') && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="space-y-5">
+                      {/* Range Slider */}
+                      <div className="relative h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-6 mb-8 mx-1">
+                        <input
+                          type="range"
+                          min="0"
+                          max="2000"
+                          step="10"
+                          value={priceRange.max}
+                          onChange={(e) => setPriceRange(prev => ({ ...prev, max: parseInt(e.target.value) }))}
+                          className="absolute w-full h-1.5 bg-transparent appearance-none cursor-pointer accent-emerald-600 z-10 -top-[0px]"
+                          style={{
+                            WebkitAppearance: 'none',
+                          }}
+                        />
+                        <div 
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-200" 
+                          style={{ width: `${(priceRange.max / 2000) * 100}%` }}
+                        />
+                        <div 
+                          className="absolute -top-7 text-[10px] font-bold text-white bg-emerald-600 px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/20 whitespace-nowrap"
+                          style={{ left: `calc(${(priceRange.max / 2000) * 100}% - 20px)` }}
+                        >
+                          ₹{priceRange.max}
+                        </div>
+                      </div>
+
+                      {/* Manual Inputs */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-tight ml-1">{t('min', 'Min')}</label>
+                          <div className="relative group">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors group-focus-within:text-emerald-600">₹</span>
+                            <input
+                              type="number"
+                              value={priceRange.min}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value) || 0;
+                                setPriceRange(prev => ({ ...prev, min: Math.max(0, val) }));
+                              }}
+                              className="w-full pl-6 pr-2 py-2 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500/20 text-slate-700 dark:text-slate-200 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-tight ml-1">{t('max', 'Max')}</label>
+                          <div className="relative group">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors group-focus-within:text-emerald-600">₹</span>
+                            <input
+                              type="number"
+                              value={priceRange.max}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value) || 0;
+                                setPriceRange(prev => ({ ...prev, max: Math.max(0, val) }));
+                              }}
+                              className="w-full pl-6 pr-2 py-2 text-sm font-bold bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500/20 text-slate-700 dark:text-slate-200 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Mobile Filter Toggle */}
               <button 
                 onClick={() => setShowFiltersMobile(!showFiltersMobile)}
@@ -292,6 +375,7 @@ export default function ProductsPage() {
                   </div>
                 )}
               </div>
+
 
               {/* Values */}
               <div>
