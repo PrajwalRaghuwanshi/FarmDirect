@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/cart-context'
 import { useUser } from '../context/UserContext'
-import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart, ArrowRight, Mic } from 'lucide-react'
+import { Search, ShoppingCart, User, Leaf, Sun, Moon, ChevronDown, Apple, Carrot, Wheat, Factory, UserRound, Package, Bell, Menu, X, Heart, ArrowRight, Mic, LogOut } from 'lucide-react'
 import { searchKeywords } from '../data/searchKeywords'
 import { translateTerm } from '../data/cropTranslator'
 
@@ -524,8 +524,12 @@ export default function Header() {
                   }}
                   className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 transition hover:text-emerald-600 dark:hover:text-emerald-400"
                 >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
-                    <UserRound size={16} strokeWidth={2.5} />
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 overflow-hidden">
+                    {user?.profileImage ? (
+                      <img src={user.profileImage} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <UserRound size={16} strokeWidth={2.5} />
+                    )}
                   </div>
                   <span className="hidden sm:inline">{user?.name?.split(' ')[0] || 'missing'}</span>
                 </button>
@@ -598,6 +602,31 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 top-[135px] z-50 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-5 overflow-y-auto overscroll-contain pb-20">
           <nav className="flex flex-col p-6 gap-4">
+            {/* Mobile User Profile Section */}
+            {user ? (
+              <div className="mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(`/Account/${user?.name?.replace(/\s+/g, '') || 'missing'}`);
+                  }}
+                  className="flex items-center gap-4 w-full p-4 rounded-3xl bg-slate-50 dark:bg-slate-800/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                >
+                  <div className="h-14 w-14 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 overflow-hidden shrink-0">
+                    {user?.profileImage ? (
+                      <img src={user.profileImage} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <UserRound size={32} strokeWidth={2} className="m-auto mt-2.5" />
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">{user.name}</h3>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{t('viewAccount') || 'View Account'}</p>
+                  </div>
+                </button>
+              </div>
+            ) : null}
+
             {navItems.map((item) => (
               <div key={item.to} className="flex flex-col">
                 <NavLink
@@ -696,7 +725,19 @@ export default function Header() {
                 </NavLink>
               </div>
 
-              {!user && (
+              {user ? (
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                    navigate('/');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 py-4 text-rose-600 dark:text-rose-400 font-bold border border-rose-100 dark:border-rose-900/50"
+                >
+                  <LogOut size={20} />
+                  Sign Out
+                </button>
+              ) : (
                 <NavLink
                   to="/signin"
                   onClick={() => setMobileMenuOpen(false)}

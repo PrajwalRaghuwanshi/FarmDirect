@@ -25,6 +25,8 @@ export default function WelcomeModal() {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const [error, setError] = useState('') // General error message for modal
+  const [userData, setUserData] = useState(null)
+  const [userNotFound, setUserNotFound] = useState(false)
 
   useEffect(() => {
     const isSigned = localStorage.getItem('farmdirect-user')
@@ -74,30 +76,35 @@ export default function WelcomeModal() {
       const data = await res.json();
       
       if (res.ok && data.user) {
-        // Pre-fill found user data
-        setName(data.user.name || '')
-        setEmail(data.user.email || '')
-        setMobile(data.user.mobile || '')
-        setTempPincode(data.user.pincode || '')
-        setAuthMode('signin')
-        setStep('otp') // Still keep OTP for 2FA as per previous flow
+        // Sign In with OTP
+        setUserData(data.user);
+        setName(data.user.name || '');
+        setEmail(data.user.email || '');
+        setMobile(data.user.mobile || '');
+        setTempPincode(data.user.pincode || '');
+        setAuthMode('signin');
+        setStep('otp');
+        setLoading(false);
+        return;
       } else if (res.status === 401) {
-        setError(t('invalidCredentials', 'Invalid identifier or password'))
+        setError(t('invalidCredentials', 'Invalid identifier or password'));
       } else if (res.status === 404) {
-        // Redirect to registration
-        setAuthMode('register')
-        if (isEmail) setEmail(signinValue); else setMobile(signinValue);
-        setStep('register')
+        // Auto-Register: Move to OTP with provided details
+        setPassword(signinPassword);
+        setEmail(signinValue);
+        setAuthMode('register');
+        setStep('otp');
+        setError('');
       } else {
-        setError(data.error || t('somethingWentWrong', 'Something went wrong'))
+        setError(data.error || t('somethingWentWrong', 'Something went wrong'));
       }
     } catch (err) {
       console.error("Sign-in check failed:", err);
-      setError(t('serverError', 'Cannot connect to server'))
+      setError(t('serverError', 'Cannot connect to server'));
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault()
@@ -111,56 +118,6 @@ export default function WelcomeModal() {
     }
     setPasswordError('')
     setStep('pincode')
-  }
-
-  const handleVerify = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    
-    if (authMode === 'register') {
-      setLoading(false)
-      setStep('password')
-    } else {
-      // Sign-in
-      const isEmail = signinValue.includes('@')
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || "https://farmdirect-i7sd.onrender.com";
-        const res = await fetch(`${apiUrl}/api/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-             mobile: isEmail ? '' : signinValue,
-             email: isEmail ? signinValue : '',
-             name: name || 'missing',
-             languagepreference: i18n.language || 'en'
-          })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          login(data.user);
-        } else {
-          login({ name: 'missing', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
-        }
-      } catch (err) {
-        console.error(err);
-        login({ name: name || 'missing', mobile: isEmail ? '' : signinValue, email: isEmail ? signinValue : '' })
-      }
-      
-      setLoading(false)
-      sessionStorage.setItem('farmdirect-seen-welcome', 'true')
-      setIsOpen(false)
-      window.location.reload()
-    }
-  }
-
-  const handlePincodeSubmit = async (e) => {
-    e.preventDefault()
-    if (tempPincode.length !== 6) return
-    setLoading(true)
-    await updatePincode(tempPincode)
-    setLoading(false)
-    finishAuth()
   }
 
   const finishAuth = async () => {
@@ -213,6 +170,36 @@ export default function WelcomeModal() {
     setIsOpen(false)
     window.location.reload()
   }
+
+  const handleVerify = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    
+    if (authMode === 'register') {
+      // Auto-finalize registration without asking for pincode
+      finishAuth()
+    } else {
+      // Sign-in complete after OTP
+      if (userData) {
+        login(userData);
+      }
+      setLoading(false)
+      sessionStorage.setItem('farmdirect-seen-welcome', 'true')
+      setIsOpen(false)
+      window.location.reload()
+    }
+  }
+
+  const handlePincodeSubmit = async (e) => {
+    e.preventDefault()
+    if (tempPincode.length !== 6) return
+    setLoading(true)
+    await updatePincode(tempPincode)
+    setLoading(false)
+    finishAuth()
+  }
+
 
   const handleOtpPaste = (e) => {
     e.preventDefault()
@@ -389,6 +376,28 @@ export default function WelcomeModal() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('password', 'Password')}</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input 
+                    required
+                    type={showPassword ? "text" : "password"} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
               <div className="flex flex-col gap-3 pt-2">
                 <button 
                   disabled={loading}
@@ -415,46 +424,77 @@ export default function WelcomeModal() {
 
           {/* ─── STEP: SIGN IN ─── */}
           {step === 'signin' && (
-            <form onSubmit={handleSigninSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('usernameOrMobile', 'Username, Mobile or Email')}</label>
+            <form onSubmit={handleSigninSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">{t('fullName', 'Full Name')}</label>
                 <div className="relative">
-                  <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                   <input 
                     required
                     type="text" 
-                    value={signinValue}
-                    onChange={(e) => setSigninValue(e.target.value)}
-                    placeholder={t('signinPlaceholder', 'Enter identifier')}
-                    className="w-full pl-12 pr-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t('enterName', 'Enter your name')}
+                    className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">{t('password', 'Password')}</label>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">{t('emailId', 'Email ID')}</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <input 
+                    required
+                    type="email" 
+                    value={signinValue}
+                    onChange={(e) => setSigninValue(e.target.value)}
+                    placeholder={t('enterEmailId', 'Enter your Email ID')}
+                    className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">{t('mobileNumber', 'Mobile Number')}</label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <input 
+                    required
+                    type="tel" 
+                    maxLength={10}
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+                    placeholder="98765 43210"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">{t('password', 'Password')}</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                   <input 
                     required
                     type={showPassword ? "text" : "password"} 
                     value={signinPassword}
                     onChange={(e) => setSigninPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-12 pr-12 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
+                    className="w-full pl-11 pr-12 py-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all" 
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-50 text-rose-600 text-[11px] font-bold border border-rose-100 animate-in fade-in slide-in-from-top-1">
+                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-[11px] font-bold border animate-in fade-in slide-in-from-top-1 ${userNotFound ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                   <AlertCircle size={14} />
                   {error}
                 </div>
@@ -462,7 +502,7 @@ export default function WelcomeModal() {
 
               <div className="flex flex-col gap-3 pt-2">
                 <button 
-                  disabled={loading || !signinValue || !signinPassword}
+                  disabled={loading || !signinValue || !signinPassword || !name || !mobile}
                   type="submit"
                   className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -475,7 +515,7 @@ export default function WelcomeModal() {
                 </button>
                 <button 
                   type="button"
-                  onClick={() => { setStep('choice'); setOtp(['', '', '', '', '', '']); setError('') }}
+                  onClick={() => { setStep('choice'); setOtp(['', '', '', '', '', '']); setError(''); setUserNotFound(false); }}
                   className="w-full py-3.5 rounded-xl text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm"
                 >
                   {t('goBack', '← Back')}

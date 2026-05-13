@@ -15,7 +15,7 @@ const heroImages = [
 export default function AccountPage() {
   const navigate = useNavigate()
   const { username } = useParams()
-  const { user, login, logout, updateUser } = useUser()
+  const { user, login, logout, updateUser, pincode } = useUser()
   const { t } = useTranslation()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [updateModal, setUpdateModal] = useState({ isOpen: false, type: 'mobile' })
@@ -26,7 +26,7 @@ export default function AccountPage() {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
     }, 5000)
 
-    // Load default address
+    // Load default address or user location
     const saved = localStorage.getItem('farmdirect-addresses')
     if (saved) {
       try {
@@ -37,6 +37,12 @@ export default function AccountPage() {
         }
       } catch (e) {
         console.error('Failed to parse addresses', e)
+      }
+    } else if (user?.pincode) {
+      // Fallback to user document pincode/city if no address list
+      const locationParts = [user.city, user.state, user.pincode].filter(Boolean)
+      if (locationParts.length > 0) {
+        setDefaultAddress(locationParts.join(', '))
       }
     }
 
@@ -115,9 +121,15 @@ export default function AccountPage() {
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
               <div className="flex flex-col items-center text-center pb-6 border-b border-slate-100 dark:border-slate-800">
-                <div className="h-24 w-24 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 flex items-center justify-center mb-4 relative group">
-                  <UserRound size={40} strokeWidth={1.5} />
-                  <button onClick={() => navigate('/profile/settings')} className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:bg-emerald-700 transition-transform hover:scale-105" title="Account Settings">
+                <div className="relative group mb-4">
+                  <div className="h-24 w-24 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 flex items-center justify-center overflow-hidden">
+                    {user.profileImage ? (
+                      <img src={user.profileImage} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <UserRound size={40} strokeWidth={1.5} />
+                    )}
+                  </div>
+                  <button onClick={() => navigate('/profile/settings')} className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:bg-emerald-700 transition-transform hover:scale-105 z-10" title="Account Settings">
                     <Settings size={14} />
                   </button>
                 </div>
@@ -162,6 +174,24 @@ export default function AccountPage() {
                   </div>
                 </div>
 
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0">
+                    <MapPin size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('pincode', 'Pincode')}</p>
+                    <div className="flex items-center justify-between group/pin">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5">{user.pincode || t('notAddedYet', 'Not added yet')}</p>
+                      <button 
+                        onClick={() => navigate('/profile/settings')}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 opacity-0 group-hover/pin:opacity-100 transition-all"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <button 
                   onClick={() => navigate('/profile/address')}
                   className="flex items-start gap-3 w-full text-left group/addr hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 -ml-2 rounded-xl transition-colors"
@@ -171,7 +201,9 @@ export default function AccountPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('yourAddress')}</p>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">{defaultAddress || t('noAddressAdded')}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 line-clamp-1">
+                      {defaultAddress || (user.pincode ? `${user.city || ''} ${user.pincode}`.trim() : t('noAddressAdded'))}
+                    </p>
                   </div>
                   <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 self-center group-hover/addr:translate-x-1 transition-transform" />
                 </button>

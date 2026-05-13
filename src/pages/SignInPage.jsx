@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2, MapPin, Mail } from 'lucide-react'
+import { Leaf, Phone, UserRound, ArrowRight, ShieldCheck, Loader2, MapPin, Mail, Save, Camera } from 'lucide-react'
 import { useUser } from '../context/UserContext'
 import { useTranslation } from 'react-i18next'
 
@@ -312,7 +312,7 @@ export default function SignInPage() {
                       )}
                     </div>
                     <label className="absolute bottom-0 right-0 p-1.5 bg-emerald-600 text-white rounded-full cursor-pointer shadow-md hover:bg-emerald-700 transition-all active:scale-90">
-                      <Save size={12} />
+                      <Camera size={12} />
                       <input 
                         type="file" 
                         className="hidden" 
@@ -596,7 +596,7 @@ export default function SignInPage() {
                     )}
                   </div>
                   <label className="absolute bottom-0 right-0 p-1.5 bg-emerald-600 text-white rounded-full cursor-pointer shadow-md hover:bg-emerald-700 transition-all active:scale-90">
-                    <Save size={12} />
+                    <Camera size={12} />
                     <input 
                       type="file" 
                       className="hidden" 

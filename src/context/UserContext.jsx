@@ -18,7 +18,15 @@ export function UserProvider({ children }) {
   })
 
   const [pincode, setPincode] = useState(() => {
-    // 1. Prioritize default address from the addresses list
+    // 1. Prioritize logged in user's pincode
+    const stored = localStorage.getItem('farmdirect-user')
+    if (stored) {
+      try {
+        const u = JSON.parse(stored)
+        if (u.pincode) return u.pincode
+      } catch (err) {}
+    }
+    // 2. Prioritize default address from the addresses list
     const savedAddresses = localStorage.getItem('farmdirect-addresses')
     if (savedAddresses) {
       try {
@@ -29,8 +37,8 @@ export function UserProvider({ children }) {
         console.error("Failed to parse addresses:", err)
       }
     }
-    // 2. Fallback to manually set pincode (default to Global for new guests)
-    return localStorage.getItem('farmdirect-pincode') || '000'
+    // 3. Fallback to manually set pincode (default to empty for new guests)
+    return localStorage.getItem('farmdirect-pincode') || ''
   })
 
   const [nearbyProducts, setNearbyProducts] = useState([])
@@ -92,11 +100,33 @@ export function UserProvider({ children }) {
       }
     }
     syncUser();
+
+    // 1. Sync across tabs using storage event
+    const handleStorageChange = (e) => {
+      if (e.key === 'farmdirect-user') {
+        const userData = e.newValue ? JSON.parse(e.newValue) : null
+        setUser(userData)
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+
+    // 2. Refresh on window focus for "real-time" feeling
+    const handleFocus = () => {
+      syncUser()
+    }
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [])
 
   const login = (userData) => {
     localStorage.setItem('farmdirect-user', JSON.stringify(userData))
     setUser(userData)
+    // Sync pincode even if empty
+    updatePincode(userData.pincode || '')
   }
 
   const updateUser = async (updates) => {
@@ -119,14 +149,15 @@ export function UserProvider({ children }) {
       if (hasFile) {
         const formData = new FormData();
         Object.keys(updates).forEach(key => {
+          // Only append if it's a valid value
           if (updates[key] !== undefined && updates[key] !== null) {
             formData.append(key, updates[key]);
           }
         });
         body = formData;
-        // Don't set Content-Type header for FormData, let browser set it with boundary
+        headers = undefined; // IMPORTANT: Let browser set Content-Type with boundary
       } else {
-        headers['Content-Type'] = 'application/json';
+        headers = { 'Content-Type': 'application/json' };
         body = JSON.stringify(updates);
       }
 
@@ -178,7 +209,7 @@ export function UserProvider({ children }) {
   }
 
   const updatePincode = async (code) => {
-    const finalCode = code || '000'
+    const finalCode = code || ''
     setPincode(finalCode)
     if (finalCode && finalCode.length === 6) {
       setLoadingLocal(true)
@@ -210,7 +241,7 @@ export function UserProvider({ children }) {
     } else {
       setNearbyProducts([])
       setLocationInfo({ district: 'India', state: 'Global' })
-      if (!code) setPincode('000')
+      if (!code) setPincode('')
     }
   }
 
@@ -219,7 +250,7 @@ export function UserProvider({ children }) {
       user, login, logout, updateUser,
       wishlist, toggleWishlist, 
       recentlyViewed, addToRecentlyViewed, clearRecentlyViewed,
-      pincode: pincode || '000', updatePincode,
+      pincode: pincode || '', updatePincode,
       nearbyProducts, locationInfo, loadingLocal
     }}>
       {children}

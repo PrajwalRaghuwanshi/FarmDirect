@@ -9,13 +9,13 @@ const User = require("./models/user");
 const Order = require("./models/order");
 const { upload } = require("./cloudinaryConfig");
 
-// 🖼️ Conditional Multer Middleware
 const handleUpload = (req, res, next) => {
-  if (req.headers['content-type']?.includes('multipart/form-data')) {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
     return upload.single('profileImage')(req, res, (err) => {
       if (err) {
-        console.error("Multer Error:", err);
-        return res.status(400).json({ error: err.message });
+        console.error("❌ Multer/Cloudinary Error:", err);
+        return res.status(400).json({ error: "Image upload failed: " + err.message });
       }
       next();
     });

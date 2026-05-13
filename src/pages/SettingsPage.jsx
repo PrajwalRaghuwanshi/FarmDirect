@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, Save, User, Bell, Shield, Globe, Loader2 } from 'lucide-react'
+import { ChevronLeft, Save, User, Bell, Shield, Globe, Loader2, Camera } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '../context/UserContext'
 import OtpVerificationModal from '../components/OtpVerificationModal'
@@ -46,13 +46,15 @@ export default function SettingsPage() {
     profileImage: null // To store the File object
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isLookingUp, setIsLookingUp] = useState(false)
   const [message, setMessage] = useState('')
   const [showOtpModal, setShowOtpModal] = useState(false)
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         name: user.name || '',
         email: user.email || '',
         mobile: user.mobile || '',
@@ -60,8 +62,9 @@ export default function SettingsPage() {
         city: user.city || '',
         state: user.state || '',
         languagepreference: user.languagepreference || i18n.language || 'en',
-        profileImage: null
-      })
+        // Keep the local file if the user just selected one
+        profileImage: prev.profileImage instanceof File ? prev.profileImage : null
+      }))
     }
   }, [user, i18n.language])
 
@@ -119,6 +122,25 @@ export default function SettingsPage() {
     const file = e.target.files[0]
     if (file) {
       setFormData(prev => ({ ...prev, profileImage: file }))
+    }
+  }
+
+  const handleImageUpdate = async () => {
+    if (!formData.profileImage) return;
+    setIsUploadingImage(true);
+    setMessage('');
+    try {
+      const updated = await updateUser({ profileImage: formData.profileImage });
+      if (updated) {
+        setMessage('Profile image updated successfully!');
+        setFormData(prev => ({ ...prev, profileImage: null })); // Reset local file after success
+      } else {
+        setMessage('Failed to update image.');
+      }
+    } catch (err) {
+      setMessage('Error uploading image.');
+    } finally {
+      setIsUploadingImage(false);
     }
   }
   
@@ -184,11 +206,21 @@ export default function SettingsPage() {
                         )}
                       </div>
                       <label className="absolute bottom-0 right-0 p-2 bg-emerald-600 text-white rounded-full cursor-pointer shadow-lg hover:bg-emerald-700 transition-all active:scale-90">
-                        <Save size={14} />
+                        <Camera size={14} />
                         <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                       </label>
                     </div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Profile Picture</p>
+                    {formData.profileImage && (
+                      <button 
+                        onClick={handleImageUpdate}
+                        disabled={isUploadingImage}
+                        className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-md hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
+                      >
+                        {isUploadingImage ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                        Update Image Now
+                      </button>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
