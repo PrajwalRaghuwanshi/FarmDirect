@@ -7,6 +7,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const User = require("./models/user");
 const Order = require("./models/order");
+const SupportTicket = require("./models/supportTicket");
 const { upload } = require("./cloudinaryConfig");
 
 const handleUpload = (req, res, next) => {
@@ -392,6 +393,24 @@ app.get("/api/farmers", async (req, res) => {
   } catch (err) {
     console.error("Farmers fetch error:", err);
     res.status(500).json({ error: "Failed to fetch farmers" });
+  }
+});
+
+// 🎟️ CREATE SUPPORT TICKET
+app.post("/api/support/tickets", async (req, res) => {
+  try {
+    const { userId, message } = req.body;
+    if (!userId || !message) {
+      return res.status(400).json({ error: "User ID and message are required" });
+    }
+
+    const newTicket = new SupportTicket({ userId, message });
+    await newTicket.save();
+
+    res.status(201).json({ message: "Ticket created successfully", ticket: newTicket });
+  } catch (error) {
+    console.error("Support ticket error:", error);
+    res.status(500).json({ error: "Server error while creating ticket" });
   }
 });
 
